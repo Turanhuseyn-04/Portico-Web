@@ -11,19 +11,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-    <a class="skip" href="#list">Skip to the list</a>
+<body class="@ViewData["BodyClass"]">
+    <a class="skip" href="@(ViewData["SkipHref"] ?? "#list")">@(ViewData["SkipText"] ?? "Skip to the list")</a>
 
-    <header class="header" id="header">
+    <header class="header@(ViewData["SolidHeader"] as bool? == true ? " is-solid" : "")" id="header">
         <div class="header-inner">
             <a class="logo" asp-controller="Home" asp-action="Index" aria-label="Portico, home">
                 <partial name="_Logo" />
             </a>
             <nav class="nav" id="nav">
-                <a href="#hero">Stays</a>
-                <a href="#propertiesGrid">Properties</a>
-                <a href="#notes">Stories</a>
+                <a href="/#hero">Stays</a>
+                <a href="/#propertiesGrid">Properties</a>
+                <a href="/#notes">Stories</a>
                 <button class="btn-line" type="button" data-auth="register">Register</button>
                 <button class="btn-line btn-fill" type="button" data-auth="signin">Sign in</button>
             </nav>
@@ -40,16 +41,16 @@
     <footer class="footer">
         <div class="wrap footer-grid">
             <div class="reveal">
-                <a class="logo" href="#hero">
+                <a class="logo" asp-controller="Home" asp-action="Index">
                     <partial name="_Logo" />
                 </a>
                 <p>A concentrated stay list. Search, price, and book one house at a time.</p>
             </div>
             <div class="reveal">
                 <h2>Visit</h2>
-                <a href="#hero">Search</a>
-                <a href="#list">Houses</a>
-                <a href="#notes">Stories</a>
+                <a href="/#hero">Search</a>
+                <a href="/#list">Houses</a>
+                <a href="/#notes">Stories</a>
             </div>
             <div class="reveal">
                 <h2>Account</h2>
@@ -58,7 +59,7 @@
             </div>
             <div class="reveal">
                 <h2>This page</h2>
-                <p>A design of the home screen. Accounts, holds, and live availability connect when the API is in place.</p>
+                <p>@(ViewData["FooterNote"] ?? "A design of the home screen. Accounts, holds, and live availability connect when the API is in place.")</p>
             </div>
         </div>
         <div class="wrap legal">
