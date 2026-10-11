@@ -200,7 +200,6 @@ const authSubmit = $("authSubmit");
 const authDone = $("authDone");
 
 let lastFocus = null;
-let toastTimer = 0;
 let authMode = "signin";
 
 function escapeHtml(value) {
@@ -698,7 +697,6 @@ function openDrawer(id) {
   drawer.dataset.stay = id;
   closePopovers();
   const policy = cancelCopy(stay);
-  const ok = fits(stay);
   let bill;
   if (!state.query) {
     bill = `<div class="bill"><div><span>Nightly rate</span><span>${money(stay.price)}</span></div><p class="formula">Search with dates to multiply this into a stay total.</p></div>`;
@@ -727,9 +725,12 @@ function openDrawer(id) {
       ${bill}
       <p class="cancel${policy.locked ? " is-locked" : ""}">${escapeHtml(policy.text)}</p>
       <div class="pills">${stay.amenities.map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join("")}</div>
-      <button class="search-btn hold" type="button" data-hold ${ok ? "" : "disabled"}>${ok ? "Hold these dates" : "Too small for this group"}</button>
-      <a class="drawer-link" href="${propertyLink(stay)}">See rooms, photos and reviews</a>
-      <p class="preview-note">Preview only. This page does not hold a room yet.</p>
+      <a class="search-btn drawer-detail" href="${propertyLink(stay)}">
+        Detail
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
     </div>`;
   drawer.hidden = false;
   document.body.classList.add("no-scroll");
@@ -755,13 +756,6 @@ function closeDrawer() {
   if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
 }
 
-function holdMessage(stay) {
-  if (!state.query) return `${stay.name} is ${money(stay.price)} a night. Add dates for a stay total. Nothing is held in this preview.`;
-  const nights = nightCount(state.query.checkIn, state.query.checkOut);
-  const total = stay.price * nights * state.query.rooms;
-  return `Preview only. ${stay.name} would total ${money(total)} for ${nights} nights. Nothing is held yet.`;
-}
-
 function openAuth(mode) {
   authMode = mode;
   authDone.hidden = true;
@@ -783,14 +777,6 @@ function openAuth(mode) {
 function closeModal() {
   authModal.hidden = true;
   if (drawer.hidden) document.body.classList.remove("no-scroll");
-}
-
-function toast(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("is-on");
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => el.classList.remove("is-on"), 3600);
 }
 
 function closeMenu() {
@@ -1006,14 +992,7 @@ $("propertiesGrid").addEventListener("click", (event) => {
 });
 
 drawer.addEventListener("click", (event) => {
-  if (event.target.closest("[data-close='drawer']")) {
-    closeDrawer();
-    return;
-  }
-  const hold = event.target.closest("[data-hold]");
-  if (!hold || hold.disabled) return;
-  const stay = stays.find((item) => item.id === drawer.dataset.stay);
-  if (stay) toast(holdMessage(stay));
+  if (event.target.closest("[data-close='drawer']")) closeDrawer();
 });
 
 header.addEventListener("click", (event) => {
