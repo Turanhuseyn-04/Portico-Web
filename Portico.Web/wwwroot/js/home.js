@@ -637,6 +637,72 @@ function runSearch() {
   $("list").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function goToResults() {
+  formError.textContent = "";
+  if (!state.checkIn || !state.checkOut) {
+    formError.textContent = "Add a check-in and a check-out. The total needs both dates.";
+    datesField.classList.remove("is-shake");
+    window.requestAnimationFrame(() => datesField.classList.add("is-shake"));
+    openPopover("cal");
+    return;
+  }
+  const typed = whereInput.value.trim();
+  const destination = typed.toLowerCase() === "anywhere" ? "" : typed;
+  const params = new URLSearchParams();
+  if (destination) params.set("destination", destination);
+  params.set("checkIn", toKey(state.checkIn));
+  params.set("checkOut", toKey(state.checkOut));
+  params.set("adults", String(state.adults));
+  if (state.children) params.set("children", String(state.children));
+  params.set("rooms", String(state.rooms));
+  if (state.property) params.set("property", state.property);
+  window.location.href = `/Home/Search?${params}`;
+}
+
+function validDay(key) {
+  if (!key || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return null;
+  const date = parseDay(key);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function clampInt(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isInteger(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+function applyIncomingSearch() {
+  const params = new URLSearchParams(window.location.search);
+  const known = ["destination", "checkIn", "checkOut", "adults", "children", "rooms", "property"];
+  if (![...params.keys()].some((key) => known.includes(key))) return;
+  const destination = (params.get("destination") || "").trim();
+  if (destination && destination.toLowerCase() !== "anywhere") {
+    whereInput.value = destination;
+    state.destination = destination;
+  }
+  const checkIn = validDay(params.get("checkIn"));
+  const checkOut = validDay(params.get("checkOut"));
+  if (checkIn && checkOut && dayTime(checkOut) > dayTime(checkIn)) {
+    state.checkIn = checkIn;
+    state.checkOut = checkOut;
+    state.viewMonth = startOfMonth(checkIn);
+  }
+  if (params.has("adults")) state.adults = clampInt(params.get("adults"), 1, 8, state.adults);
+  if (params.has("children")) state.children = clampInt(params.get("children"), 0, 6, state.children);
+  if (params.has("rooms")) state.rooms = clampInt(params.get("rooms"), 1, 4, state.rooms);
+  const property = params.get("property") || "";
+  if (["Hotel", "Apartment", "Resort", "Villa"].includes(property)) {
+    state.property = property;
+    document.querySelectorAll(".property-card").forEach((item) => {
+      const on = item.dataset.property === property;
+      item.classList.toggle("is-on", on);
+      item.setAttribute("aria-pressed", String(on));
+    });
+  }
+  updateDateLabels();
+  renderGuests();
+}
+
 function resetFilters() {
   state.destination = "";
   state.property = "";
@@ -787,7 +853,7 @@ function closeMenu() {
 
 searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  runSearch();
+  goToResults();
 });
 
 whereInput.addEventListener("focus", () => openPopover("where"));
@@ -1101,6 +1167,23 @@ document.addEventListener("keydown", (event) => {
 });
 
 const hero = $("hero");
+const heroSlides = [...document.querySelectorAll("#heroSlides .hero-slide")];
+let heroIndex = 0;
+let heroTimer = 0;
+
+function showHero(index) {
+  heroIndex = (index + heroSlides.length) % heroSlides.length;
+  heroSlides.forEach((slide, i) => slide.classList.toggle("is-on", i === heroIndex));
+}
+
+function startHero() {
+  window.clearInterval(heroTimer);
+  if (heroSlides.length < 2) return;
+  heroTimer = window.setInterval(() => showHero(heroIndex + 1), 5000);
+}
+
+startHero();
+
 const driftTargets = () => document.querySelectorAll(".trend-card img, .stay-media img, .video-band video, .property-card img");
 
 const videoTrack = $("videoTrack");
@@ -1195,5 +1278,6 @@ watchReveals();
 onScroll();
 renderGuests();
 updateDateLabels();
+applyIncomingSearch();
 renderTrend();
 renderList();
