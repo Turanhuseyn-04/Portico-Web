@@ -40,30 +40,34 @@
 
     <footer class="footer">
         <div class="wrap footer-grid">
-            <div class="reveal">
+            <div>
                 <a class="logo" asp-controller="Home" asp-action="Index">
                     <partial name="_Logo" />
                 </a>
                 <p>A concentrated stay list. Search, price, and book one house at a time.</p>
             </div>
-            <div class="reveal">
+            <div>
                 <h2>Visit</h2>
                 <a href="/#hero">Search</a>
                 <a href="/#list">Houses</a>
                 <a href="/#notes">Stories</a>
             </div>
-            <div class="reveal">
+            <div>
                 <h2>Account</h2>
                 <button type="button" data-auth="signin">Sign in</button>
                 <button type="button" data-auth="register">Register</button>
             </div>
-            <div class="reveal">
+            <div>
                 <h2>This page</h2>
                 <p>@(ViewData["FooterNote"] ?? "A design of the home screen. Accounts, holds, and live availability connect when the API is in place.")</p>
             </div>
         </div>
         <div class="wrap legal">
             <p>&copy; 2026 Portico. Photographs from Unsplash, used for this design study.</p>
+            <p class="legal-links">
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <a asp-controller="Home" asp-action="Terms">Terms</a>
+            </p>
         </div>
     </footer>
 
