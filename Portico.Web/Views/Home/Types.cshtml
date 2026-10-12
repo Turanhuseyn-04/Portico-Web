@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Property types";
+    ViewData["Description"] = "Hotels, apartments, resorts, and villas on the Portico list.";
+    ViewData["BodyClass"] = "results-page";
+    ViewData["SolidHeader"] = true;
+    ViewData["SkipHref"] = "#types";
+    ViewData["SkipText"] = "Skip to property types";
+    ViewData["FooterNote"] = "Each type opens the stays of that kind. The filter on this page is a preview until Portico.Api supplies it.";
+}
+
+<section class="section results" id="types" data-asset-root="/assets/" data-search="/Home/Search">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Property type</p>
+                <h1>Hotels, apartments, resorts, villas</h1>
+                <p class="sub" id="typeMeta" aria-live="polite">Choose a type to see its stays.</p>
+            </div>
+        </div>
+        <div class="destination-filters">
+            <label class="stack">Type
+                <input id="typeFilter" type="search" placeholder="Hotel, villa, …" autocomplete="off">
+            </label>
+            <label class="sort">Show
+                <select id="typeStay">
+                    <option value="all">All types</option>
+                    <option value="stays">With a stay</option>
+                </select>
+            </label>
+        </div>
+        <div class="properties" id="typeGrid"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/types.js" asp-append-version="true" defer></script>
+}
