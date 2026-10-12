@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Help";
+    ViewData["Description"] = "How a Portico price, check-in, and cancellation work. A reservation on this site is still a preview.";
+    ViewData["BodyClass"] = "legal-page-body";
+    ViewData["SolidHeader"] = true;
+    ViewData["SkipHref"] = "#help";
+    ViewData["SkipText"] = "Skip to help";
+    ViewData["FooterNote"] = "Check-in, the price, and cancellation. Confirm reservation on this site does not hold a room.";
+}
+
+<article class="wrap legal-page" id="help">
+    <p class="kicker">Before you book</p>
+    <h1>Help with a stay</h1>
+    <p class="legal-intro">The short answers live here. The dates, the price, and the house rules for one stay are on that stay's page.</p>
+    <div class="legal-doc">
+        <h2>Finding a stay</h2>
+        <p>Search by city, dates, and guests. The list stays short. A house that cannot sleep your group remains on the list and says so.</p>
+
+        <h2>The price</h2>
+        <p>Add check-in and check-out, then choose a room. The stay total is the nightly rate times the number of nights times the number of rooms. That total includes the taxes and charges stated on the card. A price shown before you add dates is a nightly rate, not a total.</p>
+
+        <h2>Check-in and check-out</h2>
+        <p>Each stay prints its own hours. A hotel on this list usually checks in from 15:00 and checks out by 11:00. Read the house rules on the stay before you rely on those hours.</p>
+
+        <h2>Cancellation</h2>
+        <p>Where a room offers free cancellation, it runs until three days before check-in. A room that does not offer it is marked non-refundable. Some stays ask for a minimum number of nights. The property page states the rule that applies.</p>
+
+        <h2>A reservation on this site</h2>
+        <p>Confirm reservation does not hold a room and does not take payment. The reference it shows is a preview. Nothing is emailed. The <a asp-controller="Home" asp-action="Terms">terms</a> and the <a asp-controller="Home" asp-action="Privacy">privacy notice</a> say what that preview stores.</p>
+
+        <p class="legal-updated">Last updated 12 October 2026.</p>
+    </div>
+</article>
