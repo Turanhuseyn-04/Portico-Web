@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Destinations";
+    ViewData["Description"] = "Cities on the Portico list. Open one to see the stays there.";
+    ViewData["BodyClass"] = "results-page";
+    ViewData["SolidHeader"] = true;
+    ViewData["SkipHref"] = "#destinations";
+    ViewData["SkipText"] = "Skip to destinations";
+    ViewData["FooterNote"] = "Each city opens the stays there. The filter on this page is a preview until Portico.Api supplies it.";
+}
+
+<section class="section results" id="destinations" data-asset-root="/assets/" data-search="/Home/Search">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Where to go</p>
+                <h1>Destinations</h1>
+                <p class="sub" id="destinationMeta" aria-live="polite">Every city on the list.</p>
+            </div>
+        </div>
+        <div class="destination-filters">
+            <label class="stack">City or country
+                <input id="destinationFilter" type="search" placeholder="Lisbon, Italy, …" autocomplete="off">
+            </label>
+            <label class="sort">Show
+                <select id="destinationStay">
+                    <option value="all">All destinations</option>
+                    <option value="stays">With a stay</option>
+                </select>
+            </label>
+        </div>
+        <div class="destination-grid" id="destinationGrid"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/destinations.js" asp-append-version="true" defer></script>
+}

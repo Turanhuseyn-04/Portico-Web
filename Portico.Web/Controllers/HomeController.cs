@@ -23,6 +23,31 @@ namespace Portico.Web.Controllers
             return View();
         }
 
+        public IActionResult Terms()
+        {
+            return View();
+        }
+
+        public IActionResult Help()
+        {
+            return View();
+        }
+
+        public IActionResult Search()
+        {
+            return View();
+        }
+
+        public IActionResult Destinations()
+        {
+            return View();
+        }
+
+        public IActionResult Types()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

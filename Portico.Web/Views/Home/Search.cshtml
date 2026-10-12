@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Search results";
+    ViewData["Description"] = "Stays that match a Portico search, with the dates and the guest count.";
+    ViewData["BodyClass"] = "results-page";
+    ViewData["SolidHeader"] = true;
+    ViewData["SkipHref"] = "#results";
+    ViewData["SkipText"] = "Skip to results";
+    ViewData["FooterNote"] = "These stays match the search. This preview still uses the eight houses on the list.";
+}
+
+<section class="section results" id="results" data-asset-root="/assets/" data-home="/" data-property="/property">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Your search</p>
+                <h1 id="resultsTitle">Search results</h1>
+                <p class="sub" id="resultsMeta" aria-live="polite">Choose a city, dates, and guests. The stays that match will be listed here.</p>
+            </div>
+            <div class="results-tools">
+                <a class="change-search" id="changeSearch" href="/">Start a search</a>
+                <label class="sort">Sort
+                    <select id="sort">
+                        <option value="featured">Featured</option>
+                        <option value="price">Price</option>
+                        <option value="rating">Guest rating</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <ul class="results-facts" id="resultsFacts"></ul>
+        <div id="stayList"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/search.js" asp-append-version="true" defer></script>
+}
