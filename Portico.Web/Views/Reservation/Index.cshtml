@@ -1,0 +1,20 @@
+@{
+    var reference = ViewData["Reference"] as string ?? "";
+}
+
+<section class="section results" id="reservation" data-asset-root="/assets/" data-property="/property" data-self="/reservation/" data-reference="@reference">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Reservation</p>
+                <h1 id="reservationTitle">@(string.IsNullOrWhiteSpace(reference) ? "Reservation" : reference)</h1>
+                <p class="sub" id="reservationMeta">The stay a confirmation email would open.</p>
+            </div>
+        </div>
+        <div id="reservationBody"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/reservation.js" asp-append-version="true" defer></script>
+}
