@@ -1,0 +1,17 @@
+<section class="section results" id="saved" data-asset-root="/assets/" data-property="@Url.Action("Index", "Property")">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Account</p>
+                <h1>Saved stays</h1>
+                <p class="sub" id="savedMeta" aria-live="polite">Stays kept with the heart on a property page.</p>
+            </div>
+            <a class="change-search" asp-controller="Account" asp-action="Profile">Your account</a>
+        </div>
+        <div id="savedList"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/saved.js" asp-append-version="true" defer></script>
+}

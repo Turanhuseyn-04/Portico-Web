@@ -5,13 +5,13 @@
     var register = mode == "register";
 }
 
-<section class="section results" id="account" data-mode="@mode" data-failed="@(failed ? "true" : "false")" data-failed-url="@Url.Action("SignInFailed", "Account")">
+<section class="section results" id="account" data-mode="@mode" data-failed="@(failed ? "true" : "false")" data-failed-url="@Url.Action("SignInFailed", "Account")" data-account-url="@Url.Action("Profile", "Account")">
     <div class="wrap">
         <p class="kicker">Account</p>
         @if (register)
         {
             <h1 id="accountTitle">Create an account</h1>
-            <p class="sub">Guests book stays. Admins run the houses. This preview stores nothing.</p>
+            <p class="sub">Guests book stays. Admins run the houses. The name and email stay in this browser. The password is not stored.</p>
         }
         else
         {

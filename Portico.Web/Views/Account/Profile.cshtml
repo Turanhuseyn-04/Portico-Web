@@ -1,0 +1,12 @@
+<section class="section results" id="account" data-trips="@Url.Action("Trips", "Reservation")" data-saved="@Url.Action("Saved", "Account")" data-signin="@Url.Action("SignIn", "Account")" data-register="@Url.Action("Register", "Account")">
+    <div class="wrap">
+        <p class="kicker">Account</p>
+        <h1 id="accountTitle">Your account</h1>
+        <p class="sub" id="accountMeta" aria-live="polite">The name and email for this browser.</p>
+        <div id="accountBody"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/profile.js" asp-append-version="true" defer></script>
+}
