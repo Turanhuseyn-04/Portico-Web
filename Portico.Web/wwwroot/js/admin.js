@@ -2,31 +2,8 @@
 
 const moneyFmt = new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
-const STORE = "portico-reservations";
-const ACCOUNT_KEY = "portico-account";
-const SAVED_KEY = "portico:saved";
-
-const samples = {
-  "PT-656069": {
-    reference: "PT-656069",
-    propertyId: "marble",
-    propertyName: "The Marble Court",
-    city: "Lisbon",
-    country: "Portugal",
-    area: "Chiado",
-    image: "lisbon.jpg",
-    roomId: "suite",
-    roomName: "Deluxe Courtyard Suite",
-    checkIn: "2026-11-12",
-    checkOut: "2026-11-15",
-    refundable: true,
-    nightly: 342,
-    total: 1026,
-    rooms: 1,
-    adults: 2,
-    children: 0
-  }
-};
+const porticoAdmin = { trips: [], properties: [], account: null, saved: new Set(), messages: [] };
+window.porticoAdmin = porticoAdmin;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
@@ -100,37 +77,20 @@ function refundText(trip) {
   return trip.refund ? "The total was returned." : "The total stays due.";
 }
 
-function readSaved() {
-  try {
-    return JSON.parse(sessionStorage.getItem(STORE) || "{}");
-  } catch {
-    return {};
-  }
-}
-
 function allTrips() {
-  return Object.values({ ...samples, ...readSaved() }).sort((a, b) => String(a.checkIn).localeCompare(String(b.checkIn)));
+  return porticoAdmin.trips;
 }
 
 function readAccount() {
-  try {
-    return JSON.parse(localStorage.getItem(ACCOUNT_KEY) || "null");
-  } catch {
-    return null;
-  }
+  return porticoAdmin.account;
 }
 
 function readSavedStays() {
-  try {
-    const ids = JSON.parse(localStorage.getItem(SAVED_KEY) || "[]");
-    return new Set(Array.isArray(ids) ? ids : []);
-  } catch {
-    return new Set();
-  }
+  return porticoAdmin.saved;
 }
 
 function properties() {
-  return typeof MOCK_PROPERTIES === "undefined" ? [] : MOCK_PROPERTIES;
+  return porticoAdmin.properties;
 }
 
 function policyFor(type) {
@@ -271,6 +231,15 @@ function stayRow(property, urls, assetRoot) {
   </a>`;
 }
 
+function cancelSentence(trip) {
+  const total = money(trip.total);
+  if (trip.cancelled) return refundText(trip);
+  if (!trip.refundable) return `This stay is non-refundable. Cancelling keeps ${total} due.`;
+  const limit = dateFmt.format(deadline(trip));
+  if (today() <= deadline(trip)) return `Free cancellation until ${limit}. Cancel by then and the total is released.`;
+  return `Free cancellation closed on ${limit}. ${total} stays due.`;
+}
+
 function renderReservation() {
   const root = document.getElementById("adminReservation");
   const reference = (root.dataset.reference || new URLSearchParams(window.location.search).get("ref") || "").trim();
@@ -284,7 +253,13 @@ function renderReservation() {
   }
   document.title = `${trip.reference} — Admin — Portico`;
   title.textContent = trip.reference;
-  const refund = refundText(trip);
+  const sentence = cancelSentence(trip);
+  const action = trip.cancelled
+    ? ""
+    : `<form id="adminCancel">
+        <button class="search-btn auth-submit" type="submit">Cancel this reservation</button>
+        <p class="preview-note">Preview only. Nothing was charged. The guest cancel page uses this same rule.</p>
+      </form>`;
   body.innerHTML = `<div class="account-panel">
     <dl class="trip-facts">
       <div><dt>Guest</dt><dd>${escapeHtml(trip.name || "—")}</dd></div>
@@ -300,13 +275,22 @@ function renderReservation() {
       <div><dt>Cancellation</dt><dd>${escapeHtml(cancellationText(trip))}</dd></div>
       <div><dt>Status</dt><dd>${escapeHtml(statusOf(trip))}</dd></div>
     </dl>
-    ${refund ? `<p>${escapeHtml(refund)}</p>` : ""}
+    <p>${escapeHtml(sentence)}</p>
+    ${action}
     <div class="account-links">
       <a class="change-search" href="${escapeHtml(withPath(root.dataset.guest || "reservation.html?ref=", trip.reference))}">Guest page</a>
       <a class="change-search" href="${escapeHtml(cancelHref(root.dataset.cancel || "cancel.html?ref=", trip.reference))}">Cancel page</a>
-      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to admin</a>
+      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to reservations</a>
     </div>
   </div>`;
+  const form = document.getElementById("adminCancel");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await PorticoApi.cancelReservation(trip.reference);
+    porticoAdmin.trips = await PorticoApi.listReservations();
+    renderReservation();
+  });
 }
 
 function renderStay() {
@@ -342,12 +326,24 @@ function renderStay() {
     <ul class="admin-rooms">${rooms}</ul>
     <div class="account-links">
       <a class="change-search" href="${escapeHtml(withPath(root.dataset.property || "property.html?id=", property.id))}">Public page</a>
-      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to admin</a>
+      ${root.dataset.availability ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.availability, property.id))}">Availability</a>` : ""}
+      ${root.dataset.reviews ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.reviews, property.id))}">Reviews</a>` : ""}
+      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to stays</a>
     </div>
     <p class="preview-note">Read only. Portico.Api will save edits later.</p>`;
 }
 
-bindMenu();
-if (document.getElementById("admin")) renderPanel();
-if (document.getElementById("adminReservation")) renderReservation();
-if (document.getElementById("adminStay")) renderStay();
+async function startAdmin() {
+  porticoAdmin.trips = await PorticoApi.listReservations();
+  porticoAdmin.properties = await PorticoApi.listProperties();
+  porticoAdmin.account = await PorticoApi.currentAccount();
+  porticoAdmin.saved = new Set(await PorticoApi.listSaved());
+  porticoAdmin.messages = await PorticoApi.listMessages();
+  bindMenu();
+  if (document.getElementById("admin")) renderPanel();
+  if (document.getElementById("adminReservation")) renderReservation();
+  if (document.getElementById("adminStay")) renderStay();
+  if (typeof window.porticoAdminBoot === "function") window.porticoAdminBoot();
+}
+
+startAdmin();

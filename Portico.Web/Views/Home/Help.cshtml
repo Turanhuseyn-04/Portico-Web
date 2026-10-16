@@ -26,7 +26,34 @@
         <p>Where a room offers free cancellation, it runs until three days before check-in. A room that does not offer it is marked non-refundable. Some stays ask for a minimum number of nights. The property page states the rule that applies.</p>
 
         <h2>Write to us</h2>
-        <p>For a question this page does not answer, write to <a href="mailto:hello@portico.example">hello@portico.example</a> or call <a href="tel:+442079460958">+44 20 7946 0958</a>. These are sample details for this design study.</p>
+        <p>For a question this page does not answer, write to <a href="mailto:hello@portico.example">hello@portico.example</a> or call <a href="tel:+442079460958">+44 20 7946 0958</a>. These are sample details for this design study. A note sent here is also kept in this browser for the admin inbox.</p>
+        <form id="helpNote">
+            <label class="stack">Name
+                <input name="name" type="text" required minlength="2" autocomplete="name" />
+            </label>
+            <label class="stack">Email
+                <input name="email" type="email" required autocomplete="email" />
+            </label>
+            <label class="stack">Stay
+                <select name="stay" aria-label="Stay">
+                    <option value="">No particular stay</option>
+                    <option>The Marble Court</option>
+                    <option>House of Paper Screens</option>
+                    <option>The North Atelier</option>
+                    <option>Riad of Small Doors</option>
+                    <option>Cliff Orchard</option>
+                    <option>Casa del Patio</option>
+                    <option>Greenhouse No. 4</option>
+                    <option>The Long Gallery</option>
+                </select>
+            </label>
+            <label class="stack">Message
+                <textarea name="message" required minlength="10" rows="4"></textarea>
+            </label>
+            <button class="search-btn auth-submit" type="submit">Send the note</button>
+            <p class="preview-note">Kept in this browser. Nothing is emailed.</p>
+            <p id="helpSent" hidden>The note is in the admin inbox.</p>
+        </form>
 
         <h2>A reservation on this site</h2>
         <p>Confirm reservation does not hold a room and does not take payment. The reference it shows is a preview. Nothing is emailed. The <a asp-controller="Home" asp-action="Terms">terms</a> and the <a asp-controller="Home" asp-action="Privacy">privacy notice</a> say what that preview stores.</p>
@@ -34,3 +61,8 @@
         <p class="legal-updated">Last updated 12 October 2026.</p>
     </div>
 </article>
+
+@section Scripts {
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/js/help-notes.js" asp-append-version="true"></script>
+}

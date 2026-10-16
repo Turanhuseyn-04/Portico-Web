@@ -1957,6 +1957,16 @@ a.property-card { text-decoration: none; }
   line-height: 1.05;
 }
 
+.stack select {
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  padding: 0 12px;
+  background: white;
+  font: inherit;
+  font-weight: 400;
+}
+
 .stack textarea {
   min-height: 84px;
   padding: 10px 12px;
