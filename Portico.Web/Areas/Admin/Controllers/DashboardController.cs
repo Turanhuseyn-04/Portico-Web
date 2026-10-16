@@ -7,11 +7,11 @@ namespace Portico.Web.Areas.Admin.Controllers
         public IActionResult Index()
         {
             Page(
-                "Admin",
-                "Reservations in this browser, the eight stays, and the account kept here.",
-                "#admin",
-                "Skip to admin",
-                "Reservations, the eight stays, and the account in this browser. Prices and rooms stay read-only until Portico.Api can save an edit.");
+                "Dashboard",
+                "Diagrams for reservations in this browser, the stay catalog, and the money still due.",
+                "#adminDesk",
+                "Skip to the dashboard",
+                "Dashboard");
             return View();
         }
     }

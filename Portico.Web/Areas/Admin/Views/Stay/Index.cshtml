@@ -1,12 +1,5 @@
-<section class="section results" id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
-    <div class="wrap">
-        <p class="kicker">Admin</p>
-        <h1 id="adminStayTitle">Stay</h1>
-        <div id="adminStayBody"></div>
-    </div>
+<section id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })">
+    <p class="kicker">Stay</p>
+    <h1 id="adminStayTitle">Stay</h1>
+    <div id="adminStayBody"></div>
 </section>
-
-@section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
-    <script src="~/js/admin.js" asp-append-version="true"></script>
-}

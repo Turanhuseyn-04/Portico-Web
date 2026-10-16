@@ -2,50 +2,37 @@
     string AreaIndex(string controller) =>
         Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
 }
-<section class="section results" id="admin" data-asset-root="/assets/" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-detail="@AreaIndex("Reservation")" data-stay="@AreaIndex("Stay")">
-    <div class="wrap">
-        <p class="kicker">Houses</p>
-        <h1>Admin</h1>
-        <p class="sub">Reservations in this browser, the catalog, and the account kept here. Nothing here is editable until Portico.Api exists.</p>
-        <div class="admin-counts" id="adminCounts"></div>
-        <div class="admin-tools">
-            <input id="adminQuery" type="search" placeholder="Reference, email, or property" aria-label="Filter by reference, email, or property">
-            <select id="adminCity" aria-label="City"></select>
-            <select id="adminStatus" aria-label="Status">
-                <option value="">All statuses</option>
-                <option>Upcoming</option>
-                <option>In house</option>
-                <option>Past</option>
-                <option>Cancelled</option>
-            </select>
-            <select id="adminType" aria-label="Property type">
-                <option value="">All types</option>
-                <option>Hotel</option>
-                <option>Apartment</option>
-                <option>Resort</option>
-                <option>Villa</option>
-            </select>
+<section id="adminDesk" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-detail="@AreaIndex("Reservation")" data-stay="@AreaIndex("Stay")" data-books="@Url.Action("Index", "Reservation", new { area = "Admin", id = "" })" data-houses="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })" data-users="@Url.Action("Index", "Users", new { area = "Admin" })">
+    <header class="desk-head">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Reservations in this browser, the eight stays, and the money still due. Diagrams update when a booking is made here.</p>
         </div>
-        <div class="admin-block">
-            <h2>Next arrivals</h2>
-            <div id="adminNext"></div>
-        </div>
-        <div class="admin-block">
-            <h2>Reservations</h2>
-            <div id="adminReservations"></div>
-        </div>
-        <div class="admin-block">
-            <h2>Stays</h2>
-            <div id="adminStays"></div>
-        </div>
-        <div class="admin-block">
-            <h2>Account</h2>
-            <div id="adminAccount"></div>
-        </div>
+    </header>
+    <div class="kpi-row" id="adminKpis"></div>
+    <div class="chart-grid">
+        <article class="chart-card">
+            <h2>Reservations by status</h2>
+            <div class="donut-wrap" id="adminStatusChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Still due by city</h2>
+            <div id="adminDueChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Stays by type</h2>
+            <div id="adminTypeChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Guest rating</h2>
+            <div id="adminScoreChart"></div>
+        </article>
     </div>
+    <article class="chart-card desk-table">
+        <div class="card-head">
+            <h2>Next arrivals</h2>
+            <a href="@Url.Action("Index", "Reservation", new { area = "Admin", id = "" })">All reservations</a>
+        </div>
+        <div id="adminArrivals"></div>
+    </article>
 </section>
-
-@section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
-    <script src="~/js/admin.js" asp-append-version="true"></script>
-}
