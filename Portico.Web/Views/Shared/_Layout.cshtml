@@ -25,6 +25,7 @@
                 <a asp-controller="Home" asp-action="Index">Home</a>
                 <a asp-controller="Home" asp-action="Types">Properties</a>
                 <a asp-controller="Home" asp-action="Destinations">Destinations</a>
+                <a href="/trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
                 <a class="btn-line" href="/register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
                 <a class="btn-line btn-fill" href="/signin" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
             </nav>

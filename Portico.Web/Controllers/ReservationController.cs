@@ -13,6 +13,7 @@ namespace Portico.Web.Controllers
             ViewData["SolidHeader"] = true;
             ViewData["SkipHref"] = "#trips";
             ViewData["SkipText"] = "Skip to your trips";
+            ViewData["TripsNav"] = true;
             ViewData["FooterNote"] = "Each stay keeps its reference, dates, property, and total. The list is a preview until Portico.Api supplies it.";
             return View();
         }
