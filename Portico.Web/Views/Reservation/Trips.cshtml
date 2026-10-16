@@ -1,0 +1,16 @@
+<section class="section results" id="trips" data-asset-root="/assets/" data-reservation="/reservation/">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Account</p>
+                <h1>Your trips</h1>
+                <p class="sub" id="tripsMeta" aria-live="polite">The stays reserved in this browser.</p>
+            </div>
+        </div>
+        <div id="tripList"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/trips.js" asp-append-version="true" defer></script>
+}
