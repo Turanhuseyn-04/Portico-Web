@@ -1,0 +1,41 @@
+@{
+    string Open(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminReport" data-detail="@Open("Reservation")">
+    <header class="desk-head">
+        <div>
+            <h1>Report</h1>
+            <p>One month of reservations: nights that fall in the month, money still due on bookings that check in then, and cancellations.</p>
+        </div>
+    </header>
+    <div class="admin-tools">
+        <label class="stack">Month
+            <input id="reportMonth" type="month" aria-label="Month">
+        </label>
+    </div>
+    <p id="reportHint" class="where-line"></p>
+    <div class="kpi-row" id="reportKpis"></div>
+    <div class="chart-grid">
+        <article class="chart-card">
+            <h2>Reservations by status</h2>
+            <div class="donut-wrap" id="reportStatusChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Still due by city</h2>
+            <div id="reportDueChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Nights sold by stay</h2>
+            <div id="reportNightsChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Cancellations</h2>
+            <div id="reportCancelChart"></div>
+        </article>
+    </div>
+    <article class="chart-card desk-table">
+        <h2>Reservations that check in this month</h2>
+        <div id="reportTable"></div>
+    </article>
+</section>

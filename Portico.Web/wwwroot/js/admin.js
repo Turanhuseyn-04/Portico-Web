@@ -271,6 +271,15 @@ function stayRow(property, urls, assetRoot) {
   </a>`;
 }
 
+function cancelSentence(trip) {
+  const total = money(trip.total);
+  if (trip.cancelled) return refundText(trip);
+  if (!trip.refundable) return `This stay is non-refundable. Cancelling keeps ${total} due.`;
+  const limit = dateFmt.format(deadline(trip));
+  if (today() <= deadline(trip)) return `Free cancellation until ${limit}. Cancel by then and the total is released.`;
+  return `Free cancellation closed on ${limit}. ${total} stays due.`;
+}
+
 function renderReservation() {
   const root = document.getElementById("adminReservation");
   const reference = (root.dataset.reference || new URLSearchParams(window.location.search).get("ref") || "").trim();
@@ -284,7 +293,13 @@ function renderReservation() {
   }
   document.title = `${trip.reference} — Admin — Portico`;
   title.textContent = trip.reference;
-  const refund = refundText(trip);
+  const sentence = cancelSentence(trip);
+  const action = trip.cancelled
+    ? ""
+    : `<form id="adminCancel">
+        <button class="search-btn auth-submit" type="submit">Cancel this reservation</button>
+        <p class="preview-note">Preview only. Nothing was charged. The guest cancel page uses this same rule.</p>
+      </form>`;
   body.innerHTML = `<div class="account-panel">
     <dl class="trip-facts">
       <div><dt>Guest</dt><dd>${escapeHtml(trip.name || "—")}</dd></div>
@@ -300,13 +315,24 @@ function renderReservation() {
       <div><dt>Cancellation</dt><dd>${escapeHtml(cancellationText(trip))}</dd></div>
       <div><dt>Status</dt><dd>${escapeHtml(statusOf(trip))}</dd></div>
     </dl>
-    ${refund ? `<p>${escapeHtml(refund)}</p>` : ""}
+    <p>${escapeHtml(sentence)}</p>
+    ${action}
     <div class="account-links">
       <a class="change-search" href="${escapeHtml(withPath(root.dataset.guest || "reservation.html?ref=", trip.reference))}">Guest page</a>
       <a class="change-search" href="${escapeHtml(cancelHref(root.dataset.cancel || "cancel.html?ref=", trip.reference))}">Cancel page</a>
-      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to admin</a>
+      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to reservations</a>
     </div>
   </div>`;
+  const form = document.getElementById("adminCancel");
+  if (!form) return;
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const refund = trip.refundable && today() <= deadline(trip) ? Number(trip.total) || 0 : 0;
+    const saved = readSaved();
+    saved[trip.reference] = { ...trip, cancelled: true, refund };
+    sessionStorage.setItem(STORE, JSON.stringify(saved));
+    renderReservation();
+  });
 }
 
 function renderStay() {
@@ -342,7 +368,9 @@ function renderStay() {
     <ul class="admin-rooms">${rooms}</ul>
     <div class="account-links">
       <a class="change-search" href="${escapeHtml(withPath(root.dataset.property || "property.html?id=", property.id))}">Public page</a>
-      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to admin</a>
+      ${root.dataset.availability ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.availability, property.id))}">Availability</a>` : ""}
+      ${root.dataset.reviews ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.reviews, property.id))}">Reviews</a>` : ""}
+      <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to stays</a>
     </div>
     <p class="preview-note">Read only. Portico.Api will save edits later.</p>`;
 }

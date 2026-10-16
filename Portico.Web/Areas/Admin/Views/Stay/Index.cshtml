@@ -1,4 +1,4 @@
-<section id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })">
+<section id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })" data-availability="@(Url.Action("Index", "Availability", new { area = "Admin", id = "key" })?.Replace("/key", "/"))" data-reviews="@(Url.Action("Index", "Reviews", new { area = "Admin", id = "key" })?.Replace("/key", "/"))">
     <p class="kicker">Stay</p>
     <h1 id="adminStayTitle">Stay</h1>
     <div id="adminStayBody"></div>

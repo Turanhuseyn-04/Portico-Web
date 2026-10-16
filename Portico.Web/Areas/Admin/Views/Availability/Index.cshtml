@@ -1,0 +1,13 @@
+@{
+    string Open(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminAvailability" data-stay-id="@ViewData["StayId"]" data-open="@Open("Availability")" data-detail="@Open("Reservation")">
+    <header class="desk-head">
+        <div>
+            <h1>Availability</h1>
+            <p>Free rooms are the rooms for sale minus reservations in this browser. A cancelled night is free again. A red night means more rooms are booked than are for sale.</p>
+        </div>
+    </header>
+    <div id="adminAvailabilityBody"></div>
+</section>
