@@ -18,6 +18,20 @@ namespace Portico.Web.Controllers
             return View();
         }
 
+        [HttpGet("/reservation/{reference}/cancel")]
+        public IActionResult Cancel(string reference)
+        {
+            ViewData["Title"] = string.IsNullOrWhiteSpace(reference) ? "Cancel a reservation" : $"Cancel {reference}";
+            ViewData["Description"] = "Cancel one Portico reservation. The page shows the stay, the deadline, and what happens to the total.";
+            ViewData["BodyClass"] = "results-page";
+            ViewData["SolidHeader"] = true;
+            ViewData["SkipHref"] = "#cancel";
+            ViewData["SkipText"] = "Skip to cancellation";
+            ViewData["FooterNote"] = "Cancel one reservation. The deadline says whether the total is released. Nothing is charged in this preview.";
+            ViewData["Reference"] = reference ?? "";
+            return View();
+        }
+
         [HttpGet("/reservation/{reference?}")]
         public IActionResult Index(string? reference)
         {

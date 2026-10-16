@@ -8,7 +8,7 @@
     ViewData["FooterNote"] = "These stays match the search. This preview still uses the eight houses on the list.";
 }
 
-<section class="section results" id="results" data-asset-root="/assets/" data-home="/" data-property="/property">
+<section class="section results" id="results" data-asset-root="/assets/" data-home="@Url.Action("Index", "Home")" data-property="@Url.Action("Index", "Property")">
     <div class="wrap">
         <div class="section-head">
             <div>
@@ -17,7 +17,7 @@
                 <p class="sub" id="resultsMeta" aria-live="polite">Choose a city, dates, and guests. The stays that match will be listed here.</p>
             </div>
             <div class="results-tools">
-                <a class="change-search" id="changeSearch" href="/">Start a search</a>
+                <a class="change-search" id="changeSearch" asp-controller="Home" asp-action="Index">Start a search</a>
                 <label class="sort">Sort
                     <select id="sort">
                         <option value="featured">Featured</option>

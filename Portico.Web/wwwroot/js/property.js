@@ -1042,7 +1042,16 @@ function tryReserve() {
   }
   state.bookError = "";
   renderBooking();
-  openReserve();
+  const next = new URLSearchParams({
+    id: state.id,
+    room: room.id,
+    checkIn: toKey(state.checkIn),
+    checkOut: toKey(state.checkOut),
+    adults: String(state.adults),
+    rooms: String(state.rooms)
+  });
+  if (state.children) next.set("children", String(state.children));
+  window.location.href = `${document.getElementById("property").dataset.reserve}?${next}`;
 }
 
 function bookingSummary(room, status) {
@@ -1098,11 +1107,11 @@ function validateReserve() {
 }
 
 function reservationPage(reference) {
-  return `/reservation/${encodeURIComponent(reference)}`;
+  return `${document.getElementById("property").dataset.reservation}${encodeURIComponent(reference)}`;
 }
 
 function tripsPage() {
-  return "/trips";
+  return document.getElementById("property").dataset.trips;
 }
 
 function rememberReservation(reference, room, status) {

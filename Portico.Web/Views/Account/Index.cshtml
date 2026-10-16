@@ -5,7 +5,7 @@
     var register = mode == "register";
 }
 
-<section class="section results" id="account" data-mode="@mode" data-failed="@(failed ? "true" : "false")" data-failed-url="/signin/failed">
+<section class="section results" id="account" data-mode="@mode" data-failed="@(failed ? "true" : "false")" data-failed-url="@Url.Action("SignInFailed", "Account")">
     <div class="wrap">
         <p class="kicker">Account</p>
         @if (register)
@@ -41,11 +41,11 @@
             <p id="accountDone" hidden></p>
             @if (register)
             {
-                <a class="account-switch" href="/signin">Already on the list? Sign in</a>
+                <a class="account-switch" asp-controller="Account" asp-action="SignIn">Already on the list? Sign in</a>
             }
             else
             {
-                <a class="account-switch" href="/register">New here? Create an account</a>
+                <a class="account-switch" asp-controller="Account" asp-action="Register">New here? Create an account</a>
             }
         </div>
     </div>
