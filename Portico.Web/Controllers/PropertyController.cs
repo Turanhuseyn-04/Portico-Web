@@ -17,5 +17,18 @@ namespace Portico.Web.Controllers
             ViewData["StayId"] = id;
             return View();
         }
+
+        [HttpGet("/reserve")]
+        public IActionResult Reserve()
+        {
+            ViewData["Title"] = "Confirm your stay";
+            ViewData["Description"] = "Confirm one stay: the property, room, dates, and the name the confirmation is sent to.";
+            ViewData["BodyClass"] = "results-page";
+            ViewData["SolidHeader"] = true;
+            ViewData["SkipHref"] = "#reserve";
+            ViewData["SkipText"] = "Skip to confirmation";
+            ViewData["FooterNote"] = "Confirm the property, room, and dates, then the name the confirmation is sent to. Nothing is charged until Portico.Api takes payment.";
+            return View();
+        }
     }
 }

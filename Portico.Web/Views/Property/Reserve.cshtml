@@ -1,0 +1,18 @@
+<section class="section results" id="reserve" data-asset-root="/assets/" data-reservation="/reservation/" data-home="/" data-property="/property">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">Reserve</p>
+                <h1 id="reserveTitle">Confirm your stay</h1>
+                <p class="sub" id="reserveMeta" aria-live="polite">The property, the room, and the dates this reservation is for.</p>
+            </div>
+        </div>
+        <div id="reserveBody"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/js/reserve.js" asp-append-version="true" defer></script>
+}
