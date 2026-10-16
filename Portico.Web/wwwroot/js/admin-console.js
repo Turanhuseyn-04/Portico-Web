@@ -28,12 +28,7 @@ function paintCounts() {
 }
 
 function readMessages() {
-  try {
-    const list = JSON.parse(localStorage.getItem("portico-messages") || "[]");
-    return Array.isArray(list) ? list : [];
-  } catch {
-    return [];
-  }
+  return (window.porticoAdmin && window.porticoAdmin.messages) || [];
 }
 
 function isoDay(date) {
@@ -301,15 +296,17 @@ function renderUsers() {
     : `<div class="empty"><h3>No guests yet</h3><p>A name and email are written onto a reservation at payment.</p></div>`;
 }
 
-paintCounts();
-if (document.getElementById("adminDesk")) renderDashboard();
-if (document.getElementById("adminBooks")) renderBooks();
-if (document.getElementById("adminHouses")) renderHouses();
-if (document.getElementById("adminUsers")) renderUsers();
-if (document.getElementById("adminAvailability")) renderAvailability();
-if (document.getElementById("adminReviews")) renderReviews();
-if (document.getElementById("adminMessages")) renderMessages();
-if (document.getElementById("adminReport")) renderReport();
+window.porticoAdminBoot = function () {
+  paintCounts();
+  if (document.getElementById("adminDesk")) renderDashboard();
+  if (document.getElementById("adminBooks")) renderBooks();
+  if (document.getElementById("adminHouses")) renderHouses();
+  if (document.getElementById("adminUsers")) renderUsers();
+  if (document.getElementById("adminAvailability")) renderAvailability();
+  if (document.getElementById("adminReviews")) renderReviews();
+  if (document.getElementById("adminMessages")) renderMessages();
+  if (document.getElementById("adminReport")) renderReport();
+};
 
 function renderAvailability() {
   const root = document.getElementById("adminAvailability");
@@ -340,16 +337,30 @@ function renderAvailability() {
   const trips = allTrips().filter((trip) => trip.propertyId === property.id && trip.checkIn);
   const cursor = { value: trips.map((trip) => trip.checkIn.slice(0, 7)).sort()[0] || isoDay(new Date()).slice(0, 7) };
 
-  function draw() {
+  async function draw() {
     const [year, month] = cursor.value.split("-").map(Number);
     const days = new Date(year, month, 0).getDate();
     const keys = Array.from({ length: days }, (_, index) => `${cursor.value}-${String(index + 1).padStart(2, "0")}`);
+    let offers = [];
+    try {
+      offers = await PorticoApi.getAvailability(property.id, keys[0], isoDay(new Date(year, month, 1)));
+    } catch {
+      body.innerHTML = `<div class="empty"><h3>Availability did not load</h3><p>The calendar uses the same count as the property page.</p></div>`;
+      return;
+    }
+    const byRoom = new Map(offers.map((offer) => [offer.roomId, offer]));
+    function freeOn(room, key) {
+      const offer = byRoom.get(room.id);
+      if (offer && offer.perNight && Object.prototype.hasOwnProperty.call(offer.perNight, key)) return Number(offer.perNight[key]);
+      if (offer && offer.left != null) return Number(offer.left);
+      return Number(room.inventory) || 0;
+    }
     const head = keys.map((key) => `<th>${Number(key.slice(-2))}</th>`).join("");
     const roomRows = (property.rooms || []).map((room) => {
       const cells = keys.map((key) => {
         const inventory = Number(room.inventory) || 0;
-        const booked = heldOn(property.id, room.id, key);
-        const free = inventory - booked;
+        const free = freeOn(room, key);
+        const booked = inventory - free;
         const kind = booked > inventory ? "over" : free === 0 ? "full" : booked > 0 ? "tight" : "open";
         const label = booked > inventory ? `Over by ${booked - inventory}` : `${free} free`;
         return `<td class="night ${kind}" title="${escapeHtml(`${room.name}: ${inventory} for sale, ${booked} booked`)}">${label === "0 free" ? "0" : escapeHtml(free < 0 ? `+${booked - inventory}` : String(free))}</td>`;
@@ -359,8 +370,9 @@ function renderAvailability() {
     const clashes = [];
     (property.rooms || []).forEach((room) => {
       keys.forEach((key) => {
-        const booked = heldOn(property.id, room.id, key);
-        if (booked > Number(room.inventory || 0)) clashes.push({ room: room.name, key, booked, inventory: room.inventory });
+        const inventory = Number(room.inventory) || 0;
+        const booked = inventory - freeOn(room, key);
+        if (booked > inventory) clashes.push({ room: room.name, key, booked, inventory: room.inventory });
       });
     });
     const clashHtml = clashes.length
@@ -411,9 +423,9 @@ function renderReviews() {
   const initial = (root.dataset.stayId || "").trim();
   if (initial && stays.some((property) => property.id === initial)) select.value = initial;
 
-  function draw() {
+  async function draw() {
     const property = stays.find((item) => item.id === select.value);
-    const reviews = (property && property.reviews) || [];
+    const reviews = property ? await PorticoApi.listReviews(property.id) : [];
     const cards = reviews.map((review) => {
       const room = (property.rooms || []).find((item) => item.id === review.roomId);
       return `<article class="review-card">
