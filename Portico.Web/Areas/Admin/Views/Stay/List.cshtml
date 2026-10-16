@@ -1,0 +1,24 @@
+@{
+    string AreaIndex(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminHouses" data-asset-root="/assets/" data-stay="@AreaIndex("Stay")" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")">
+    <header class="desk-head">
+        <div>
+            <h1>Stays</h1>
+            <p>Eight houses. Rooms and prices are read-only until Portico.Api can save an edit.</p>
+        </div>
+    </header>
+    <div class="admin-tools">
+        <input id="houseQuery" type="search" placeholder="Property name" aria-label="Filter by property name">
+        <select id="houseType" aria-label="Property type">
+            <option value="">All types</option>
+            <option>Hotel</option>
+            <option>Apartment</option>
+            <option>Resort</option>
+            <option>Villa</option>
+        </select>
+        <select id="houseCity" aria-label="City"></select>
+    </div>
+    <div id="adminHouseTable"></div>
+</section>

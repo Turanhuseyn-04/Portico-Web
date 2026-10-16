@@ -1,0 +1,5 @@
+<section id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })">
+    <p class="kicker">Stay</p>
+    <h1 id="adminStayTitle">Stay</h1>
+    <div id="adminStayBody"></div>
+</section>

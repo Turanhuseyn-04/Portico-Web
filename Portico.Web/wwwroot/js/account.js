@@ -3,6 +3,15 @@
 const root = document.getElementById("account");
 const form = document.getElementById("accountForm");
 const mode = root.dataset.mode || "signin";
+const ACCOUNT_KEY = "portico-account";
+
+function readAccount() {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNT_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 const header = document.getElementById("header");
 const nav = document.getElementById("nav");
 const navToggle = document.getElementById("navToggle");
@@ -28,6 +37,17 @@ document.addEventListener("click", (event) => {
   if (event.target.closest(".nav a")) closeMenu();
 });
 
+document.querySelectorAll(".password-toggle").forEach((toggle) => {
+  const input = toggle.closest(".password-field").querySelector("input");
+  toggle.addEventListener("click", () => {
+    const shown = input.type === "password";
+    input.type = shown ? "text" : "password";
+    toggle.classList.toggle("is-shown", shown);
+    toggle.setAttribute("aria-pressed", String(shown));
+    toggle.setAttribute("aria-label", shown ? "Hide password" : "Show password");
+  });
+});
+
 if (mode === "signin") {
   const params = new URLSearchParams(window.location.search);
   const failed = root.dataset.failed === "true" || params.get("failed") === "1";
@@ -41,18 +61,37 @@ if (mode === "signin") {
   }
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    // Temporary. Portico.Api will accept or reject the password. This preview has no accounts.
+    // Temporary. Portico.Api will check the password. A registered email opens the account page. The password is not stored.
+    const email = form.elements.email.value.trim();
+    const account = readAccount();
+    if (account && account.email.toLowerCase() === email.toLowerCase()) {
+      window.location.href = root.dataset.accountUrl;
+      return;
+    }
     const next = new URL(root.dataset.failedUrl, window.location.href);
-    next.searchParams.set("email", form.elements.email.value.trim());
+    next.searchParams.set("email", email);
     window.location.href = next.href;
   });
 } else {
+  const confirmError = document.getElementById("confirmError");
+  const confirm = form.elements.confirm;
+  confirm.addEventListener("input", () => {
+    confirm.removeAttribute("aria-invalid");
+    if (confirmError) confirmError.hidden = true;
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const email = form.elements.email.value.trim();
-    form.hidden = true;
-    const done = document.getElementById("accountDone");
-    done.hidden = false;
-    done.textContent = `Account preview for ${email}. Nothing was saved. Registration arrives with the API.`;
+    if (form.elements.password.value !== confirm.value) {
+      confirm.setAttribute("aria-invalid", "true");
+      if (confirmError) confirmError.hidden = false;
+      confirm.focus();
+      return;
+    }
+    const account = {
+      name: form.elements.name.value.trim(),
+      email: form.elements.email.value.trim()
+    };
+    localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account));
+    window.location.href = root.dataset.accountUrl;
   });
 }

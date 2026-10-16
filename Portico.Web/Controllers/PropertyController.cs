@@ -27,7 +27,20 @@ namespace Portico.Web.Controllers
             ViewData["SolidHeader"] = true;
             ViewData["SkipHref"] = "#reserve";
             ViewData["SkipText"] = "Skip to confirmation";
-            ViewData["FooterNote"] = "Confirm the property, room, and dates, then the name the confirmation is sent to. Nothing is charged until Portico.Api takes payment.";
+            ViewData["FooterNote"] = "Confirm the property, room, and dates, then the name the confirmation is sent to. Payment is the next page. Nothing is charged until Portico.Api takes it.";
+            return View();
+        }
+
+        [HttpGet("/payment")]
+        public IActionResult Payment()
+        {
+            ViewData["Title"] = "Payment";
+            ViewData["Description"] = "Pay for one stay. The page shows the same total as the reservation and a card form. Nothing is charged until Portico.Api takes payment.";
+            ViewData["BodyClass"] = "results-page";
+            ViewData["SolidHeader"] = true;
+            ViewData["SkipHref"] = "#payment";
+            ViewData["SkipText"] = "Skip to payment";
+            ViewData["FooterNote"] = "The card form sits after the guest details. The total matches the stay. Nothing is charged until Portico.Api takes payment.";
             return View();
         }
     }

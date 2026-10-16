@@ -1,0 +1,24 @@
+@{
+    string AreaIndex(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminBooks" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-detail="@AreaIndex("Reservation")">
+    <header class="desk-head">
+        <div>
+            <h1>Reservations</h1>
+            <p>The sample PT-656069 stays on this list. A booking made in this browser is added beside it.</p>
+        </div>
+    </header>
+    <div class="admin-tools">
+        <input id="bookQuery" type="search" placeholder="Reference, email, or property" aria-label="Filter by reference, email, or property">
+        <select id="bookCity" aria-label="City"></select>
+        <select id="bookStatus" aria-label="Status">
+            <option value="">All statuses</option>
+            <option>Upcoming</option>
+            <option>In house</option>
+            <option>Past</option>
+            <option>Cancelled</option>
+        </select>
+    </div>
+    <div id="adminBookTable"></div>
+</section>

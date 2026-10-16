@@ -1,0 +1,23 @@
+@{
+    string AreaIndex(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminUsers" data-stay="@AreaIndex("Stay")" data-detail="@AreaIndex("Reservation")" data-register="@Url.Action("Register", "Account", new { area = "" })" data-account="@Url.Action("Profile", "Account", new { area = "" })">
+    <header class="desk-head">
+        <div>
+            <h1>Users</h1>
+            <p>The account kept in this browser, and every guest named on a reservation. The password is never stored.</p>
+        </div>
+    </header>
+    <div class="user-grid">
+        <article class="chart-card" id="adminAccountCard"></article>
+        <article class="chart-card">
+            <h2>Saved stays</h2>
+            <div id="adminSavedStays"></div>
+        </article>
+    </div>
+    <article class="chart-card desk-table">
+        <h2>Guests on reservations</h2>
+        <div id="adminDirectory"></div>
+    </article>
+</section>

@@ -1,0 +1,38 @@
+@{
+    string AreaIndex(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section id="adminDesk" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-detail="@AreaIndex("Reservation")" data-stay="@AreaIndex("Stay")" data-books="@Url.Action("Index", "Reservation", new { area = "Admin", id = "" })" data-houses="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })" data-users="@Url.Action("Index", "Users", new { area = "Admin" })">
+    <header class="desk-head">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Reservations in this browser, the eight stays, and the money still due. Diagrams update when a booking is made here.</p>
+        </div>
+    </header>
+    <div class="kpi-row" id="adminKpis"></div>
+    <div class="chart-grid">
+        <article class="chart-card">
+            <h2>Reservations by status</h2>
+            <div class="donut-wrap" id="adminStatusChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Still due by city</h2>
+            <div id="adminDueChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Stays by type</h2>
+            <div id="adminTypeChart"></div>
+        </article>
+        <article class="chart-card">
+            <h2>Guest rating</h2>
+            <div id="adminScoreChart"></div>
+        </article>
+    </div>
+    <article class="chart-card desk-table">
+        <div class="card-head">
+            <h2>Next arrivals</h2>
+            <a href="@Url.Action("Index", "Reservation", new { area = "Admin", id = "" })">All reservations</a>
+        </div>
+        <div id="adminArrivals"></div>
+    </article>
+</section>

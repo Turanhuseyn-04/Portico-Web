@@ -15,228 +15,29 @@
 <section class="wrap page-state" id="pageState" hidden aria-live="polite"></section>
 
 <article class="property is-loading" id="property" aria-busy="true" data-reserve="@Url.Action("Reserve", "Property")" data-reservation="@(Url.Action("Index", "Reservation") + "/")" data-trips="@Url.Action("Trips", "Reservation")">
-    <header class="wrap p-head" id="overview">
-        <div class="p-title">
-            <p class="p-type" id="pType"><span class="skel" style="width: 160px"></span></p>
-            <h1 id="pName"><span class="skel skel-title"></span></h1>
-            <p class="p-address" id="pAddress"><span class="skel" style="width: 280px"></span></p>
-        </div>
-        <div class="p-side">
-            <a class="p-score" id="pScore" href="#reviews" hidden></a>
-            <div class="p-actions">
-                <button class="icon-btn" id="saveBtn" type="button" aria-pressed="false" aria-label="Save this stay">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                </button>
-                <button class="icon-btn" id="shareBtn" type="button" aria-label="Share this stay">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <a class="btn-copper p-reserve" href="#rooms">See rooms</a>
-            </div>
-        </div>
-    </header>
-
-    <section class="wrap gallery" id="gallery" aria-label="Photos">
-        <div class="gallery-grid">
-            <span class="skel g-tile g-main"></span>
-            <span class="skel g-tile"></span>
-            <span class="skel g-tile"></span>
-            <span class="skel g-tile"></span>
-            <span class="skel g-tile"></span>
-        </div>
-    </section>
-
-    <nav class="subnav" id="subnav" aria-label="On this page">
-        <div class="wrap subnav-inner">
-            <a href="#about">Overview</a>
-            <a href="#amenities">Facilities</a>
-            <a href="#rooms">Rooms &amp; prices</a>
-            <a href="#reviews">Reviews</a>
-            <a href="#location">Location</a>
-            <a href="#rules">House rules</a>
-        </div>
-    </nav>
+    @await Component.InvokeAsync("PropertyHead")
+    @await Component.InvokeAsync("PropertyGallery")
+    @await Component.InvokeAsync("PropertySubnav")
 
     <div class="wrap p-layout">
         <aside class="p-aside" aria-label="Your stay">
-            <div class="book-card" id="bookCard">
-                <div class="book-scroll">
-                    <div class="book-price" id="bookPrice"><span class="skel" style="width: 140px"></span></div>
-                    <div class="book-fields">
-                        <div class="book-dates" id="datesField">
-                            <button class="book-field" id="checkInBtn" type="button" aria-controls="calPopover" aria-expanded="false">
-                                <span class="field-label">Check-in</span>
-                                <span class="book-value is-empty" id="checkInValue">Add date</span>
-                            </button>
-                            <button class="book-field" id="checkOutBtn" type="button" aria-controls="calPopover" aria-expanded="false">
-                                <span class="field-label">Check-out</span>
-                                <span class="book-value is-empty" id="checkOutValue">Add date</span>
-                            </button>
-                        </div>
-                        <button class="book-field" id="guestBtn" type="button" aria-controls="guestPopover" aria-expanded="false">
-                            <span class="field-label">Guests</span>
-                            <span class="book-value" id="guestValue">2 adults · 1 room</span>
-                        </button>
-                    </div>
-                    <p class="book-error" id="bookError" role="alert"></p>
-                    <div class="book-room" id="bookRoom"></div>
-                    <div class="book-bill" id="bookBill" aria-live="polite"></div>
-                    <div class="book-actions">
-                        <button class="search-btn book-cta" id="reserveBtn" type="button" aria-describedby="bookError">Reserve</button>
-                        <p class="book-note" id="bookNote">You will not be charged yet.</p>
-                    </div>
-                </div>
-
-                <div class="popover" id="calPopover" hidden></div>
-                <div class="popover guest-popover" id="guestPopover" hidden>
-                    <div class="guest-box">
-                        <div class="guest-row">
-                            <div>
-                                <strong>Adults</strong>
-                                <em>Ages 18 and over</em>
-                            </div>
-                            <div class="stepper">
-                                <button type="button" data-step="adults" data-dir="-1" aria-label="Remove an adult">−</button>
-                                <span id="adultsCount" aria-live="polite">2</span>
-                                <button type="button" data-step="adults" data-dir="1" aria-label="Add an adult">+</button>
-                            </div>
-                        </div>
-                        <div class="guest-row">
-                            <div>
-                                <strong>Children</strong>
-                                <em>Ages 0–17</em>
-                            </div>
-                            <div class="stepper">
-                                <button type="button" data-step="children" data-dir="-1" aria-label="Remove a child">−</button>
-                                <span id="childrenCount" aria-live="polite">0</span>
-                                <button type="button" data-step="children" data-dir="1" aria-label="Add a child">+</button>
-                            </div>
-                        </div>
-                        <div class="guest-row">
-                            <div>
-                                <strong id="unitStepLabel">Rooms</strong>
-                                <em>Booked at the same rate</em>
-                            </div>
-                            <div class="stepper">
-                                <button type="button" data-step="rooms" data-dir="-1" aria-label="Remove a room">−</button>
-                                <span id="roomsCount" aria-live="polite">1</span>
-                                <button type="button" data-step="rooms" data-dir="1" aria-label="Add a room">+</button>
-                            </div>
-                        </div>
-                        <p class="guest-note">The stay total is nightly rate × nights × rooms.</p>
-                        <button class="guest-done" type="button" data-close-guests>Done</button>
-                    </div>
-                </div>
-            </div>
+            @await Component.InvokeAsync("BookingCard")
         </aside>
-
         <div class="p-main">
-            <section class="p-section" id="about" aria-labelledby="aboutTitle">
-                <p class="kicker" id="aboutKicker">Overview</p>
-                <h2 id="aboutTitle">About this stay</h2>
-                <div class="about" id="aboutBody">
-                    <span class="skel skel-block"></span>
-                </div>
-            </section>
-
-            <section class="p-section" id="amenities" aria-labelledby="amenitiesTitle">
-                <p class="kicker">Facilities</p>
-                <h2 id="amenitiesTitle">What this place offers</h2>
-                <div id="amenitiesBody"><span class="skel skel-block"></span></div>
-            </section>
-
-            <section class="p-section" id="rooms" aria-labelledby="roomsTitle">
-                <div class="rooms-head">
-                    <div>
-                        <p class="kicker">Availability</p>
-                        <h2 id="roomsTitle">Choose your room</h2>
-                        <p class="sub" id="roomsMeta" aria-live="polite"></p>
-                    </div>
-                </div>
-                <div class="room-filters" id="roomFilters" role="group" aria-label="Filter rooms"></div>
-                <div class="room-list" id="roomList" aria-live="polite"></div>
-            </section>
-
-            <section class="p-section" id="reviews" aria-labelledby="reviewsTitle">
-                <p class="kicker">Guest reviews</p>
-                <h2 id="reviewsTitle">What guests say</h2>
-                <div id="reviewsBody"><span class="skel skel-block"></span></div>
-            </section>
-
-            <section class="p-section" id="location" aria-labelledby="locationTitle">
-                <p class="kicker">Location</p>
-                <h2 id="locationTitle">Where you will be</h2>
-                <div id="locationBody"><span class="skel skel-block"></span></div>
-            </section>
-
-            <section class="p-section" id="rules" aria-labelledby="rulesTitle">
-                <p class="kicker">Before you book</p>
-                <h2 id="rulesTitle">House rules</h2>
-                <div id="rulesBody"><span class="skel skel-block"></span></div>
-            </section>
-
-            <section class="p-section" id="faq" aria-labelledby="faqTitle">
-                <p class="kicker">Questions</p>
-                <h2 id="faqTitle">Good to know</h2>
-                <div class="faq" id="faqBody"></div>
-            </section>
+            @await Component.InvokeAsync("PropertyAbout")
+            @await Component.InvokeAsync("PropertyAmenities")
+            @await Component.InvokeAsync("PropertyRooms")
+            @await Component.InvokeAsync("PropertyReviews")
+            @await Component.InvokeAsync("PropertyLocation")
+            @await Component.InvokeAsync("PropertyHouseRules")
+            @await Component.InvokeAsync("PropertyFaq")
         </div>
     </div>
 </article>
 
-<div class="mobile-bar" id="mobileBar" hidden>
-    <div class="mobile-bar-price">
-        <strong id="mobileTotal"></strong>
-        <span id="mobileMeta"></span>
-    </div>
-    <button class="search-btn" id="mobileReserve" type="button">Reserve</button>
-</div>
-
-<div class="lightbox" id="lightbox" hidden>
-    <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Photo gallery">
-        <div class="lb-top">
-            <p id="lbCount" aria-live="polite"></p>
-            <button class="lb-close" type="button" data-close="lightbox" aria-label="Close gallery">&times;</button>
-        </div>
-        <figure class="lb-stage" id="lbStage">
-            <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="Previous photo">&larr;</button>
-            <img id="lbImage" src="data:," alt="">
-            <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Next photo">&rarr;</button>
-            <figcaption id="lbCaption"></figcaption>
-        </figure>
-        <div class="lb-thumbs" id="lbThumbs"></div>
-    </div>
-</div>
-
-<div class="modal" id="reserveModal" hidden>
-    <button class="backdrop" type="button" data-close="reserve" aria-label="Close dialog"></button>
-    <div class="modal-panel reserve-panel" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
-        <button class="icon-x" type="button" data-close="reserve" aria-label="Close">&times;</button>
-        <div id="reserveStep">
-            <h2 id="reserveTitle">Confirm your stay</h2>
-            <div class="reserve-summary" id="reserveSummary"></div>
-            <form id="reserveForm" novalidate>
-                <label class="stack">Full name
-                    <input name="name" type="text" required autocomplete="name" aria-describedby="reserveNameError">
-                    <span class="field-error" id="reserveNameError"></span>
-                </label>
-                <label class="stack">Email
-                    <input name="email" type="email" required autocomplete="email" aria-describedby="reserveEmailError">
-                    <span class="field-error" id="reserveEmailError"></span>
-                </label>
-                <label class="stack"><span>Phone <em class="optional">optional</em></span>
-                    <input name="phone" type="tel" autocomplete="tel">
-                </label>
-                <label class="stack"><span>Requests for the property <em class="optional">optional</em></span>
-                    <textarea name="requests" rows="3" maxlength="400"></textarea>
-                </label>
-                <p class="reserve-error" id="reserveError" role="alert"></p>
-                <button class="search-btn auth-submit" id="reserveSubmit" type="submit">Confirm reservation</button>
-                <p class="preview-note">Preview only. No payment is taken and nothing is charged.</p>
-            </form>
-        </div>
-        <div class="reserve-done" id="reserveDone" hidden tabindex="-1"></div>
-    </div>
-</div>
+@await Component.InvokeAsync("MobileReserveBar")
+@await Component.InvokeAsync("PropertyLightbox")
+@await Component.InvokeAsync("ReserveDialog")
 
 @section Scripts {
     <script src="~/js/mock-properties.js" asp-append-version="true"></script>

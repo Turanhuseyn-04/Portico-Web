@@ -16,96 +16,15 @@
 <body class="@ViewData["BodyClass"]">
     <a class="skip" href="@(ViewData["SkipHref"] ?? "#list")">@(ViewData["SkipText"] ?? "Skip to the list")</a>
 
-    <header class="header@(ViewData["SolidHeader"] as bool? == true ? " is-solid" : "")" id="header">
-        <div class="header-inner">
-            <a class="logo" asp-controller="Home" asp-action="Index" aria-label="Portico, home">
-                <partial name="_Logo" />
-            </a>
-            <nav class="nav" id="nav">
-                <a asp-controller="Home" asp-action="Index">Home</a>
-                <a asp-controller="Home" asp-action="Types">Properties</a>
-                <a asp-controller="Home" asp-action="Destinations">Destinations</a>
-                <a asp-controller="Reservation" asp-action="Trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
-                <a class="btn-line" asp-controller="Account" asp-action="Register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
-                <a class="btn-line btn-fill" asp-controller="Account" asp-action="SignIn" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
-            </nav>
-            <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
-    </header>
+    @await Component.InvokeAsync("SiteHeader")
 
     <main>
         @RenderBody()
     </main>
 
-    <footer class="footer">
-        <div class="wrap footer-grid">
-            <div>
-                <a class="logo" asp-controller="Home" asp-action="Index">
-                    <partial name="_Logo" />
-                </a>
-                <p>A concentrated stay list. Search, price, and book one house at a time.</p>
-                <a class="footer-reach" href="mailto:hello@portico.example">hello@portico.example</a>
-                <a class="footer-reach" href="tel:+442079460958">+44 20 7946 0958</a>
-            </div>
-            <div>
-                <h2>Visit</h2>
-                <a asp-controller="Home" asp-action="Index" asp-fragment="hero">Search</a>
-                <a asp-controller="Home" asp-action="Index" asp-fragment="list">Houses</a>
-                <a asp-controller="Home" asp-action="Index" asp-fragment="notes">Stories</a>
-            </div>
-            <div>
-                <h2>Account</h2>
-                <a asp-controller="Reservation" asp-action="Trips">Your trips</a>
-                <a asp-controller="Account" asp-action="SignIn">Sign in</a>
-                <a asp-controller="Account" asp-action="Register">Register</a>
-            </div>
-            <div>
-                <h2>This page</h2>
-                <p>@(ViewData["FooterNote"] ?? "A design of the home screen. Accounts, holds, and live availability connect when the API is in place.")</p>
-            </div>
-        </div>
-        <div class="wrap legal">
-            <p>&copy; 2026 Portico. Photographs from Unsplash, used for this design study.</p>
-            <p class="legal-links">
-                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                <a asp-controller="Home" asp-action="Terms">Terms</a>
-                <a asp-controller="Home" asp-action="Help">Help</a>
-            </p>
-        </div>
-    </footer>
-
-    <div class="drawer" id="drawer" hidden>
-        <button class="backdrop" type="button" data-close="drawer" aria-label="Close details"></button>
-        <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-            <button class="icon-x" type="button" data-close="drawer" aria-label="Close">&times;</button>
-            <div id="drawerBody"></div>
-        </aside>
-    </div>
-
-    <div class="modal" id="authModal" hidden>
-        <button class="backdrop" type="button" data-close="modal" aria-label="Close dialog"></button>
-        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-            <button class="icon-x" type="button" data-close="modal" aria-label="Close">&times;</button>
-            <h2 id="authTitle">Sign in</h2>
-            <p class="auth-lede" id="authLede">Use the same door you will use when the API is connected.</p>
-            <form id="authForm">
-                <label class="stack" id="authNameWrap" hidden>Full name
-                    <input id="authName" name="name" type="text" autocomplete="name" />
-                </label>
-                <label class="stack">Email
-                    <input name="email" type="email" required autocomplete="email" />
-                </label>
-                <label class="stack">Password
-                    <input name="password" type="password" required minlength="8" autocomplete="current-password" />
-                </label>
-                <button class="search-btn auth-submit" id="authSubmit" type="submit">Sign in</button>
-                <button class="text-btn" id="authSwitch" type="button">New here? Create an account</button>
-            </form>
-            <p id="authDone" hidden></p>
-        </div>
-    </div>
+    @await Component.InvokeAsync("SiteFooter")
+    @await Component.InvokeAsync("StayDrawer")
+    @await Component.InvokeAsync("AuthDialog")
 
     <div class="toast" id="toast" role="status"></div>
     <script>document.documentElement.classList.add("js");</script>

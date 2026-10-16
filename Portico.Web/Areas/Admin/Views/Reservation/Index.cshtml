@@ -1,0 +1,5 @@
+<section id="adminReservation" data-reference="@ViewData["Reference"]" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-cancel="@Url.Action("Index", "Reservation", new { area = "" })" data-admin="@Url.Action("Index", "Reservation", new { area = "Admin", id = "" })">
+    <p class="kicker">Reservation</p>
+    <h1 id="adminReservationTitle">Reservation</h1>
+    <div id="adminReservationBody"></div>
+</section>
