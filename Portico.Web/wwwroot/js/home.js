@@ -656,7 +656,7 @@ function goToResults() {
   if (state.children) params.set("children", String(state.children));
   params.set("rooms", String(state.rooms));
   if (state.property) params.set("property", state.property);
-  window.location.href = `/Home/Search?${params}`;
+  window.location.href = `${searchForm.dataset.results}?${params}`;
 }
 
 function validDay(key) {
@@ -812,7 +812,7 @@ function propertyLink(stay) {
     if (state.query.children) query.set("children", String(state.query.children));
     query.set("rooms", String(state.query.rooms));
   }
-  return `/property?${query}`;
+  return `${searchForm.dataset.property}?${query}`;
 }
 
 function closeDrawer() {
@@ -1047,7 +1047,7 @@ trendTimer = window.setInterval(tickTrend, 3600);
 $("propertiesGrid").addEventListener("click", (event) => {
   const card = event.target.closest(".property-card");
   if (!card) return;
-  window.location.href = `/Home/Types?type=${encodeURIComponent(card.dataset.property)}`;
+  window.location.href = `${searchForm.dataset.types}?type=${encodeURIComponent(card.dataset.property)}`;
 });
 
 drawer.addEventListener("click", (event) => {

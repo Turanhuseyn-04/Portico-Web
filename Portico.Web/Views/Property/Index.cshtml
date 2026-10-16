@@ -14,7 +14,7 @@
 
 <section class="wrap page-state" id="pageState" hidden aria-live="polite"></section>
 
-<article class="property is-loading" id="property" aria-busy="true">
+<article class="property is-loading" id="property" aria-busy="true" data-reserve="@Url.Action("Reserve", "Property")" data-reservation="@(Url.Action("Index", "Reservation") + "/")" data-trips="@Url.Action("Trips", "Reservation")">
     <header class="wrap p-head" id="overview">
         <div class="p-title">
             <p class="p-type" id="pType"><span class="skel" style="width: 160px"></span></p>

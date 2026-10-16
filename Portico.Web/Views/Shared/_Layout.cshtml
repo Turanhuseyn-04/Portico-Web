@@ -25,9 +25,9 @@
                 <a asp-controller="Home" asp-action="Index">Home</a>
                 <a asp-controller="Home" asp-action="Types">Properties</a>
                 <a asp-controller="Home" asp-action="Destinations">Destinations</a>
-                <a href="/trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
-                <a class="btn-line" href="/register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
-                <a class="btn-line btn-fill" href="/signin" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
+                <a asp-controller="Reservation" asp-action="Trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
+                <a class="btn-line" asp-controller="Account" asp-action="Register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
+                <a class="btn-line btn-fill" asp-controller="Account" asp-action="SignIn" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
             </nav>
             <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
                 <span></span><span></span><span></span>
@@ -51,15 +51,15 @@
             </div>
             <div>
                 <h2>Visit</h2>
-                <a href="/#hero">Search</a>
-                <a href="/#list">Houses</a>
-                <a href="/#notes">Stories</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="hero">Search</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="list">Houses</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="notes">Stories</a>
             </div>
             <div>
                 <h2>Account</h2>
-                <a href="/trips">Your trips</a>
-                <a href="/signin">Sign in</a>
-                <a href="/register">Register</a>
+                <a asp-controller="Reservation" asp-action="Trips">Your trips</a>
+                <a asp-controller="Account" asp-action="SignIn">Sign in</a>
+                <a asp-controller="Account" asp-action="Register">Register</a>
             </div>
             <div>
                 <h2>This page</h2>
