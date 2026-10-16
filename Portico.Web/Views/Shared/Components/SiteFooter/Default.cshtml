@@ -1,0 +1,36 @@
+<footer class="footer">
+    <div class="wrap footer-grid">
+        <div>
+            <a class="logo" asp-controller="Home" asp-action="Index">
+                <partial name="_Logo" />
+            </a>
+            <p>A concentrated stay list. Search, price, and book one house at a time.</p>
+            <a class="footer-reach" href="mailto:hello@portico.example">hello@portico.example</a>
+            <a class="footer-reach" href="tel:+442079460958">+44 20 7946 0958</a>
+        </div>
+        <div>
+            <h2>Visit</h2>
+            <a asp-controller="Home" asp-action="Index" asp-fragment="hero">Search</a>
+            <a asp-controller="Home" asp-action="Index" asp-fragment="list">Houses</a>
+            <a asp-controller="Home" asp-action="Index" asp-fragment="notes">Stories</a>
+        </div>
+        <div>
+            <h2>Account</h2>
+            <a asp-controller="Reservation" asp-action="Trips">Your trips</a>
+            <a asp-controller="Account" asp-action="SignIn">Sign in</a>
+            <a asp-controller="Account" asp-action="Register">Register</a>
+        </div>
+        <div>
+            <h2>This page</h2>
+            <p>@(ViewData["FooterNote"] ?? "A design of the home screen. Accounts, holds, and live availability connect when the API is in place.")</p>
+        </div>
+    </div>
+    <div class="wrap legal">
+        <p>&copy; 2026 Portico. Photographs from Unsplash, used for this design study.</p>
+        <p class="legal-links">
+            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a asp-controller="Home" asp-action="Terms">Terms</a>
+            <a asp-controller="Home" asp-action="Help">Help</a>
+        </p>
+    </div>
+</footer>

@@ -1,0 +1,22 @@
+<div class="modal" id="authModal" hidden>
+    <button class="backdrop" type="button" data-close="modal" aria-label="Close dialog"></button>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <button class="icon-x" type="button" data-close="modal" aria-label="Close">&times;</button>
+        <h2 id="authTitle">Sign in</h2>
+        <p class="auth-lede" id="authLede">Use the same door you will use when the API is connected.</p>
+        <form id="authForm">
+            <label class="stack" id="authNameWrap" hidden>Full name
+                <input id="authName" name="name" type="text" autocomplete="name" />
+            </label>
+            <label class="stack">Email
+                <input name="email" type="email" required autocomplete="email" />
+            </label>
+            <label class="stack">Password
+                <input name="password" type="password" required minlength="8" autocomplete="current-password" />
+            </label>
+            <button class="search-btn auth-submit" id="authSubmit" type="submit">Sign in</button>
+            <button class="text-btn" id="authSwitch" type="button">New here? Create an account</button>
+        </form>
+        <p id="authDone" hidden></p>
+    </div>
+</div>

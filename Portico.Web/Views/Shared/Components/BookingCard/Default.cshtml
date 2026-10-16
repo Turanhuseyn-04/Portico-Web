@@ -1,0 +1,69 @@
+<div class="book-card" id="bookCard">
+    <div class="book-scroll">
+        <div class="book-price" id="bookPrice"><span class="skel" style="width: 140px"></span></div>
+        <div class="book-fields">
+            <div class="book-dates" id="datesField">
+                <button class="book-field" id="checkInBtn" type="button" aria-controls="calPopover" aria-expanded="false">
+                    <span class="field-label">Check-in</span>
+                    <span class="book-value is-empty" id="checkInValue">Add date</span>
+                </button>
+                <button class="book-field" id="checkOutBtn" type="button" aria-controls="calPopover" aria-expanded="false">
+                    <span class="field-label">Check-out</span>
+                    <span class="book-value is-empty" id="checkOutValue">Add date</span>
+                </button>
+            </div>
+            <button class="book-field" id="guestBtn" type="button" aria-controls="guestPopover" aria-expanded="false">
+                <span class="field-label">Guests</span>
+                <span class="book-value" id="guestValue">2 adults · 1 room</span>
+            </button>
+        </div>
+        <p class="book-error" id="bookError" role="alert"></p>
+        <div class="book-room" id="bookRoom"></div>
+        <div class="book-bill" id="bookBill" aria-live="polite"></div>
+        <div class="book-actions">
+            <button class="search-btn book-cta" id="reserveBtn" type="button" aria-describedby="bookError">Reserve</button>
+            <p class="book-note" id="bookNote">You will not be charged yet.</p>
+        </div>
+    </div>
+
+    <div class="popover" id="calPopover" hidden></div>
+    <div class="popover guest-popover" id="guestPopover" hidden>
+        <div class="guest-box">
+            <div class="guest-row">
+                <div>
+                    <strong>Adults</strong>
+                    <em>Ages 18 and over</em>
+                </div>
+                <div class="stepper">
+                    <button type="button" data-step="adults" data-dir="-1" aria-label="Remove an adult">−</button>
+                    <span id="adultsCount" aria-live="polite">2</span>
+                    <button type="button" data-step="adults" data-dir="1" aria-label="Add an adult">+</button>
+                </div>
+            </div>
+            <div class="guest-row">
+                <div>
+                    <strong>Children</strong>
+                    <em>Ages 0–17</em>
+                </div>
+                <div class="stepper">
+                    <button type="button" data-step="children" data-dir="-1" aria-label="Remove a child">−</button>
+                    <span id="childrenCount" aria-live="polite">0</span>
+                    <button type="button" data-step="children" data-dir="1" aria-label="Add a child">+</button>
+                </div>
+            </div>
+            <div class="guest-row">
+                <div>
+                    <strong id="unitStepLabel">Rooms</strong>
+                    <em>Booked at the same rate</em>
+                </div>
+                <div class="stepper">
+                    <button type="button" data-step="rooms" data-dir="-1" aria-label="Remove a room">−</button>
+                    <span id="roomsCount" aria-live="polite">1</span>
+                    <button type="button" data-step="rooms" data-dir="1" aria-label="Add a room">+</button>
+                </div>
+            </div>
+            <p class="guest-note">The stay total is nightly rate × nights × rooms.</p>
+            <button class="guest-done" type="button" data-close-guests>Done</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<header class="header@(ViewData["SolidHeader"] as bool? == true ? " is-solid" : "")" id="header">
+    <div class="header-inner">
+        <a class="logo" asp-controller="Home" asp-action="Index" aria-label="Portico, home">
+            <partial name="_Logo" />
+        </a>
+        <nav class="nav" id="nav">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <a asp-controller="Home" asp-action="Types">Properties</a>
+            <a asp-controller="Home" asp-action="Destinations">Destinations</a>
+            <a asp-controller="Reservation" asp-action="Trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
+            <a class="btn-line" asp-controller="Account" asp-action="Register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
+            <a class="btn-line btn-fill" asp-controller="Account" asp-action="SignIn" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
+        </nav>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
