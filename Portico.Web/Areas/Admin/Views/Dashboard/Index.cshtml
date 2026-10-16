@@ -1,4 +1,8 @@
-<section class="section results" id="admin" data-asset-root="/assets/" data-guest="@(Url.Action("Index", "Reservation") + "/")" data-detail="/admin/reservation/" data-stay="/admin/stay/">
+@{
+    string AreaIndex(string controller) =>
+        Url.Action("Index", controller, new { area = "Admin", id = "key" })?.Replace("/key", "/") ?? "";
+}
+<section class="section results" id="admin" data-asset-root="/assets/" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-detail="@AreaIndex("Reservation")" data-stay="@AreaIndex("Stay")">
     <div class="wrap">
         <p class="kicker">Houses</p>
         <h1>Admin</h1>

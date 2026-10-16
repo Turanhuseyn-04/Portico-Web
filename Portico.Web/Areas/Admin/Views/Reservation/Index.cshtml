@@ -1,0 +1,11 @@
+<section class="section results" id="adminReservation" data-reference="@ViewData["Reference"]" data-guest="@(Url.Action("Index", "Reservation", new { area = "" }) + "/")" data-cancel="@Url.Action("Index", "Reservation", new { area = "" })" data-admin="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+    <div class="wrap">
+        <p class="kicker">Admin</p>
+        <h1 id="adminReservationTitle">Reservation</h1>
+        <div id="adminReservationBody"></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+}
