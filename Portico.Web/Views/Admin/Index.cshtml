@@ -1,0 +1,47 @@
+<section class="section results" id="admin" data-asset-root="/assets/" data-guest="@(Url.Action("Index", "Reservation") + "/")" data-detail="/admin/reservation/" data-stay="/admin/stay/">
+    <div class="wrap">
+        <p class="kicker">Houses</p>
+        <h1>Admin</h1>
+        <p class="sub">Reservations in this browser, the catalog, and the account kept here. Nothing here is editable until Portico.Api exists.</p>
+        <div class="admin-counts" id="adminCounts"></div>
+        <div class="admin-tools">
+            <input id="adminQuery" type="search" placeholder="Reference, email, or property" aria-label="Filter by reference, email, or property">
+            <select id="adminCity" aria-label="City"></select>
+            <select id="adminStatus" aria-label="Status">
+                <option value="">All statuses</option>
+                <option>Upcoming</option>
+                <option>In house</option>
+                <option>Past</option>
+                <option>Cancelled</option>
+            </select>
+            <select id="adminType" aria-label="Property type">
+                <option value="">All types</option>
+                <option>Hotel</option>
+                <option>Apartment</option>
+                <option>Resort</option>
+                <option>Villa</option>
+            </select>
+        </div>
+        <div class="admin-block">
+            <h2>Next arrivals</h2>
+            <div id="adminNext"></div>
+        </div>
+        <div class="admin-block">
+            <h2>Reservations</h2>
+            <div id="adminReservations"></div>
+        </div>
+        <div class="admin-block">
+            <h2>Stays</h2>
+            <div id="adminStays"></div>
+        </div>
+        <div class="admin-block">
+            <h2>Account</h2>
+            <div id="adminAccount"></div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+}

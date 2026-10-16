@@ -17,6 +17,7 @@
         <div>
             <h2>Account</h2>
             <a asp-controller="Reservation" asp-action="Trips">Your trips</a>
+            <a asp-controller="Admin" asp-action="Index" aria-current="@(ViewData["AdminNav"] as bool? == true ? "page" : null)">Admin</a>
             <a asp-controller="Account" asp-action="SignIn">Sign in</a>
             <a asp-controller="Account" asp-action="Register">Register</a>
         </div>
