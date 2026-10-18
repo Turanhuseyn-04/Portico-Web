@@ -20,6 +20,9 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  /* The menu can be taller than the window, especially with the SuperAdmin items; it scrolls on its own. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .console-brand {
