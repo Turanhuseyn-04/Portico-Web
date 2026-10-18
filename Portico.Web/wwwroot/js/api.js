@@ -78,7 +78,7 @@ const PorticoApi = (() => {
       response = await fetch(`${config.baseUrl}${path}`, {
         ...options,
         credentials: "include",
-        headers: { Accept: "application/json", "Content-Type": "application/json", ...(options.headers || {}) }
+        headers: { Accept: "application/json", "Content-Type": "application/json", ...(config.headers || {}), ...(options.headers || {}) }
       });
     } catch {
       throw new ApiError("network", "The server could not be reached.");

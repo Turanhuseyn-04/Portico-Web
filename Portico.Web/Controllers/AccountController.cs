@@ -155,8 +155,13 @@ namespace Portico.Web.Controllers
             return LocalRedirect(SafeReturn(returnUrl, Url.Action(nameof(Saved))!));
         }
 
+        // The cookie ends when the API token does, so the Web never holds a session the API would refuse.
         private Task SignInAsync(AccountProfile profile) =>
-            HttpContext.SignInAsync(Scheme, profile.ToPrincipal(Scheme), new AuthenticationProperties { IsPersistent = true });
+            HttpContext.SignInAsync(Scheme, profile.ToPrincipal(Scheme), new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = profile.ExpiresAt is { } expires ? new DateTimeOffset(expires.ToUniversalTime()) : null
+            });
 
         // Only addresses on this site, so a crafted link cannot send a guest elsewhere after sign-in.
         private string SafeReturn(string? returnUrl, string fallback) =>

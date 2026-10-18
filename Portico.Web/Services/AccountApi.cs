@@ -6,6 +6,7 @@ public interface IAccountApi
 {
     Task<ApiResult<AccountProfile>> RegisterAsync(string name, string email, string password, CancellationToken cancellationToken);
     Task<ApiResult<AccountProfile>> SignInAsync(string email, string password, CancellationToken cancellationToken);
+    Task<ApiResult<AccountProfile>> ProfileAsync(string email, string token, CancellationToken cancellationToken);
     Task<ApiResult<List<string>>> SavedAsync(string email, CancellationToken cancellationToken);
     Task<ApiResult<List<string>>> SaveAsync(string email, string propertyId, CancellationToken cancellationToken);
     Task<ApiResult<List<string>>> UnsaveAsync(string email, string propertyId, CancellationToken cancellationToken);
@@ -22,6 +23,9 @@ public class AccountApi : PorticoApiClient, IAccountApi
 
     public Task<ApiResult<AccountProfile>> SignInAsync(string email, string password, CancellationToken cancellationToken) =>
         PostJsonAsync<AccountProfile>("/account/signin", new { email, password }, cancellationToken);
+
+    public Task<ApiResult<AccountProfile>> ProfileAsync(string email, string token, CancellationToken cancellationToken) =>
+        GetJsonAsync<AccountProfile>(AccountUrl(email), token, cancellationToken);
 
     public Task<ApiResult<List<string>>> SavedAsync(string email, CancellationToken cancellationToken) =>
         GetJsonAsync<List<string>>($"{AccountUrl(email)}/saved", cancellationToken);

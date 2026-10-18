@@ -1,4 +1,6 @@
+@inject Portico.Web.Services.ISettingsApi Settings
 @{
+    var contact = await Settings.GetAsync(Context.RequestAborted);
     ViewData["Title"] = "Help";
     ViewData["Description"] = "How a Portico price, check-in, and cancellation work. A reservation on this site is still a preview.";
     ViewData["BodyClass"] = "legal-page-body";
@@ -26,7 +28,7 @@
         <p>Where a room offers free cancellation, it runs until three days before check-in. A room that does not offer it is marked non-refundable. Some stays ask for a minimum number of nights. The property page states the rule that applies.</p>
 
         <h2>Write to us</h2>
-        <p>For a question this page does not answer, write to <a href="mailto:support@portico.az">support@portico.az</a> or call <a href="tel:+994552992803">+994 55 299 28 03</a>. Portico is based in Baku, Azerbaijan. A note sent here is also kept in this browser for the admin inbox.</p>
+        <p>For a question this page does not answer, write to <a href="mailto:@contact.SupportEmail">@contact.SupportEmail</a> or call <a href="@contact.PhoneHref">@contact.SupportPhone</a>. Portico is based in @contact.SupportLocation. A note sent here is also kept in this browser for the admin inbox.</p>
         <form id="helpNote">
             <label class="stack">Name
                 <input name="name" type="text" required minlength="2" autocomplete="name" />
