@@ -1,0 +1,10 @@
+@model VideoFormVm
+<div class="editor-grid">
+    <label class="span-2">Path
+        <input asp-for="Src" placeholder="/assets/videos/villas/14041585_1920_1080_25fps.mp4">
+        <span asp-validation-for="Src"></span>
+    </label>
+    <label>Order
+        <input asp-for="Order" type="number">
+    </label>
+</div>

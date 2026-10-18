@@ -330,7 +330,7 @@ function renderStay() {
       ${root.dataset.reviews ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.reviews, property.id))}">Reviews</a>` : ""}
       <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to stays</a>
     </div>
-    <p class="preview-note">Read only. Portico.Api will save edits later.</p>`;
+    <p class="preview-note">The form below saves the stay, its rooms, and its photographs.</p>`;
 }
 
 async function startAdmin() {

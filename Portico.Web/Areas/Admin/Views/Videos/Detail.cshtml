@@ -1,0 +1,25 @@
+@model VideoVm
+<section id="videoDetail">
+    <header class="desk-head">
+        <div>
+            <h1>Video</h1>
+            <p><code>@Model.Src</code></p>
+        </div>
+        <a class="btn-ink" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    </header>
+    <div class="editor">
+        <video src="@Model.Src" controls></video>
+        <dl class="detail-list">
+            <dt>Id</dt><dd>@Model.Id</dd>
+            <dt>Path</dt><dd><code>@Model.Src</code></dd>
+            <dt>Order</dt><dd>@Model.Order</dd>
+        </dl>
+        <div class="editor-actions">
+            <a asp-action="Index">Back</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+</section>

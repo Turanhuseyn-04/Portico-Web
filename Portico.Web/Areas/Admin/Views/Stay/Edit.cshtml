@@ -1,0 +1,17 @@
+@model StayFormVm
+<section id="stayForm">
+    <header class="desk-head">
+        <div>
+            <h1>Edit stay</h1>
+            <p>The id stays @Model.Id. A blank room row is ignored.</p>
+        </div>
+    </header>
+    <form class="editor" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="All"></div>
+        <partial name="_Fields" />
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Save</button>
+            <a asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</section>

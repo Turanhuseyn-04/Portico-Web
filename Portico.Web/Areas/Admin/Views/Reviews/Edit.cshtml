@@ -1,0 +1,17 @@
+@model ReviewFormVm
+<section id="reviewForm">
+    <header class="desk-head">
+        <div>
+            <h1>Edit review</h1>
+            <p>The stay id is the slug, for example marble.</p>
+        </div>
+    </header>
+    <form class="editor" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="All"></div>
+        <partial name="_Fields" />
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Save</button>
+            <a asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</section>

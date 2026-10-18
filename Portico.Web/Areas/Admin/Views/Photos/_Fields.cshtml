@@ -1,0 +1,13 @@
+@model PhotoFormVm
+<div class="editor-grid">
+    <label class="span-2">Image path
+        <input asp-for="Src" placeholder="/assets/lisbon.jpg">
+        <span asp-validation-for="Src"></span>
+    </label>
+    <label>Alt text
+        <input asp-for="Alt">
+    </label>
+    <label>Order
+        <input asp-for="Order" type="number">
+    </label>
+</div>

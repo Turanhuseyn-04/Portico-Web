@@ -3,7 +3,7 @@
 const PorticoApi = (() => {
   // Set baseUrl (for example "https://localhost:7001/api") once Portico.Api is running.
   // An empty baseUrl keeps the preview on this browser.
-  const config = { baseUrl: "", latency: 450 };
+    const config = { baseUrl: "https://localhost:7190", latency: 450 };
   const mockMode = new URLSearchParams(window.location.search).get("mock") || "";
   const RESERVATIONS = "portico-reservations";
   const ACCOUNT = "portico-account";
@@ -79,12 +79,33 @@ const PorticoApi = (() => {
     try {
       response = await fetch(`${config.baseUrl}${path}`, {
         ...options,
+        credentials: "include",
         headers: { Accept: "application/json", "Content-Type": "application/json", ...(options.headers || {}) }
       });
     } catch {
       throw new ApiError("network", "The server could not be reached.");
     }
     if (response.status === 404) throw new ApiError("not-found", "That record does not exist.");
+    if (response.status === 400) {
+      let message = "That form could not be saved.";
+      try {
+        const body = await response.json();
+        if (body && Array.isArray(body.errors) && body.errors[0]) message = String(body.errors[0]);
+      } catch {
+        /* the status already says the form was rejected */
+      }
+      throw new ApiError("invalid", message);
+    }
+    if (response.status === 409) {
+      let message = "That room was just taken for these dates.";
+      try {
+        const body = await response.json();
+        if (body && Array.isArray(body.errors) && body.errors[0]) message = String(body.errors[0]);
+      } catch {
+        /* the status already says the room is gone */
+      }
+      throw new ApiError("unavailable", message);
+    }
     if (!response.ok) throw new ApiError("server", `The server answered ${response.status}.`);
     if (response.status === 204) return null;
     return response.json();
@@ -445,9 +466,26 @@ const PorticoApi = (() => {
     return note;
   }
 
+  function adminResource(path) {
+    if (!config.baseUrl) throw new ApiError("network", "Portico.Api is not configured.");
+    return {
+      list: () => request(path),
+      get: (id) => request(`${path}/${encodeURIComponent(id)}`),
+      create: (body) => request(path, { method: "POST", body: JSON.stringify(body) }),
+      edit: (id, body) => request(`${path}/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+      remove: (id) => request(`${path}/${encodeURIComponent(id)}`, { method: "DELETE" })
+    };
+  }
+
+  function adminPhotos(propertyId) {
+    return adminResource(`/admin/properties/${encodeURIComponent(propertyId)}/photos`);
+  }
+
   return {
     config,
     ApiError,
+    adminResource,
+    adminPhotos,
     listProperties,
     getProperty,
     getAvailability,

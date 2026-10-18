@@ -1,0 +1,110 @@
+@model StayDetailVm
+@{
+    var stay = Model.Stay;
+}
+<section id="stayDetail">
+    <header class="desk-head">
+        <div>
+            <h1>@stay.Name</h1>
+            <p>@stay.Id · @stay.City</p>
+        </div>
+        <a class="btn-ink" asp-action="Edit" asp-route-id="@stay.Id">Edit</a>
+    </header>
+    <partial name="_Flash" />
+    <div class="editor">
+        <dl class="detail-list">
+            <dt>Type</dt><dd>@stay.Type@(stay.Stars is int stars ? $" · {stars}★" : "")</dd>
+            <dt>Address</dt><dd>@string.Join(", ", new[] { stay.Street, stay.Area, stay.City, stay.Postcode, stay.Country }.Where(part => !string.IsNullOrWhiteSpace(part)))</dd>
+            <dt>Location</dt><dd>@stay.Lat, @stay.Lng</dd>
+            <dt>Summary</dt><dd>@stay.Summary</dd>
+        </dl>
+        @foreach (var paragraph in stay.Description)
+        {
+            <p>@paragraph</p>
+        }
+        <h2>Rooms</h2>
+        @if (stay.Rooms.Count == 0)
+        {
+            <p>No rooms yet.</p>
+        }
+        else
+        {
+            <div class="sheet-scroll">
+                <table class="sheet">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Sleeps</th>
+                            <th>Refundable</th>
+                            <th>Breakfast</th>
+                            <th>Inventory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var room in stay.Rooms)
+                    {
+                        <tr>
+                            <td>@room.Id</td>
+                            <td>@room.Name</td>
+                            <td>@room.Price</td>
+                            <td>@room.Sleeps</td>
+                            <td>@(room.Refundable ? "Yes" : "No")</td>
+                            <td>@(room.Breakfast ? "Yes" : "No")</td>
+                            <td>@room.Inventory</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <div class="editor-actions">
+            <a asp-action="Index">Back</a>
+            <form asp-action="Delete" asp-route-id="@stay.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <section class="photo-desk">
+        <header class="desk-head">
+            <div>
+                <h2>Photographs</h2>
+                <p>Paths stay on the site, for example /assets/lisbon.jpg.</p>
+            </div>
+            <a class="btn-ink" asp-area="Admin" asp-controller="Photos" asp-action="Create" asp-route-propertyId="@stay.Id">Create</a>
+        </header>
+        @if (Model.Photos.Count == 0)
+        {
+            <div class="empty">
+                <h3>No photographs yet</h3>
+                <p>Add one with a path and an alt text.</p>
+            </div>
+        }
+        else
+        {
+            <div class="photo-grid">
+            @foreach (var photo in Model.Photos)
+            {
+                <article class="photo-card">
+                    <img src="@photo.Src" alt="@photo.Alt">
+                    <div>
+                        <strong>@(string.IsNullOrWhiteSpace(photo.Alt) ? "Photograph" : photo.Alt)</strong>
+                        <span>Order @photo.Order</span>
+                        <code>@photo.Src</code>
+                        <div class="row-actions">
+                            <a asp-area="Admin" asp-controller="Photos" asp-action="Edit" asp-route-propertyId="@stay.Id" asp-route-id="@photo.Id">Edit</a>
+                            <form asp-area="Admin" asp-controller="Photos" asp-action="Delete" asp-route-propertyId="@stay.Id" asp-route-id="@photo.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            }
+            </div>
+        }
+    </section>
+</section>

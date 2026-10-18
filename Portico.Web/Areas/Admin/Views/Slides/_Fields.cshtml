@@ -1,0 +1,21 @@
+@model SlideFormVm
+<div class="editor-grid">
+    <label>City
+        <input asp-for="City">
+        <span asp-validation-for="City"></span>
+    </label>
+    <label>Country
+        <input asp-for="Country">
+        <span asp-validation-for="Country"></span>
+    </label>
+    <label class="span-2">Image path
+        <input asp-for="Image" placeholder="/assets/lisbon.jpg">
+        <span asp-validation-for="Image"></span>
+    </label>
+    <label>Stays
+        <input asp-for="Stays" type="number" min="0">
+    </label>
+    <label>Order
+        <input asp-for="Order" type="number">
+    </label>
+</div>

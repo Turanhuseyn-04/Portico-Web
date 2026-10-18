@@ -1,0 +1,31 @@
+@model ReviewVm
+<section id="reviewDetail">
+    <header class="desk-head">
+        <div>
+            <h1>@Model.Title</h1>
+            <p>@Model.Author · @Model.PropertyId</p>
+        </div>
+        <a class="btn-ink" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    </header>
+    <div class="editor">
+        <dl class="detail-list">
+            <dt>Id</dt><dd>@Model.Id</dd>
+            <dt>Stay</dt><dd>@Model.PropertyId</dd>
+            <dt>Room</dt><dd>@(string.IsNullOrWhiteSpace(Model.RoomId) ? "—" : Model.RoomId)</dd>
+            <dt>Country</dt><dd>@Model.Country</dd>
+            <dt>Traveller</dt><dd>@Model.Traveller</dd>
+            <dt>Nights</dt><dd>@Model.Nights</dd>
+            <dt>Date</dt><dd>@Model.Date.ToString("yyyy-MM-dd")</dd>
+            <dt>Score</dt><dd>@Model.Score</dd>
+            <dt>Liked</dt><dd>@Model.Liked</dd>
+            <dt>Disliked</dt><dd>@Model.Disliked</dd>
+        </dl>
+        <div class="editor-actions">
+            <a asp-action="Index">Back</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+</section>

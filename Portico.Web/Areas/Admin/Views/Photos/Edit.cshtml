@@ -1,0 +1,17 @@
+@model PhotoFormVm
+<section id="photoForm">
+    <header class="desk-head">
+        <div>
+            <h1>Edit photograph</h1>
+            <p>The path stays on the site, for example /assets/lisbon.jpg.</p>
+        </div>
+    </header>
+    <form class="editor" asp-action="Edit" asp-route-propertyId="@Model.PropertyId" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="All"></div>
+        <partial name="_Fields" />
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Save</button>
+            <a asp-controller="Stay" asp-action="Detail" asp-route-id="@Model.PropertyId">Cancel</a>
+        </div>
+    </form>
+</section>

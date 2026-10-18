@@ -1,7 +1,31 @@
+using System.Net.Security;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+});
+
+builder.Services.AddHttpClient("PorticoApi", client =>
+{
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"];
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException("ApiSettings:BaseUrl is missing.");
+    client.BaseAddress = new Uri(baseUrl);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback = (request, _, _, errors) =>
+            errors == SslPolicyErrors.None || request.RequestUri?.IsLoopback == true;
+    }
+
+    return handler;
+});
 
 var app = builder.Build();
 

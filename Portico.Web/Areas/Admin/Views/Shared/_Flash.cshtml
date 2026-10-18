@@ -1,0 +1,8 @@
+@if (TempData["Success"] is string success)
+{
+    <p class="editor-note">@success</p>
+}
+@if (TempData["Error"] is string error)
+{
+    <p class="editor-note is-bad">@error</p>
+}

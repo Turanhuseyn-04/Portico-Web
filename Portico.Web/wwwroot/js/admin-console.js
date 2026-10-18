@@ -256,16 +256,44 @@ function renderHouses() {
         <td>${escapeHtml(property.score)} · ${escapeHtml(property.reviewCount)}</td>
         <td>${rooms.length} rooms · ${inventory} for sale</td>
         <td>${escapeHtml(money(lowestRate(property)))}</td>
+        <td class="row-actions">
+          <a href="${escapeHtml(withPath(root.dataset.stay, property.id))}">Edit</a>
+          <button type="button" data-delete-stay="${escapeHtml(property.id)}">Delete</button>
+        </td>
       </tr>`;
     });
     document.getElementById("adminHouseTable").innerHTML = rows.length
-      ? sheet(["Stay", "Type", "Place", "Rating", "Rooms", "From"], rows)
-      : `<div class="empty"><h3>No stays match</h3><p>The catalog is the eight houses already on the site.</p></div>`;
+      ? sheet(["Stay", "Type", "Place", "Rating", "Rooms", "From", ""], rows)
+      : `<div class="empty"><h3>No stays match</h3><p>Clear the filter, or create a stay.</p></div>`;
   }
 
   query.addEventListener("input", draw);
   type.addEventListener("change", draw);
   city.addEventListener("change", draw);
+  const filter = document.getElementById("houseFilter");
+  const clear = document.getElementById("houseClear");
+  if (filter) filter.addEventListener("click", draw);
+  if (clear) clear.addEventListener("click", () => {
+    query.value = "";
+    type.value = "";
+    city.value = "";
+    draw();
+  });
+  document.getElementById("adminHouseTable").addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-delete-stay]");
+    if (!button) return;
+    const property = properties().find((item) => item.id === button.dataset.deleteStay);
+    if (!window.confirm(`Delete ${property ? property.name : "this stay"}? A stay with a reservation cannot be deleted.`)) return;
+    contentNote("houseNote", "");
+    try {
+      await PorticoApi.adminResource("/admin/properties").remove(button.dataset.deleteStay);
+      porticoAdmin.properties = await PorticoApi.listProperties();
+      draw();
+      contentNote("houseNote", "Deleted.");
+    } catch (error) {
+      contentNote("houseNote", error.message || "That stay could not be deleted.", true);
+    }
+  });
   draw();
 }
 
@@ -306,6 +334,7 @@ window.porticoAdminBoot = function () {
   if (document.getElementById("adminReviews")) renderReviews();
   if (document.getElementById("adminMessages")) renderMessages();
   if (document.getElementById("adminReport")) renderReport();
+  if (typeof window.porticoContentBoot === "function") window.porticoContentBoot();
 };
 
 function renderAvailability() {
@@ -416,31 +445,7 @@ function renderAvailability() {
 }
 
 function renderReviews() {
-  const root = document.getElementById("adminReviews");
-  const select = document.getElementById("reviewStay");
-  const stays = properties();
-  select.innerHTML = stays.map((property) => `<option value="${escapeHtml(property.id)}">${escapeHtml(property.name)}</option>`).join("");
-  const initial = (root.dataset.stayId || "").trim();
-  if (initial && stays.some((property) => property.id === initial)) select.value = initial;
-
-  async function draw() {
-    const property = stays.find((item) => item.id === select.value);
-    const reviews = property ? await PorticoApi.listReviews(property.id) : [];
-    const cards = reviews.map((review) => {
-      const room = (property.rooms || []).find((item) => item.id === review.roomId);
-      return `<article class="review-card">
-        <header><h2>${escapeHtml(review.title || "Review")}</h2><strong>${escapeHtml(review.score)}</strong></header>
-        <p class="where-line">${escapeHtml(review.author || "Guest")} · ${escapeHtml(review.country || "")} · ${escapeHtml(review.traveller || "")}${room ? ` · ${escapeHtml(room.name)}` : ""} · ${escapeHtml(formatDay(review.date))} · ${escapeHtml(review.nights)} nights</p>
-        <p><strong>Liked.</strong> ${escapeHtml(review.liked || "")}</p>
-        <p><strong>Disliked.</strong> ${escapeHtml(review.disliked || "")}</p>
-      </article>`;
-    }).join("");
-    document.getElementById("adminReviewList").innerHTML = cards
-      || `<div class="empty"><h3>No written reviews for this stay</h3><p>The score on the public page can still be an average.</p></div>`;
-  }
-
-  select.addEventListener("change", draw);
-  draw();
+  if (typeof window.porticoRenderReviews === "function") window.porticoRenderReviews();
 }
 
 function renderMessages() {
