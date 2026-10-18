@@ -1,6 +1,4 @@
-@{
-    ViewData["Title"] = "Stay details";
-}
+@model PropertyPageVm
 
 @section Styles {
     <link rel="stylesheet" href="~/css/property.css" asp-append-version="true" />
@@ -9,38 +7,36 @@
 <div class="wrap">
     <nav class="crumbs" id="crumbs" aria-label="Breadcrumb">
         <a asp-controller="Home" asp-action="Index">Stays</a>
+        <span>@Model.Stay.Address.Country</span>
+        <span>@Model.Stay.Address.City</span>
+        <span aria-current="page">@Model.Stay.Name</span>
     </nav>
 </div>
 
-<section class="wrap page-state" id="pageState" hidden aria-live="polite"></section>
-
-<article class="property is-loading" id="property" aria-busy="true" data-reserve="@Url.Action("Reserve", "Property")" data-reservation="@(Url.Action("Index", "Reservation") + "/")" data-trips="@Url.Action("Trips", "Reservation")">
-    @await Component.InvokeAsync("PropertyHead")
-    @await Component.InvokeAsync("PropertyGallery")
+<article class="property" id="property" data-stay="@Model.Stay.Id" data-name="@Model.Stay.Name">
+    @await Component.InvokeAsync("PropertyHead", new { model = Model })
+    @await Component.InvokeAsync("PropertyGallery", new { model = Model })
     @await Component.InvokeAsync("PropertySubnav")
 
     <div class="wrap p-layout">
         <aside class="p-aside" aria-label="Your stay">
-            @await Component.InvokeAsync("BookingCard")
+            @await Component.InvokeAsync("BookingCard", new { model = Model })
         </aside>
         <div class="p-main">
-            @await Component.InvokeAsync("PropertyAbout")
-            @await Component.InvokeAsync("PropertyAmenities")
-            @await Component.InvokeAsync("PropertyRooms")
-            @await Component.InvokeAsync("PropertyReviews")
-            @await Component.InvokeAsync("PropertyLocation")
-            @await Component.InvokeAsync("PropertyHouseRules")
-            @await Component.InvokeAsync("PropertyFaq")
+            @await Component.InvokeAsync("PropertyAbout", new { model = Model })
+            @await Component.InvokeAsync("PropertyAmenities", new { model = Model })
+            @await Component.InvokeAsync("PropertyRooms", new { model = Model })
+            @await Component.InvokeAsync("PropertyReviews", new { model = Model })
+            @await Component.InvokeAsync("PropertyLocation", new { model = Model })
+            @await Component.InvokeAsync("PropertyHouseRules", new { model = Model })
+            @await Component.InvokeAsync("PropertyFaq", new { model = Model })
         </div>
     </div>
 </article>
 
-@await Component.InvokeAsync("MobileReserveBar")
-@await Component.InvokeAsync("PropertyLightbox")
-@await Component.InvokeAsync("ReserveDialog")
+@await Component.InvokeAsync("MobileReserveBar", new { model = Model })
+@await Component.InvokeAsync("PropertyLightbox", new { model = Model })
 
 @section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
-    <script src="~/js/api.js" asp-append-version="true"></script>
     <script src="~/js/property.js" asp-append-version="true"></script>
 }

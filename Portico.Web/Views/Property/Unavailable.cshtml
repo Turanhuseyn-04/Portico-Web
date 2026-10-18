@@ -1,0 +1,29 @@
+@model bool
+@{
+    var notFound = Model;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/property.css" asp-append-version="true" />
+}
+
+<div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a asp-controller="Home" asp-action="Index">Stays</a>
+    </nav>
+</div>
+
+<section class="wrap page-state" aria-live="polite">
+    <div class="state-card">
+        <p class="kicker">@(notFound ? "Not on the list" : "Something went wrong")</p>
+        <h1>@(notFound ? "We could not find that stay" : "This stay did not load")</h1>
+        <p>@(notFound ? "The link may be old, or the stay has left the list." : "Portico.Api did not answer. Try again in a moment. Nothing was booked.")</p>
+        <div class="state-actions">
+            @if (!notFound)
+            {
+                <a class="btn-ink" href="@(Context.Request.Path + Context.Request.QueryString)">Try again</a>
+            }
+            <a class="btn-outline" asp-controller="Home" asp-action="Index" asp-fragment="list">Back to all stays</a>
+        </div>
+    </div>
+</section>

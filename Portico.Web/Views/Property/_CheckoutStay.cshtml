@@ -1,0 +1,23 @@
+@model CheckoutVm
+<div class="reserve-stay">
+    <img src="@StayText.Image(Model.Room.Image)" alt="">
+    <div>
+        <p class="stay-type">@Model.Room.Name</p>
+        <h2>@Model.Stay.Name</h2>
+        <p class="where-line">@Model.Where</p>
+    </div>
+</div>
+<dl class="trip-facts">
+    <div><dt>Check-in</dt><dd>@StayText.Long(Model.Pick.CheckIn)</dd></div>
+    <div><dt>Check-out</dt><dd>@StayText.Long(Model.Pick.CheckOut)</dd></div>
+    @if (ViewData["ShowGuest"] as bool? == true)
+    {
+        <div><dt>Guest</dt><dd>@Model.Guest.Name</dd></div>
+    }
+    else
+    {
+        <div><dt>Guests</dt><dd>@Model.GuestLabel</dd></div>
+    }
+    <div><dt>Total</dt><dd>@StayText.Money(Model.Total)</dd></div>
+</dl>
+<p class="formula">@Model.Formula</p>

@@ -1,0 +1,119 @@
+@model StayFormVm
+<div class="editor-grid">
+    <label>Id
+        @if (Model.LockId)
+        {
+            <input asp-for="Id" readonly>
+        }
+        else
+        {
+            <input asp-for="Id" placeholder="marble">
+        }
+        <span asp-validation-for="Id"></span>
+    </label>
+    <label>Name
+        <input asp-for="Name">
+        <span asp-validation-for="Name"></span>
+    </label>
+    <label>Type
+        <input asp-for="Type">
+    </label>
+    <label>Stars
+        <input asp-for="Stars" type="number" min="0" max="5">
+    </label>
+    <label>Street
+        <input asp-for="Street">
+    </label>
+    <label>Area
+        <input asp-for="Area">
+    </label>
+    <label>City
+        <input asp-for="City">
+    </label>
+    <label>Postcode
+        <input asp-for="Postcode">
+    </label>
+    <label>Country
+        <input asp-for="Country">
+    </label>
+    <label>Latitude
+        <input asp-for="Lat" type="number" step="any">
+    </label>
+    <label>Longitude
+        <input asp-for="Lng" type="number" step="any">
+    </label>
+    <label class="span-2">Summary
+        <textarea asp-for="Summary"></textarea>
+    </label>
+    <label class="span-2">Description
+        <textarea asp-for="DescriptionText" placeholder="One paragraph per line"></textarea>
+    </label>
+</div>
+<h2>Rooms</h2>
+<div id="roomStack" class="room-stack">
+    @for (var i = 0; i < Model.Rooms.Count; i++)
+    {
+        <fieldset class="room-edit">
+            <label>Id <input asp-for="Rooms[i].Id"></label>
+            <label>Name <input asp-for="Rooms[i].Name"></label>
+            <label>Price <input asp-for="Rooms[i].Price" type="number" step="0.01"></label>
+            <label>Sleeps <input asp-for="Rooms[i].Sleeps" type="number" min="0"></label>
+            <label class="check"><input asp-for="Rooms[i].Refundable"> Refundable</label>
+            <label class="check"><input asp-for="Rooms[i].Breakfast"> Breakfast</label>
+            <label>Inventory <input asp-for="Rooms[i].Inventory" type="number" min="0"></label>
+            <button type="button" data-remove-room>Remove</button>
+        </fieldset>
+    }
+</div>
+<div class="editor-actions">
+    <button type="button" id="addRoom">Add room</button>
+</div>
+<script>
+    (function () {
+        var stack = document.getElementById("roomStack");
+        var add = document.getElementById("addRoom");
+        if (!stack || !add) return;
+
+        function fields(card) {
+            return card.querySelectorAll("input, textarea, select");
+        }
+
+        function reindex() {
+            stack.querySelectorAll(".room-edit").forEach(function (card, index) {
+                fields(card).forEach(function (field) {
+                    if (field.name) field.name = field.name.replace(/Rooms\[\d+\]/g, "Rooms[" + index + "]");
+                    if (field.id) field.id = field.id.replace(/Rooms_\d+__/g, "Rooms_" + index + "__");
+                });
+                card.querySelectorAll("label").forEach(function (label) {
+                    if (label.htmlFor) label.htmlFor = label.htmlFor.replace(/Rooms_\d+__/g, "Rooms_" + index + "__");
+                });
+            });
+        }
+
+        function clearCard(card) {
+            fields(card).forEach(function (field) {
+                if (field.type === "checkbox") field.checked = false;
+                else if (field.type === "number") field.value = "0";
+                else field.value = "";
+            });
+        }
+
+        add.addEventListener("click", function () {
+            var cards = stack.querySelectorAll(".room-edit");
+            var copy = cards[cards.length - 1].cloneNode(true);
+            clearCard(copy);
+            stack.appendChild(copy);
+            reindex();
+        });
+
+        stack.addEventListener("click", function (event) {
+            var button = event.target.closest("[data-remove-room]");
+            if (!button) return;
+            var cards = stack.querySelectorAll(".room-edit");
+            var card = button.closest(".room-edit");
+            if (cards.length === 1) clearCard(card);
+            else card.remove();
+            reindex();
+        });
+    })();
+</script>

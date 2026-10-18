@@ -1,5 +1,36 @@
+@model PropertyPageVm
+@{
+    var groups = Model.Stay.AmenityGroups;
+    var total = groups.Sum(group => group.Items.Count);
+    var collapsible = groups.Count > 4;
+}
 <section class="p-section" id="amenities" aria-labelledby="amenitiesTitle">
     <p class="kicker">Facilities</p>
     <h2 id="amenitiesTitle">What this place offers</h2>
-    <div id="amenitiesBody"><span class="skel skel-block"></span></div>
+    <div id="amenitiesBody">
+        <ul class="popular">
+            @foreach (var key in Model.Stay.Popular.Where(StayIcons.Has))
+            {
+                <li>@StayIcons.Svg(key)<span>@StayIcons.Label(key)</span></li>
+            }
+        </ul>
+        <div class="amenity-groups@(collapsible ? " is-collapsed" : "")" id="amenityGroups">
+            @foreach (var group in groups)
+            {
+                <div class="amenity-group">
+                    <h3>@group.Name</h3>
+                    <ul>
+                        @foreach (var item in group.Items)
+                        {
+                            <li>@StayIcons.Svg("check", 16)@item</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+        @if (collapsible)
+        {
+            <button class="text-link" type="button" id="amenityToggle" aria-controls="amenityGroups" aria-expanded="false" data-open-text="Show fewer facilities" data-closed-text="Show all @total facilities">Show all @total facilities</button>
+        }
+    </div>
 </section>

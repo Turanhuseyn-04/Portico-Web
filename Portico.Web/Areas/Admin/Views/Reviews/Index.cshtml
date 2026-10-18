@@ -1,12 +1,64 @@
-<section id="adminReviews" data-stay-id="@ViewData["StayId"]">
+@model ReviewIndexVm
+<section id="reviewsDesk">
     <header class="desk-head">
         <div>
             <h1>Reviews</h1>
-            <p>The score on a stay is the average. The text behind it is here, one house at a time.</p>
+            <p>Add, edit, or remove a written review. The public stay page shows the same words.</p>
         </div>
+        <a class="btn-ink" asp-action="Create">Create</a>
     </header>
-    <div class="admin-tools">
-        <select id="reviewStay" aria-label="Stay"></select>
-    </div>
-    <div id="adminReviewList"></div>
+    <form class="admin-tools" method="get" asp-action="Index">
+        <input type="search" name="q" value="@Model.Query" placeholder="Author, title, or stay id" aria-label="Filter reviews">
+        <button type="submit">Filter</button>
+        <a class="tool" asp-action="Index">Clear</a>
+    </form>
+    <partial name="_Flash" />
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No reviews yet" : "Nothing matches")</h3>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one for a stay such as marble." : "Clear the filter to see every review.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>Stay</th>
+                        <th>Author</th>
+                        <th>Title</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var review in Model.Items)
+                {
+                    <tr>
+                        <td>@review.PropertyId</td>
+                        <td>@review.Author</td>
+                        <td>@review.Title</td>
+                        <td>@review.Score</td>
+                        <td>@review.Date.ToString("yyyy-MM-dd")</td>
+                        <td class="row-actions">
+                            <a asp-action="Detail" asp-route-id="@review.Id">Detail</a>
+                            <a asp-action="Edit" asp-route-id="@review.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@review.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>

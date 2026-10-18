@@ -26,7 +26,9 @@
     @await Component.InvokeAsync("StayDrawer")
     @await Component.InvokeAsync("AuthDialog")
 
-    <div class="toast" id="toast" role="status"></div>
+    @* A message left by the last form post, such as a heart that could not be saved. *@
+    @{ var toast = TempData["Toast"] as string; }
+    <div class="toast@(toast is null ? "" : " is-on")" id="toast" role="status">@toast</div>
     <script>document.documentElement.classList.add("js");</script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

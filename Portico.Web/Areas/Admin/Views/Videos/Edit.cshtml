@@ -1,0 +1,17 @@
+@model VideoFormVm
+<section id="videoForm">
+    <header class="desk-head">
+        <div>
+            <h1>Edit video</h1>
+            <p>Keep the path on the site, for example /assets/videos/villas/14041585_1920_1080_25fps.mp4.</p>
+        </div>
+    </header>
+    <form class="editor" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <div asp-validation-summary="All"></div>
+        <partial name="_Fields" />
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Save</button>
+            <a asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</section>

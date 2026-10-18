@@ -1,13 +1,34 @@
-<section class="section results" id="account" data-trips="@Url.Action("Trips", "Reservation")" data-saved="@Url.Action("Saved", "Account")" data-signin="@Url.Action("SignIn", "Account")" data-register="@Url.Action("Register", "Account")">
+@using Portico.Web.Models.Accounts
+
+<section class="section results" id="account">
     <div class="wrap">
         <p class="kicker">Account</p>
-        <h1 id="accountTitle">Your account</h1>
-        <p class="sub" id="accountMeta" aria-live="polite">The name and email for this browser.</p>
-        <div id="accountBody"></div>
+        <h1 id="accountTitle">@User.DisplayName()</h1>
+        <p class="sub" id="accountMeta">Your name and email on Portico.</p>
+        <div class="account-panel">
+            <dl class="trip-facts">
+                <div><dt>Name</dt><dd>@User.DisplayName()</dd></div>
+                <div><dt>Email</dt><dd>@User.Email()</dd></div>
+                @if (User.IsInRole(AccountRoles.Admin))
+                {
+                    <div><dt>Role</dt><dd>Admin</dd></div>
+                }
+            </dl>
+            <div class="account-links">
+                <a class="change-search" asp-controller="Reservation" asp-action="Trips">Your trips</a>
+                <a class="change-search" asp-controller="Account" asp-action="Saved">Saved stays</a>
+                @if (User.IsInRole(AccountRoles.Admin))
+                {
+                    <a class="change-search" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
+                }
+            </div>
+            <form method="post" asp-controller="Account" asp-action="SignOutNow">
+                <button class="account-switch text-btn" type="submit">Sign out</button>
+            </form>
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
-    <script src="~/js/profile.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }

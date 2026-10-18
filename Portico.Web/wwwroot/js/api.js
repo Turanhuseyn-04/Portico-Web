@@ -3,11 +3,9 @@
 const PorticoApi = (() => {
   // Set baseUrl (for example "https://localhost:7001/api") once Portico.Api is running.
   // An empty baseUrl keeps the preview on this browser.
-  const config = { baseUrl: "", latency: 450 };
+    const config = { baseUrl: "https://localhost:7190", latency: 450 };
   const mockMode = new URLSearchParams(window.location.search).get("mock") || "";
   const RESERVATIONS = "portico-reservations";
-  const ACCOUNT = "portico-account";
-  const SAVED = "portico:saved";
   const MESSAGES = "portico-messages";
 
   // The sample confirmation. A saved record with the same reference replaces it.
@@ -79,12 +77,33 @@ const PorticoApi = (() => {
     try {
       response = await fetch(`${config.baseUrl}${path}`, {
         ...options,
+        credentials: "include",
         headers: { Accept: "application/json", "Content-Type": "application/json", ...(options.headers || {}) }
       });
     } catch {
       throw new ApiError("network", "The server could not be reached.");
     }
     if (response.status === 404) throw new ApiError("not-found", "That record does not exist.");
+    if (response.status === 400) {
+      let message = "That form could not be saved.";
+      try {
+        const body = await response.json();
+        if (body && Array.isArray(body.errors) && body.errors[0]) message = String(body.errors[0]);
+      } catch {
+        /* the status already says the form was rejected */
+      }
+      throw new ApiError("invalid", message);
+    }
+    if (response.status === 409) {
+      let message = "That room was just taken for these dates.";
+      try {
+        const body = await response.json();
+        if (body && Array.isArray(body.errors) && body.errors[0]) message = String(body.errors[0]);
+      } catch {
+        /* the status already says the room is gone */
+      }
+      throw new ApiError("unavailable", message);
+    }
     if (!response.ok) throw new ApiError("server", `The server answered ${response.status}.`);
     if (response.status === 204) return null;
     return response.json();
@@ -237,17 +256,6 @@ const PorticoApi = (() => {
     return today() <= limit ? Number(trip.total) || 0 : 0;
   }
 
-  function readAccount() {
-    const account = readJson(localStorage, ACCOUNT, null);
-    if (!account || !account.email) return null;
-    return { name: account.name || "", email: account.email };
-  }
-
-  function readSavedIds() {
-    const ids = readJson(localStorage, SAVED, []);
-    return Array.isArray(ids) ? ids : [];
-  }
-
   function readMessages() {
     const list = readJson(localStorage, MESSAGES, []);
     return Array.isArray(list) ? list : [];
@@ -365,61 +373,14 @@ const PorticoApi = (() => {
     return next;
   }
 
-  // POST /account/register
-  async function register(payload) {
-    const account = { name: String((payload && payload.name) || "").trim(), email: String((payload && payload.email) || "").trim() };
-    if (config.baseUrl) return request("/account/register", { method: "POST", body: JSON.stringify(account) });
-    await wait(config.latency * 0.5);
-    writeJson(localStorage, ACCOUNT, account);
-    return account;
-  }
-
-  // POST /account/signin
-  async function signIn(payload) {
-    const email = String((payload && payload.email) || "").trim();
-    if (config.baseUrl) return request("/account/signin", { method: "POST", body: JSON.stringify({ email }) });
-    await wait(config.latency * 0.5);
-    const account = readAccount();
-    if (account && account.email.toLowerCase() === email.toLowerCase()) return account;
-    throw new ApiError("unauthorized", "That email did not match an account in this browser.");
-  }
-
-  // GET /account
-  async function currentAccount() {
-    if (config.baseUrl) {
-      try {
-        return await request("/account");
-      } catch (error) {
-        if (error && error.code === "not-found") return null;
-        throw error;
-      }
+  // GET /account/{email}/saved. Sign-in and saving happen on the server; the admin console only reads the list.
+  async function listSavedFor(email) {
+    if (!config.baseUrl || !email) return [];
+    try {
+      return await request(`/account/${encodeURIComponent(email)}/saved`);
+    } catch {
+      return [];
     }
-    await wait(config.latency * 0.2);
-    return readAccount();
-  }
-
-  // GET /account/saved
-  async function listSaved() {
-    if (config.baseUrl) return request("/account/saved");
-    await wait(config.latency * 0.2);
-    return readSavedIds();
-  }
-
-  // POST /account/saved/{id}
-  async function saveStay(id) {
-    if (config.baseUrl) return request(`/account/saved/${encodeURIComponent(id)}`, { method: "POST" });
-    const ids = readSavedIds().filter((item) => item !== id);
-    ids.push(id);
-    writeJson(localStorage, SAVED, ids);
-    return ids;
-  }
-
-  // DELETE /account/saved/{id}
-  async function unsaveStay(id) {
-    if (config.baseUrl) return request(`/account/saved/${encodeURIComponent(id)}`, { method: "DELETE" });
-    const ids = readSavedIds().filter((item) => item !== id);
-    writeJson(localStorage, SAVED, ids);
-    return ids;
   }
 
   // GET /messages
@@ -445,9 +406,26 @@ const PorticoApi = (() => {
     return note;
   }
 
+  function adminResource(path) {
+    if (!config.baseUrl) throw new ApiError("network", "Portico.Api is not configured.");
+    return {
+      list: () => request(path),
+      get: (id) => request(`${path}/${encodeURIComponent(id)}`),
+      create: (body) => request(path, { method: "POST", body: JSON.stringify(body) }),
+      edit: (id, body) => request(`${path}/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+      remove: (id) => request(`${path}/${encodeURIComponent(id)}`, { method: "DELETE" })
+    };
+  }
+
+  function adminPhotos(propertyId) {
+    return adminResource(`/admin/properties/${encodeURIComponent(propertyId)}/photos`);
+  }
+
   return {
     config,
     ApiError,
+    adminResource,
+    adminPhotos,
     listProperties,
     getProperty,
     getAvailability,
@@ -456,12 +434,7 @@ const PorticoApi = (() => {
     getReservation,
     listReservations,
     cancelReservation,
-    register,
-    signIn,
-    currentAccount,
-    listSaved,
-    saveStay,
-    unsaveStay,
+    listSavedFor,
     listMessages,
     createMessage
   };

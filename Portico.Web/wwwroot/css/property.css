@@ -1509,3 +1509,28 @@ span.room-photo { display: block; }
 
   .room-select { min-width: 112px; }
 }
+
+/* ---------- Links that change the page ----------
+   Filters and room choices are links to the server-rendered page, styled like the toggles they replace. */
+
+a.filter-chip,
+a.room-select {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.filter-chip.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+a.room-select:hover,
+a.room-select.is-on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+a.room-select:hover { transform: translateY(-1px); }
+
+a.book-cta { text-decoration: none; }

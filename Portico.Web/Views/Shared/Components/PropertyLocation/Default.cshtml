@@ -1,5 +1,48 @@
+@model PropertyPageVm
+@using System.Globalization
+@{
+    var stay = Model.Stay;
+    var address = stay.Address;
+    var lat = stay.Location.Lat;
+    var lng = stay.Location.Lng;
+    var bbox = string.Join(",", new[] { lng - 0.01, lat - 0.006, lng + 0.01, lat + 0.006 }.Select(value => value.ToString("F5", CultureInfo.InvariantCulture)));
+    var latText = lat.ToString(CultureInfo.InvariantCulture);
+    var lngText = lng.ToString(CultureInfo.InvariantCulture);
+    var mapSrc = $"https://www.openstreetmap.org/export/embed.html?bbox={bbox}&layer=mapnik&marker={latText},{lngText}";
+    var mapLink = $"https://www.openstreetmap.org/?mlat={latText}&mlon={lngText}#map=17/{latText}/{lngText}";
+    var hasLocationScore = stay.Scores.TryGetValue("Location", out var locationScore);
+}
 <section class="p-section" id="location" aria-labelledby="locationTitle">
     <p class="kicker">Location</p>
     <h2 id="locationTitle">Where you will be</h2>
-    <div id="locationBody"><span class="skel skel-block"></span></div>
+    <div id="locationBody">
+        <div class="location-grid">
+            <div class="map-card">
+                <iframe title="Map showing @stay.Name" src="@mapSrc" loading="lazy" referrerpolicy="no-referrer"></iframe>
+            </div>
+            <div class="location-info">
+                <p class="loc-address">@StayIcons.Svg("pin")<span><strong>@address.Area, @address.City</strong>@address.Street, @address.Postcode @address.City, @address.Country</span></p>
+                @if (hasLocationScore)
+                {
+                    <div class="rating"><span class="score">@StayText.Score(locationScore)</span><div><strong>Location: @StayText.ScoreLabel(locationScore).ToLowerInvariant()</strong><span>Rated by guests who stayed</span></div></div>
+                }
+                <a class="text-link" href="@mapLink" target="_blank" rel="noopener">Open a larger map</a>
+            </div>
+        </div>
+        <div class="nearby">
+            @foreach (var group in stay.Nearby)
+            {
+                <div>
+                    <h3>@group.Group</h3>
+                    <ul>
+                        @foreach (var item in group.Items.Where(item => item.Count >= 2))
+                        {
+                            <li><span>@item[0]</span><span>@item[1]</span></li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+        <p class="fine-print">Distances are in straight lines. Walking routes may be longer.</p>
+    </div>
 </section>

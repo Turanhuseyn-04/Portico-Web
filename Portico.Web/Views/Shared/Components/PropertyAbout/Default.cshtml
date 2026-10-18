@@ -1,7 +1,24 @@
+@model PropertyPageVm
 <section class="p-section" id="about" aria-labelledby="aboutTitle">
-    <p class="kicker" id="aboutKicker">Overview</p>
-    <h2 id="aboutTitle">About this stay</h2>
+    <p class="kicker" id="aboutKicker">@Model.Stay.Type in @Model.Stay.Address.City</p>
+    <h2 id="aboutTitle">About this @Model.Copy.Noun</h2>
     <div class="about" id="aboutBody">
-        <span class="skel skel-block"></span>
+        <div class="about-copy">
+            <p class="about-lead">@Model.Stay.Summary</p>
+            @foreach (var text in Model.Stay.Description)
+            {
+                <p>@text</p>
+            }
+        </div>
+        <div class="highlights">
+            <h3>Property highlights</h3>
+            <ul>
+                @foreach (var item in Model.Stay.Highlights)
+                {
+                    <li>@StayIcons.Svg(item.Icon)<div><strong>@item.Title</strong><span>@item.Text</span></div></li>
+                }
+            </ul>
+            <a class="btn-ink" href="#rooms">See availability</a>
+        </div>
     </div>
 </section>

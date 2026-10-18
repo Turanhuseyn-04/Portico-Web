@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Models;
+using Portico.Web.Models.Accounts;
+using Portico.Web.Services;
+using Portico.Web.ViewModels.Home;
 using System.Diagnostics;
 
 namespace Portico.Web.Controllers
@@ -7,15 +10,26 @@ namespace Portico.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IPropertyApi _properties;
+        private readonly IAccountApi _accounts;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IPropertyApi properties, IAccountApi accounts)
         {
             _logger = logger;
+            _properties = properties;
+            _accounts = accounts;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string? sort, string? property, CancellationToken cancellationToken)
         {
-            return View();
+            var result = await _properties.ListAsync(cancellationToken);
+            var model = HomeVm.Build(result.Data, sort, property);
+            if (User.Email() is { } email)
+            {
+                var saved = await _accounts.SavedAsync(email, cancellationToken);
+                model.List.Saved = (saved.Data ?? new List<string>()).ToHashSet();
+            }
+            return View(model);
         }
 
         public IActionResult Privacy()

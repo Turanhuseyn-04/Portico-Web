@@ -1,11 +1,135 @@
+@model PropertyPageVm
+@{
+    var choice = Model.Choice;
+    var copy = Model.Copy;
+    var people = StayText.Count(choice.People, "guest", "guests");
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var filters = new List<(string Label, bool On, Action<StayChoice> Toggle)>();
+    if (choice.HasDates) filters.Add(("Available for my dates", choice.Available, next => next.Available = !next.Available));
+    filters.Add(($"Fits {people}", choice.Fits, next => next.Fits = !next.Fits));
+    if (Model.Stay.Rooms.Any(room => room.Refundable)) filters.Add(("Free cancellation", choice.Refundable, next => next.Refundable = !next.Refundable));
+    if (Model.Stay.Rooms.Any(room => room.Breakfast)) filters.Add(("Breakfast included", choice.Breakfast, next => next.Breakfast = !next.Breakfast));
+    var clearFilters = Url.Action("Index", "Property", choice.Link(next => { next.Available = false; next.Fits = false; next.Refundable = false; next.Breakfast = false; }), null, null, "rooms");
+}
 <section class="p-section" id="rooms" aria-labelledby="roomsTitle">
     <div class="rooms-head">
         <div>
             <p class="kicker">Availability</p>
-            <h2 id="roomsTitle">Choose your room</h2>
-            <p class="sub" id="roomsMeta" aria-live="polite"></p>
+            <h2 id="roomsTitle">@copy.Choose</h2>
+            <p class="sub" id="roomsMeta">
+                @if (!choice.HasDates)
+                {
+                    <text>Prices are per night. <button class="text-link" type="button" data-open-dates>Add your dates</button> to check availability and see the stay total.</text>
+                }
+                else
+                {
+                    <text>@StayText.Short(choice.CheckIn!.Value) – @StayText.Short(choice.CheckOut!.Value) · @StayText.Count(choice.Nights, "night", "nights") · @Model.GuestLabel · <button class="text-link" type="button" data-open-dates>Change</button></text>
+                }
+            </p>
         </div>
     </div>
-    <div class="room-filters" id="roomFilters" role="group" aria-label="Filter rooms"></div>
-    <div class="room-list" id="roomList" aria-live="polite"></div>
+    <div class="room-filters" id="roomFilters" role="group" aria-label="Filter rooms">
+        @foreach (var filter in filters)
+        {
+            <a class="filter-chip@(filter.On ? " is-on" : "")" aria-current="@(filter.On ? "true" : null)" href="@Url.Action("Index", "Property", choice.Link(filter.Toggle), null, null, "rooms")">@if (filter.On) {@StayIcons.Svg("check", 14)}@filter.Label</a>
+        }
+    </div>
+    <div class="room-list" id="roomList">
+        @if (Model.OffersFailed)
+        {
+            <div class="empty">
+                <h3>Availability did not load</h3>
+                <p>We could not check these dates. Nothing was booked.</p>
+                <a class="btn-ink" href="@Url.Action("Index", "Property", choice.Link(), null, null, "rooms")">Try again</a>
+            </div>
+        }
+        else if (Model.ShownRooms.Count == 0)
+        {
+            var allTaken = choice.HasDates && Model.Rooms.All(row => !row.Bookable && row.Fits);
+            <div class="empty">
+                <h3>No @copy.Options match</h3>
+                <p>@(allTaken ? $"Every {copy.Unit} is taken on at least one of these nights. Try moving your dates." : $"None of the {copy.Options} match your filters and group of {people}.")</p>
+                <div class="empty-actions">
+                    @if (allTaken)
+                    {
+                        <button class="btn-ink" type="button" data-open-dates>Change dates</button>
+                    }
+                    else
+                    {
+                        <a class="btn-ink" href="@clearFilters">Clear filters</a>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            foreach (var row in Model.ShownRooms)
+            {
+                var room = row.Room;
+                var policy = Model.CancelPolicy(room, today);
+                var label = row.Selected ? "Selected" : row.Blocked ? "Unavailable" : "Select";
+                <article class="room-card@(row.Selected ? " is-selected" : "")@(row.Blocked ? " is-off" : "")" data-room="@room.Id">
+                    <button class="room-photo" type="button" data-room-photo data-src="@room.Image" data-alt="@room.Name" aria-label="View photo of @room.Name">
+                        <img src="@room.Image" alt="" width="800" height="600" loading="lazy">
+                    </button>
+                    <div class="room-body">
+                        <h3>@room.Name</h3>
+                        <p class="room-facts"><span>@room.Size m²</span><span>@room.Beds</span><span>@StayIcons.Svg("guest", 14)Sleeps @room.Sleeps</span></p>
+                        <ul class="room-features">
+                            @foreach (var item in room.Features)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+                        <p class="cancel@(policy.Locked ? " is-locked" : "")">@policy.Text</p>
+                        <p class="room-meal@(room.Breakfast ? " is-on" : "")">@(room.Breakfast ? "Breakfast included" : "Breakfast not included")</p>
+                        @if (row.State == RoomState.Available && row.Left <= 2)
+                        {
+                            <p class="scarce">Only @row.Left left for your dates</p>
+                        }
+                        @if (row.State == RoomState.SoldOut)
+                        {
+                            <p class="unfit">Sold out@(PropertyPageVm.SoldOutDay(row.SoldOutOn, " on ", "")). Try moving your dates.</p>
+                        }
+                        @if (row.State == RoomState.Short)
+                        {
+                            <p class="unfit">Only @row.Left left for these dates. You asked for @choice.Rooms.</p>
+                        }
+                        @if (!row.Fits)
+                        {
+                            <p class="unfit">Sleeps @room.Sleeps per @copy.Unit, too few for @people. Add a @copy.Unit in Guests or choose a larger one.</p>
+                        }
+                    </div>
+                    <div class="room-side">
+                        <div class="stay-price">
+                            @if (row.State == RoomState.Available)
+                            {
+                                <span class="from">@StayText.Count(choice.Nights, "night", "nights"), @people</span>
+                                <strong>@StayText.Money(row.Total)</strong>
+                                <span class="per">@StayText.Money(room.Price) × @choice.Nights × @StayText.Count(choice.Rooms, copy.Unit, copy.Units)</span>
+                            }
+                            else
+                            {
+                                <span class="from">per night</span><strong>@StayText.Money(room.Price)</strong><span class="per">@Html.Raw(row.State == RoomState.NoDates ? "Add dates for a total" : "&nbsp;")</span>
+                            }
+                        </div>
+                        @if (row.Blocked && !row.Selected)
+                        {
+                            <button class="room-select" type="button" disabled aria-label="@label @room.Name">@label</button>
+                        }
+                        else
+                        {
+                            <a class="room-select@(row.Selected ? " is-on" : "")" aria-current="@(row.Selected ? "true" : null)" aria-label="@label @room.Name"
+                               href="@Url.Action("Index", "Property", choice.Link(next => next.Room = row.Selected ? null : room.Id), null, null, "rooms")">@if (row.Selected) {@StayIcons.Svg("check", 16)}@label</a>
+                        }
+                    </div>
+                </article>
+            }
+            var hidden = Model.Rooms.Count - Model.ShownRooms.Count;
+            if (hidden > 0)
+            {
+                <p class="rooms-hidden">@StayText.Count(hidden, copy.Options.TrimEnd('s'), copy.Options) hidden by your filters. <a class="text-link" href="@clearFilters">Show all</a></p>
+            }
+        }
+    </div>
 </section>

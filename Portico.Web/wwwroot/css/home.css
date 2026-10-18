@@ -1279,7 +1279,7 @@ a.property-card { text-decoration: none; }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr repeat(3, 1fr);
+  grid-template-columns: 1.4fr repeat(4, 1fr);
   gap: 28px;
 }
 
@@ -1315,9 +1315,9 @@ a.property-card { text-decoration: none; }
 
 .footer p { max-width: 36ch; }
 
-.footer-reach { margin-top: 14px; }
+.footer-contact { font-style: normal; }
 
-.footer-reach + .footer-reach { margin-top: 2px; }
+.footer-contact p { margin: 0 0 6px; font-size: 15px; }
 
 .legal {
   display: flex;
@@ -2140,3 +2140,21 @@ article.trip-row img { width: 100%; height: 180px; }
   .trip-total { padding-right: 0; }
 }
 
+
+/* The sort select sends a GET form; the form keeps the label's place in the section head. */
+.sort-form { display: flex; align-items: center; gap: 10px; }
+
+a.btn-ink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* Fields the server sent back with a problem. */
+.stack .input-validation-error { border-color: var(--warn); }
+
+/* The save heart is a form; it should not add a box around the button. */
+.save-form { display: contents; }
+
+.saved-row form { margin-top: -4px; }

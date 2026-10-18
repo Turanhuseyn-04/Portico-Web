@@ -1,0 +1,22 @@
+@model PageMessage
+
+<section class="section results" id="@Model.SectionId">
+    <div class="wrap">
+        <div class="section-head">
+            <div>
+                <p class="kicker">@Model.Kicker</p>
+                <h1>@Model.Title</h1>
+                <p class="sub">@Model.Text</p>
+            </div>
+        </div>
+        <div class="empty">
+            <h3>@Model.Title</h3>
+            <p>@Model.Text</p>
+            <a class="change-search" href="@Model.LinkHref">@Model.LinkText</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+}

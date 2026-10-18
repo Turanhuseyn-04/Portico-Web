@@ -1,3 +1,4 @@
+@model List<DestinationVm>
 <section class="section" id="trending" aria-labelledby="trendTitle">
     <div class="wrap">
         <div class="section-head reveal">
@@ -11,7 +12,18 @@
             </div>
         </div>
         <div class="trend-viewport">
-            <div class="trend-track reveal-track" id="trendTrack" tabindex="0" aria-label="Top trending destinations"></div>
+            <div class="trend-track reveal-track" id="trendTrack" tabindex="0" aria-label="Top trending destinations">
+                @foreach (var place in Model)
+                {
+                    <article class="trend-card" data-city="@place.City" tabindex="0" role="button" aria-label="Search stays in @place.City">
+                        <img src="@place.Image" alt="" width="800" height="1000">
+                        <div class="shade"></div>
+                        <div class="trend-meta">
+                            <h3>@place.City</h3>
+                        </div>
+                    </article>
+                }
+            </div>
         </div>
     </div>
 </section>

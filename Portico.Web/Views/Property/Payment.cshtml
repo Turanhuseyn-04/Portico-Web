@@ -1,18 +1,57 @@
-<section class="section results" id="payment" data-asset-root="/assets/" data-reservation="@(Url.Action("Index", "Reservation") + "/")" data-reserve="@Url.Action("Reserve", "Property")" data-home="@Url.Action("Index", "Home")" data-property="@Url.Action("Index", "Property")">
+@model CheckoutVm
+@{
+    ViewData["ShowGuest"] = true;
+    string? Problem(string key) =>
+        ViewData.ModelState.TryGetValue(key, out var state) && state.Errors.Count > 0 ? "input-validation-error" : null;
+}
+
+<section class="section results" id="payment">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Payment</p>
                 <h1 id="paymentTitle">Payment</h1>
-                <p class="sub" id="paymentMeta" aria-live="polite">The same total as the stay, then the card.</p>
+                <p class="sub" id="paymentMeta">@Model.Stay.Name · @StayText.Money(Model.Total)</p>
             </div>
         </div>
-        <div id="paymentBody"></div>
+        <div class="account-panel">
+            <partial name="_CheckoutStay" model="Model" />
+            <p class="where-line">Confirmation to @Model.Guest.Email</p>
+
+            <form id="paymentForm" method="post" asp-controller="Property" asp-action="Payment">
+                <partial name="_StayFields" model="Model.Pick" />
+                <label class="stack">Name on card
+                    <input asp-for="Card.CardName" type="text" required autocomplete="cc-name">
+                    <span class="field-error" asp-validation-for="Card.CardName"></span>
+                </label>
+                @* The number and the security code are never written back into the page. *@
+                <label class="stack">Card number
+                    <input name="Card.Number" id="Card_Number" type="text" inputmode="numeric" required autocomplete="cc-number" maxlength="23" placeholder="•••• •••• •••• ••••" data-format="card" class="@Problem("Card.Number")">
+                    <span class="field-error" asp-validation-for="Card.Number"></span>
+                </label>
+                <div class="card-row">
+                    <label class="stack">Expiry
+                        <input asp-for="Card.Expiry" type="text" inputmode="numeric" required autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" data-format="expiry">
+                        <span class="field-error" asp-validation-for="Card.Expiry"></span>
+                    </label>
+                    <label class="stack">Security code
+                        <input name="Card.Cvc" id="Card_Cvc" type="text" inputmode="numeric" required autocomplete="cc-csc" placeholder="CVC" class="@Problem("Card.Cvc")">
+                        <span class="field-error" asp-validation-for="Card.Cvc"></span>
+                    </label>
+                </div>
+                @if (Model.Error is not null)
+                {
+                    <p class="account-error" id="paymentError" role="alert">@Model.Error</p>
+                }
+                <button class="search-btn auth-submit" id="paymentSubmit" type="submit">Pay @StayText.Money(Model.Total)</button>
+                <p class="preview-note">The card is checked on the server and not stored or sent on. Portico.Api does not take payment yet, so nothing is charged.</p>
+            </form>
+            <a class="account-switch" href="@Url.Action("Reserve", "Property", Model.Pick.Route())">Back to guest details</a>
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
-    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script src="~/js/payment.js" asp-append-version="true" defer></script>
 }

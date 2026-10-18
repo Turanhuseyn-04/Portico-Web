@@ -1,0 +1,69 @@
+@model SlideIndexVm
+<section id="slidesDesk">
+    <header class="desk-head">
+        <div>
+            <h1>Slides</h1>
+            <p>Each slide is a city, a country, an image path, and a count of stays. The path stays on the site, for example /assets/lisbon.jpg.</p>
+        </div>
+        <a class="btn-ink" asp-action="Create">Create</a>
+    </header>
+    <form class="admin-tools" method="get" asp-action="Index">
+        <input type="search" name="q" value="@Model.Query" placeholder="City, country, or image" aria-label="Filter slides">
+        <button type="submit">Filter</button>
+        <a class="tool" asp-action="Index">Clear</a>
+    </form>
+    <partial name="_Flash" />
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No slides yet" : "Nothing matches")</h3>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one with a city, a country, and an image path." : "Clear the filter to see every slide.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Image</th>
+                        <th>Stays</th>
+                        <th>Order</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var slide in Model.Items)
+                {
+                    <tr>
+                        <td>@slide.City</td>
+                        <td>@slide.Country</td>
+                        <td>
+                            <span class="path-cell">
+                                <img src="@slide.Image" alt="">
+                                <code>@slide.Image</code>
+                            </span>
+                        </td>
+                        <td>@slide.Stays</td>
+                        <td>@slide.Order</td>
+                        <td class="row-actions">
+                            <a asp-action="Detail" asp-route-id="@slide.Id">Detail</a>
+                            <a asp-action="Edit" asp-route-id="@slide.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@slide.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

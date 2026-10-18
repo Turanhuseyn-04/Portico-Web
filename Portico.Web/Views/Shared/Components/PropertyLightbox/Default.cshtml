@@ -1,3 +1,7 @@
+@model PropertyPageVm
+@{
+    var photos = Model.Stay.Gallery;
+}
 <div class="lightbox" id="lightbox" hidden>
     <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Photo gallery">
         <div class="lb-top">
@@ -10,6 +14,11 @@
             <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Next photo">&rarr;</button>
             <figcaption id="lbCaption"></figcaption>
         </figure>
-        <div class="lb-thumbs" id="lbThumbs"></div>
+        <div class="lb-thumbs" id="lbThumbs">
+            @for (var index = 0; index < photos.Count; index++)
+            {
+                <button type="button" data-thumb="@index" data-src="@photos[index].Src" data-alt="@photos[index].Alt" aria-label="Show photo @(index + 1): @photos[index].Alt"><img src="@photos[index].Src" alt="" loading="lazy" width="160" height="110"></button>
+            }
+        </div>
     </div>
 </div>

@@ -1,19 +1,52 @@
-<section class="section results" id="saved" data-asset-root="/assets/" data-property="@Url.Action("Index", "Property")">
+@model List<StayCardVm>
+
+<section class="section results" id="saved">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Account</p>
                 <h1>Saved stays</h1>
-                <p class="sub" id="savedMeta" aria-live="polite">Stays kept with the heart on a property page.</p>
+                <p class="sub" id="savedMeta">@StayText.Count(Model.Count, "saved stay", "saved stays")</p>
             </div>
             <a class="change-search" asp-controller="Account" asp-action="Profile">Your account</a>
         </div>
-        <div id="savedList"></div>
+        <div id="savedList">
+            @if (Model.Count == 0)
+            {
+                <div class="empty">
+                    <h3>No saved stays</h3>
+                    <p>Use the heart on a stay to keep it here.</p>
+                    <a class="change-search" asp-controller="Home" asp-action="Index" asp-fragment="list">Browse stays</a>
+                </div>
+            }
+            else
+            {
+                <div class="trip-list">
+                    @foreach (var stay in Model)
+                    {
+                        <div class="saved-row">
+                            <a class="trip-row" asp-controller="Property" asp-action="Index" asp-route-id="@stay.Id">
+                                <img src="@StayText.Image(stay.Image)" alt="" width="320" height="220">
+                                <div>
+                                    <p class="stay-type">Saved</p>
+                                    <h2>@stay.Name</h2>
+                                    <p class="where-line">@string.Join(" · ", new[] { stay.Area, stay.City, stay.Country }.Where(part => part != ""))</p>
+                                </div>
+                                <p class="trip-total">@StayText.Money(stay.Price)</p>
+                            </a>
+                            <form method="post" asp-controller="Account" asp-action="ToggleSaved" asp-route-id="@stay.Id">
+                                <input type="hidden" name="saved" value="true">
+                                <input type="hidden" name="returnUrl" value="@Url.Action("Saved", "Account")">
+                                <button class="account-switch text-btn" type="submit">Remove @stay.Name</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true" defer></script>
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
-    <script src="~/js/saved.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }

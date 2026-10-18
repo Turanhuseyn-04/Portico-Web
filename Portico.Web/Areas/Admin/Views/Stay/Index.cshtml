@@ -1,5 +1,64 @@
-<section id="adminStay" data-stay-id="@ViewData["StayId"]" data-asset-root="/assets/" data-property="@(Url.Action("Index", "Property", new { area = "" }) + "?id=")" data-admin="@Url.Action("Index", "Stay", new { area = "Admin", id = "" })" data-availability="@(Url.Action("Index", "Availability", new { area = "Admin", id = "key" })?.Replace("/key", "/"))" data-reviews="@(Url.Action("Index", "Reviews", new { area = "Admin", id = "key" })?.Replace("/key", "/"))">
-    <p class="kicker">Stay</p>
-    <h1 id="adminStayTitle">Stay</h1>
-    <div id="adminStayBody"></div>
+@model StayIndexVm
+<section id="staysDesk">
+    <header class="desk-head">
+        <div>
+            <h1>Stays</h1>
+            <p>Add a stay, open one to edit its rooms and photographs, or delete one that has no reservation.</p>
+        </div>
+        <a class="btn-ink" asp-action="Create">Create</a>
+    </header>
+    <form class="admin-tools" method="get" asp-action="Index">
+        <input type="search" name="q" value="@Model.Query" placeholder="Id, name, or city" aria-label="Filter stays">
+        <button type="submit">Filter</button>
+        <a class="tool" asp-action="Index">Clear</a>
+    </form>
+    <partial name="_Flash" />
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No stays yet" : "Nothing matches")</h3>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one with a short id such as marble." : "Clear the filter to see every stay.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>City</th>
+                        <th>Type</th>
+                        <th>Rooms</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var stay in Model.Items)
+                {
+                    <tr>
+                        <td>@stay.Id</td>
+                        <td>@stay.Name</td>
+                        <td>@stay.City</td>
+                        <td>@stay.Type@(stay.Stars is int stars ? $" · {stars}★" : "")</td>
+                        <td>@stay.Rooms.Count</td>
+                        <td class="row-actions">
+                            <a asp-action="Detail" asp-route-id="@stay.Id">Detail</a>
+                            <a asp-action="Edit" asp-route-id="@stay.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@stay.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>

@@ -330,14 +330,16 @@ function renderStay() {
       ${root.dataset.reviews ? `<a class="change-search" href="${escapeHtml(withPath(root.dataset.reviews, property.id))}">Reviews</a>` : ""}
       <a class="change-search" href="${escapeHtml(root.dataset.admin || "admin.html")}">Back to stays</a>
     </div>
-    <p class="preview-note">Read only. Portico.Api will save edits later.</p>`;
+    <p class="preview-note">The form below saves the stay, its rooms, and its photographs.</p>`;
 }
 
 async function startAdmin() {
   porticoAdmin.trips = await PorticoApi.listReservations();
   porticoAdmin.properties = await PorticoApi.listProperties();
-  porticoAdmin.account = await PorticoApi.currentAccount();
-  porticoAdmin.saved = new Set(await PorticoApi.listSaved());
+  // The signed-in admin comes from the page; the server put it there from the sign-in cookie.
+  const { accountName, accountEmail } = document.body.dataset;
+  porticoAdmin.account = accountEmail ? { name: accountName || "", email: accountEmail } : null;
+  porticoAdmin.saved = new Set(accountEmail ? await PorticoApi.listSavedFor(accountEmail) : []);
   porticoAdmin.messages = await PorticoApi.listMessages();
   bindMenu();
   if (document.getElementById("admin")) renderPanel();

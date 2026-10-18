@@ -1,3 +1,4 @@
+@model HeroSearchVm
 <section class="hero" id="hero">
     <div class="hero-slides" id="heroSlides" aria-hidden="true">
         <div class="hero-slide is-on" style="background-image: url('/assets/hero.jpg')"></div>
@@ -12,7 +13,13 @@
             <p class="lede">Discover exceptional places to stay, carefully selected for your next getaway.</p>
         </div>
 
-        <form class="search" id="searchForm" aria-describedby="formError" data-results="@Url.Action("Search", "Home")" data-types="@Url.Action("Types", "Home")" data-property="@Url.Action("Index", "Property")">
+        <form class="search" id="searchForm" method="get" asp-controller="Home" asp-action="Search" aria-describedby="formError" data-types="@Url.Action("Types", "Home")">
+            <input type="hidden" name="checkIn" id="checkInValue">
+            <input type="hidden" name="checkOut" id="checkOutValue">
+            <input type="hidden" name="adults" id="adultsValue" value="2">
+            <input type="hidden" name="children" id="childrenValue" value="0">
+            <input type="hidden" name="rooms" id="roomsValue" value="1">
+            <input type="hidden" name="property" id="propertyValue" value="@Model.Property">
             <div class="search-fields">
                 <div class="field" id="whereField">
                     <label class="field-label" for="whereInput">Destination</label>
@@ -40,7 +47,18 @@
                 </svg>
             </button>
 
-            <div class="popover" id="wherePopover" hidden></div>
+            <div class="popover" id="wherePopover" hidden>
+                <div class="where-box" role="listbox">
+                    @foreach (var place in Model.Places)
+                    {
+                        <button class="where-item" type="button" data-city="@place.City" data-country="@place.Country" role="option">
+                            <span class="pin" aria-hidden="true"></span>
+                            <span><strong>@place.City</strong><em>@place.Country · @StayText.Count(place.Count, "house", "houses")</em></span>
+                        </button>
+                    }
+                    <p class="where-empty" hidden>No city on the list matches that.</p>
+                </div>
+            </div>
             <div class="popover" id="calPopover" hidden></div>
             <div class="popover guest-popover" id="guestPopover" hidden>
                 <div class="guest-box">

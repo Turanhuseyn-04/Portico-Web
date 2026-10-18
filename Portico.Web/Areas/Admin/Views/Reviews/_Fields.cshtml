@@ -1,0 +1,39 @@
+@model ReviewFormVm
+<div class="editor-grid">
+    <label>Stay id
+        <input asp-for="PropertyId" placeholder="marble">
+        <span asp-validation-for="PropertyId"></span>
+    </label>
+    <label>Room id
+        <input asp-for="RoomId">
+    </label>
+    <label>Author
+        <input asp-for="Author">
+        <span asp-validation-for="Author"></span>
+    </label>
+    <label>Country
+        <input asp-for="Country">
+    </label>
+    <label>Traveller
+        <input asp-for="Traveller">
+    </label>
+    <label>Nights
+        <input asp-for="Nights" type="number" min="0">
+    </label>
+    <label>Date
+        <input asp-for="Date" type="date">
+    </label>
+    <label>Score
+        <input asp-for="Score" type="number" step="0.1">
+    </label>
+    <label class="span-2">Title
+        <input asp-for="Title">
+        <span asp-validation-for="Title"></span>
+    </label>
+    <label class="span-2">Liked
+        <textarea asp-for="Liked"></textarea>
+    </label>
+    <label class="span-2">Disliked
+        <textarea asp-for="Disliked"></textarea>
+    </label>
+</div>

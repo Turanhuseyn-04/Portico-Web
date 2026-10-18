@@ -136,6 +136,18 @@
 
 .console-body { padding: 28px; }
 
+.desk-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.desk-head .btn-ink {
+  margin-top: 0;
+  flex: none;
+}
+
 .desk-head h1 {
   margin: 0;
   font-family: var(--serif);
@@ -437,8 +449,218 @@
 .admin-shell .admin-tools input,
 .admin-shell .admin-tools select { background: var(--white); }
 
-.admin-shell #adminReservation,
-.admin-shell #adminStay { max-width: 760px; }
+.admin-shell .admin-tools button,
+.row-actions button,
+.editor-actions button,
+.room-edit > button {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-shell .admin-tools .btn-ink,
+.editor-actions .btn-ink {
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.admin-shell .admin-tools a.tool,
+.admin-shell .admin-tools a.btn-ink,
+.editor-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  margin-top: 0;
+  padding: 0 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-shell .admin-tools a.tool,
+.editor-actions a {
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: inherit;
+}
+
+.row-actions form { margin: 0; }
+
+.editor .field-validation-error,
+.validation-summary-errors {
+  color: var(--warn);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.validation-summary-errors { margin: 0 0 12px; }
+
+.validation-summary-errors ul { margin: 0; padding-left: 18px; }
+
+.detail-list {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+}
+
+.detail-list dt { color: var(--muted); font-size: 13px; font-weight: 600; }
+
+.detail-list dd { margin: 0; }
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.row-actions a {
+  font-weight: 600;
+  color: inherit;
+}
+
+.editor-note {
+  margin: 12px 0 0;
+  font-weight: 600;
+}
+
+.editor-note.is-bad { color: var(--warn); }
+
+.editor-note:empty,
+.editor-note[hidden] { display: none; }
+
+.editor {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.editor h2,
+.editor h3,
+.photo-desk h2 {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-weight: 500;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.editor label,
+.room-edit label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.editor input,
+.editor textarea,
+.editor select,
+.room-edit input {
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.editor textarea { min-height: 88px; resize: vertical; }
+
+.editor-grid .span-2 { grid-column: 1 / -1; }
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.room-stack { display: grid; gap: 10px; }
+
+.room-edit {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.room-edit .check {
+  align-content: end;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.room-edit > button { align-self: end; }
+
+.path-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.path-cell img {
+  width: 64px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.path-cell code,
+.photo-card code {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.photo-desk { margin-top: 28px; }
+
+.photo-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.photo-card {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.photo-card img {
+  width: 160px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.photo-card strong,
+.photo-card span { display: block; }
+
+.photo-card span { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.admin-shell #adminReservation { max-width: 760px; }
+
+.admin-shell #adminStay { max-width: 980px; }
 
 .admin-shell #adminReservation h1,
 .admin-shell #adminStay h1 {
@@ -469,5 +691,9 @@
   .donut-wrap { grid-template-columns: 1fr; }
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .console-body { padding: 18px 16px 32px; }
+  .desk-head { flex-direction: column; align-items: flex-start; }
+  .editor-grid,
+  .room-edit,
+  .photo-card { grid-template-columns: 1fr; }
   .meter { grid-template-columns: 1fr; gap: 4px; }
 }

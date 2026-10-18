@@ -1,82 +1,86 @@
+@model Portico.Web.ViewModels.Account.AccountPageVm
 @{
-    var mode = ViewData["Mode"] as string ?? "signin";
-    var failed = ViewData["Failed"] as bool? == true;
-    var email = ViewData["Email"] as string ?? "";
-    var register = mode == "register";
+    var eye = "<svg class=\"eye\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\"><path d=\"M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/></svg>"
+        + "<svg class=\"eye-off\" viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\"><path d=\"M3 4l18 16M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.1 4M6.2 6.3C3.6 8 2 12 2 12s3.5 6 10 6c1.5 0 2.9-.3 4.1-.9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>";
 }
 
-<section class="section results" id="account" data-mode="@mode" data-failed="@(failed ? "true" : "false")" data-failed-url="@Url.Action("SignInFailed", "Account")" data-account-url="@Url.Action("Profile", "Account")">
+<section class="section results" id="account">
     <div class="wrap">
         <p class="kicker">Account</p>
-        @if (register)
+        @if (Model.IsRegister)
         {
             <h1 id="accountTitle">Create an account</h1>
-            <p class="sub">Guests book stays. Admins run the houses. The name and email stay in this browser. The password is not stored.</p>
+            <p class="sub">Book stays, keep your trips in one place, and save the houses you like.</p>
         }
         else
         {
-            <h1 id="accountTitle">@(failed ? "Sign in failed" : "Sign in")</h1>
-            <p class="sub">Use the same door you will use when the API is connected.</p>
+            <h1 id="accountTitle">@(Model.Failed ? "Sign in failed" : "Sign in")</h1>
+            <p class="sub">Sign in with the email and password you registered.</p>
         }
         <div class="account-panel">
-            @if (!register)
+            @if (Model.Failed)
             {
-                <p class="account-error" id="accountError" role="alert" @(failed ? null : "hidden")>That email and password did not match. Nothing was signed in.</p>
+                <p class="account-error" id="accountError" role="alert">That email and password did not match. Nothing was signed in.</p>
             }
-            <form id="accountForm">
-                @if (register)
-                {
+            @if (Model.Error is not null)
+            {
+                <p class="account-error" role="alert">@Model.Error</p>
+            }
+
+            @if (Model.IsRegister)
+            {
+                <form id="accountForm" method="post" asp-controller="Account" asp-action="Register">
+                    <input type="hidden" asp-for="Register.ReturnUrl">
                     <label class="stack">Full name
-                        <input name="name" type="text" required minlength="2" autocomplete="name" />
+                        <input asp-for="Register.Name" type="text" required minlength="2" autocomplete="name" />
+                        <span class="field-error" asp-validation-for="Register.Name"></span>
                     </label>
-                }
-                <label class="stack">Email
-                    <input name="email" type="email" required autocomplete="@(register ? "email" : "username")" value="@email" />
-                </label>
-                @if (register)
-                {
+                    <label class="stack">Email
+                        <input asp-for="Register.Email" type="email" required autocomplete="email" />
+                        <span class="field-error" asp-validation-for="Register.Email"></span>
+                    </label>
                     <label class="stack">Password
                         <span class="password-field">
-                            <input name="password" type="password" required minlength="8" autocomplete="new-password" />
-                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">
-                                <svg class="eye" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                                <svg class="eye-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 4l18 16M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.1 4M6.2 6.3C3.6 8 2 12 2 12s3.5 6 10 6c1.5 0 2.9-.3 4.1-.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                            </button>
+                            <input asp-for="Register.Password" type="password" value="" required minlength="8" autocomplete="new-password" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">@Html.Raw(eye)</button>
                         </span>
+                        <span class="field-error" asp-validation-for="Register.Password"></span>
                     </label>
                     <label class="stack">Confirm password
                         <span class="password-field">
-                            <input name="confirm" type="password" required minlength="8" autocomplete="new-password" aria-describedby="confirmError" />
-                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">
-                                <svg class="eye" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-                                <svg class="eye-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 4l18 16M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-3.1 4M6.2 6.3C3.6 8 2 12 2 12s3.5 6 10 6c1.5 0 2.9-.3 4.1-.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                            </button>
+                            <input asp-for="Register.Confirm" type="password" value="" required minlength="8" autocomplete="new-password" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">@Html.Raw(eye)</button>
                         </span>
+                        <span class="field-error" asp-validation-for="Register.Confirm"></span>
                     </label>
-                    <p class="account-error" id="confirmError" hidden>The passwords do not match.</p>
-                }
-                else
-                {
-                    <label class="stack">Password
-                        <input name="password" type="password" required minlength="8" autocomplete="current-password" />
-                    </label>
-                }
-                <button class="search-btn auth-submit" type="submit">@(register ? "Create account" : "Sign in")</button>
-            </form>
-            <p id="accountDone" hidden></p>
-            @if (register)
-            {
-                <a class="account-switch" asp-controller="Account" asp-action="SignIn">Already on the list? Sign in</a>
+                    <button class="search-btn auth-submit" type="submit">Create account</button>
+                </form>
+                <a class="account-switch" asp-controller="Account" asp-action="SignIn" asp-route-returnUrl="@Model.Register.ReturnUrl">Already on the list? Sign in</a>
             }
             else
             {
-                <a class="account-switch" asp-controller="Account" asp-action="Register">New here? Create an account</a>
+                <form id="accountForm" method="post" asp-controller="Account" asp-action="SignIn">
+                    <input type="hidden" asp-for="SignIn.ReturnUrl">
+                    <label class="stack">Email
+                        <input asp-for="SignIn.Email" type="email" required autocomplete="username" autofocus="@(Model.SignIn.Email == "" ? "autofocus" : null)" />
+                        <span class="field-error" asp-validation-for="SignIn.Email"></span>
+                    </label>
+                    <label class="stack">Password
+                        <span class="password-field">
+                            <input asp-for="SignIn.Password" type="password" value="" required autocomplete="current-password" autofocus="@(Model.SignIn.Email != "" ? "autofocus" : null)" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">@Html.Raw(eye)</button>
+                        </span>
+                        <span class="field-error" asp-validation-for="SignIn.Password"></span>
+                    </label>
+                    <button class="search-btn auth-submit" type="submit">Sign in</button>
+                </form>
+                <a class="account-switch" asp-controller="Account" asp-action="Register" asp-route-returnUrl="@Model.SignIn.ReturnUrl">New here? Create an account</a>
             }
         </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
     <script src="~/js/account.js" asp-append-version="true" defer></script>
 }

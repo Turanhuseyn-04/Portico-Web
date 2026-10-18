@@ -1,0 +1,26 @@
+@model SlideVm
+<section id="slideDetail">
+    <header class="desk-head">
+        <div>
+            <h1>@Model.City</h1>
+            <p>@Model.Country</p>
+        </div>
+        <a class="btn-ink" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    </header>
+    <div class="editor">
+        <img src="@Model.Image" alt="@Model.City">
+        <dl class="detail-list">
+            <dt>Id</dt><dd>@Model.Id</dd>
+            <dt>Image</dt><dd><code>@Model.Image</code></dd>
+            <dt>Stays</dt><dd>@Model.Stays</dd>
+            <dt>Order</dt><dd>@Model.Order</dd>
+        </dl>
+        <div class="editor-actions">
+            <a asp-action="Index">Back</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+</section>

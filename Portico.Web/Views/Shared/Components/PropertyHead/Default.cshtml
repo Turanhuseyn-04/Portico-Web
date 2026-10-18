@@ -1,15 +1,30 @@
+@model PropertyPageVm
+@{
+    var stay = Model.Stay;
+    var address = stay.Address;
+    var score = StayText.Score(stay.Score);
+    var label = StayText.ScoreLabel(stay.Score);
+}
 <header class="wrap p-head" id="overview">
     <div class="p-title">
-        <p class="p-type" id="pType"><span class="skel" style="width: 160px"></span></p>
-        <h1 id="pName"><span class="skel skel-title"></span></h1>
-        <p class="p-address" id="pAddress"><span class="skel" style="width: 280px"></span></p>
+        <p class="p-type" id="pType">
+            <span class="type-pill">@stay.Type</span>
+            @if (stay.Stars is int stars && stars > 0)
+            {
+                <span class="stars" role="img" aria-label="@stars-star @Model.Copy.Noun">@(new string('★', stars))</span>
+            }
+        </p>
+        <h1 id="pName">@stay.Name</h1>
+        <p class="p-address" id="pAddress">
+            @StayIcons.Svg("pin", 16)<span>@address.Street, @address.Area, @address.Postcode @address.City, @address.Country</span><a href="#location">Show on map</a>
+        </p>
     </div>
     <div class="p-side">
-        <a class="p-score" id="pScore" href="#reviews" hidden></a>
+        <a class="p-score" id="pScore" href="#reviews" aria-label="Rated @score out of 10, @label, from @stay.ReviewCount reviews">
+            <span class="p-score-copy"><strong>@label</strong><span>@stay.ReviewCount reviews</span></span><span class="score">@score</span>
+        </a>
         <div class="p-actions">
-            <button class="icon-btn" id="saveBtn" type="button" aria-pressed="false" aria-label="Save this stay">
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-            </button>
+            <partial name="_SaveHeart" model='new SaveHeartVm(stay.Id, stay.Name, Model.Saved, Context.Request.Path + Context.Request.QueryString, "icon-btn")' />
             <button class="icon-btn" id="shareBtn" type="button" aria-label="Share this stay">
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>

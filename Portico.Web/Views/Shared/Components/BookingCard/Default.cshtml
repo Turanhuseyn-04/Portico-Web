@@ -1,28 +1,120 @@
-<div class="book-card" id="bookCard">
+@model PropertyPageVm
+@{
+    var choice = Model.Choice;
+    var copy = Model.Copy;
+    var selected = Model.Selected;
+    var room = selected?.Room;
+    var reserve = Model.Reserve;
+    var total = Model.ReadyTotal;
+    var today = DateOnly.FromDateTime(DateTime.Today);
+    var controlled = new[] { "checkIn", "checkOut", "adults", "children", "rooms" };
+    string? reserveUrl = null;
+    if (reserve.Ready)
+    {
+        var values = new Microsoft.AspNetCore.Routing.RouteValueDictionary
+        {
+            ["id"] = Model.Stay.Id,
+            ["room"] = room!.Id,
+            ["checkIn"] = StayText.Key(choice.CheckIn!.Value),
+            ["checkOut"] = StayText.Key(choice.CheckOut!.Value),
+            ["adults"] = choice.Adults,
+            ["rooms"] = choice.Rooms
+        };
+        if (choice.Children > 0) values["children"] = choice.Children;
+        reserveUrl = Url.Action("Reserve", "Property", values);
+    }
+}
+<form class="book-card" id="bookCard" method="get" asp-controller="Property" asp-action="Index" asp-fragment="rooms"
+      data-check-in="@(choice.CheckIn is { } checkIn ? StayText.Key(checkIn) : "")"
+      data-check-out="@(choice.CheckOut is { } checkOut ? StayText.Key(checkOut) : "")"
+      data-min-nights="@Math.Max(1, Model.Stay.Policies.MinNights)"
+      data-max-nights="@StayChoice.MaxNights"
+      data-name="@Model.Stay.Name"
+      data-date-error="@choice.DateError"
+      data-unit="@copy.Unit"
+      data-units="@copy.Units">
+    @foreach (var pair in choice.Link().Where(pair => !controlled.Contains(pair.Key)))
+    {
+        <input type="hidden" name="@pair.Key" value="@pair.Value">
+    }
+    <input type="hidden" name="checkIn" id="checkInField" value="@(choice.CheckIn is { } inDay ? StayText.Key(inDay) : "")">
+    <input type="hidden" name="checkOut" id="checkOutField" value="@(choice.CheckOut is { } outDay ? StayText.Key(outDay) : "")">
+    <input type="hidden" name="adults" id="adultsField" value="@choice.Adults">
+    <input type="hidden" name="children" id="childrenField" value="@choice.Children">
+    <input type="hidden" name="rooms" id="roomsField" value="@choice.Rooms">
+
     <div class="book-scroll">
-        <div class="book-price" id="bookPrice"><span class="skel" style="width: 140px"></span></div>
+        <div class="book-price" id="bookPrice">
+            @if (room is not null)
+            {
+                <strong>@StayText.Money(room.Price)</strong><span>per night · @room.Name</span>
+            }
+            else
+            {
+                <span>from</span><strong>@StayText.Money(Model.MinPrice)</strong><span>per night</span>
+            }
+        </div>
         <div class="book-fields">
             <div class="book-dates" id="datesField">
                 <button class="book-field" id="checkInBtn" type="button" aria-controls="calPopover" aria-expanded="false">
                     <span class="field-label">Check-in</span>
-                    <span class="book-value is-empty" id="checkInValue">Add date</span>
+                    <span class="book-value@(choice.CheckIn is null ? " is-empty" : "")" id="checkInValue">@(choice.CheckIn is { } a ? StayText.Short(a) : "Add date")</span>
                 </button>
                 <button class="book-field" id="checkOutBtn" type="button" aria-controls="calPopover" aria-expanded="false">
                     <span class="field-label">Check-out</span>
-                    <span class="book-value is-empty" id="checkOutValue">Add date</span>
+                    <span class="book-value@(choice.CheckOut is null ? " is-empty" : "")" id="checkOutValue">@(choice.CheckOut is { } b ? StayText.Short(b) : "Add date")</span>
                 </button>
             </div>
             <button class="book-field" id="guestBtn" type="button" aria-controls="guestPopover" aria-expanded="false">
                 <span class="field-label">Guests</span>
-                <span class="book-value" id="guestValue">2 adults · 1 room</span>
+                <span class="book-value" id="guestValue">@Model.GuestLabel</span>
             </button>
         </div>
-        <p class="book-error" id="bookError" role="alert"></p>
-        <div class="book-room" id="bookRoom"></div>
-        <div class="book-bill" id="bookBill" aria-live="polite"></div>
+        <p class="book-error" id="bookError" role="alert">@Model.BookError</p>
+        <div class="book-room" id="bookRoom">
+            @if (room is not null)
+            {
+                <img src="@room.Image" alt="" width="120" height="90"><div><strong>@room.Name</strong><span>@room.Beds · sleeps @room.Sleeps</span></div><a class="text-link" href="#rooms">Change</a>
+            }
+            else
+            {
+                <p class="book-hint">No @copy.Unit chosen yet. <a class="text-link" href="#rooms">Choose one below</a></p>
+            }
+        </div>
+        <div class="book-bill" id="bookBill">
+            @if (!choice.HasDates)
+            {
+                <p class="formula">Add dates to see the total for your stay.</p>
+            }
+            else if (selected is { Bookable: true })
+            {
+                var policy = Model.CancelPolicy(room!, today);
+                <div class="bill">
+                    <div><span>Nightly rate</span><span>@StayText.Money(room!.Price)</span></div>
+                    <div><span>Nights</span><span>@choice.Nights</span></div>
+                    <div><span>@copy.UnitsTitle</span><span>@choice.Rooms</span></div>
+                    <div class="total"><span>Stay total</span><span>@StayText.Money(total)</span></div>
+                    <p class="formula">@StayText.Money(room.Price) × @choice.Nights × @choice.Rooms · Includes taxes and charges</p>
+                </div>
+                <p class="cancel@(policy.Locked ? " is-locked" : "")">@policy.Text</p>
+            }
+            else
+            {
+                <div class="bill"><div><span>@StayText.Count(choice.Nights, "night", "nights")</span><span>@StayText.Short(choice.CheckIn!.Value) – @StayText.Short(choice.CheckOut!.Value)</span></div></div>
+                <p class="formula">@(room is not null ? "This choice cannot be booked for these dates." : $"Choose a {copy.Unit} to see the stay total.")</p>
+            }
+        </div>
         <div class="book-actions">
-            <button class="search-btn book-cta" id="reserveBtn" type="button" aria-describedby="bookError">Reserve</button>
-            <p class="book-note" id="bookNote">You will not be charged yet.</p>
+            @if (reserveUrl is not null)
+            {
+                <a class="search-btn book-cta" id="reserveBtn" href="@reserveUrl">Reserve for @StayText.Money(total)</a>
+            }
+            else
+            {
+                <button class="search-btn book-cta" id="reserveBtn" type="button" aria-describedby="bookError"
+                        data-problem="@reserve.Problem" data-focus="@(reserve.OpenDates ? "dates" : selected is null && choice.HasDates && !Model.OffersFailed ? "rooms" : "")">Reserve</button>
+            }
+            <p class="book-note" id="bookNote">@(total > 0 ? "You will not be charged yet." : $"The total is nightly rate × nights × {copy.Units}.")</p>
         </div>
     </div>
 
@@ -36,7 +128,7 @@
                 </div>
                 <div class="stepper">
                     <button type="button" data-step="adults" data-dir="-1" aria-label="Remove an adult">−</button>
-                    <span id="adultsCount" aria-live="polite">2</span>
+                    <span id="adultsCount" aria-live="polite">@choice.Adults</span>
                     <button type="button" data-step="adults" data-dir="1" aria-label="Add an adult">+</button>
                 </div>
             </div>
@@ -47,23 +139,23 @@
                 </div>
                 <div class="stepper">
                     <button type="button" data-step="children" data-dir="-1" aria-label="Remove a child">−</button>
-                    <span id="childrenCount" aria-live="polite">0</span>
+                    <span id="childrenCount" aria-live="polite">@choice.Children</span>
                     <button type="button" data-step="children" data-dir="1" aria-label="Add a child">+</button>
                 </div>
             </div>
             <div class="guest-row">
                 <div>
-                    <strong id="unitStepLabel">Rooms</strong>
+                    <strong id="unitStepLabel">@copy.UnitsTitle</strong>
                     <em>Booked at the same rate</em>
                 </div>
                 <div class="stepper">
-                    <button type="button" data-step="rooms" data-dir="-1" aria-label="Remove a room">−</button>
-                    <span id="roomsCount" aria-live="polite">1</span>
-                    <button type="button" data-step="rooms" data-dir="1" aria-label="Add a room">+</button>
+                    <button type="button" data-step="rooms" data-dir="-1" aria-label="Remove a @copy.Unit">−</button>
+                    <span id="roomsCount" aria-live="polite">@choice.Rooms</span>
+                    <button type="button" data-step="rooms" data-dir="1" aria-label="Add a @copy.Unit">+</button>
                 </div>
             </div>
-            <p class="guest-note">The stay total is nightly rate × nights × rooms.</p>
-            <button class="guest-done" type="button" data-close-guests>Done</button>
+            <p class="guest-note">The stay total is nightly rate × nights × @copy.Units.</p>
+            <button class="guest-done" type="submit">Done</button>
         </div>
     </div>
-</div>
+</form>

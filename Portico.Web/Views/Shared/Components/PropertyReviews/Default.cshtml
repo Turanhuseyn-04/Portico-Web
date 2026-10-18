@@ -1,5 +1,89 @@
+@model PropertyPageVm
+@{
+    var stay = Model.Stay;
+    var choice = Model.Choice;
+    var travellers = stay.Reviews.Select(review => review.Traveller).Distinct().ToList();
+    var left = Model.FilteredReviewCount - Model.ShownReviews.Count;
+}
 <section class="p-section" id="reviews" aria-labelledby="reviewsTitle">
     <p class="kicker">Guest reviews</p>
     <h2 id="reviewsTitle">What guests say</h2>
-    <div id="reviewsBody"><span class="skel skel-block"></span></div>
+    <div id="reviewsBody">
+        <div class="review-top">
+            <div class="review-summary">
+                <span class="score score-lg">@StayText.Score(stay.Score)</span>
+                <div><strong>@StayText.ScoreLabel(stay.Score)</strong><span>@stay.ReviewCount verified reviews</span></div>
+            </div>
+            <div class="bars">
+                @foreach (var (name, value) in stay.Scores)
+                {
+                    <div class="bar">
+                        <span class="bar-label">@name</span>
+                        <span class="bar-track" aria-hidden="true"><span style="width: @((value * 10).ToString(System.Globalization.CultureInfo.InvariantCulture))%"></span></span>
+                        <span class="bar-value">@StayText.Score(value)</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <form class="review-controls" id="reviewForm" method="get" asp-controller="Property" asp-action="Index" asp-fragment="reviews">
+            @foreach (var pair in choice.Link().Where(pair => pair.Key is not ("travellers" or "sort" or "reviews")))
+            {
+                <input type="hidden" name="@pair.Key" value="@pair.Value">
+            }
+            <label class="sort">Travellers
+                <select id="reviewFilter" name="travellers" data-autosubmit>
+                    <option value="all">All travellers (@stay.Reviews.Count)</option>
+                    @foreach (var type in travellers)
+                    {
+                        <option value="@type" selected="@(choice.Travellers == type)">@type (@stay.Reviews.Count(review => review.Traveller == type))</option>
+                    }
+                </select>
+            </label>
+            <label class="sort">Sort
+                <select id="reviewSort" name="sort" data-autosubmit>
+                    <option value="recent" selected="@(choice.Sort == "recent")">Most recent</option>
+                    <option value="high" selected="@(choice.Sort == "high")">Highest scores</option>
+                    <option value="low" selected="@(choice.Sort == "low")">Lowest scores</option>
+                </select>
+            </label>
+            <noscript><button class="btn-outline" type="submit">Apply</button></noscript>
+        </form>
+        <div class="review-list" id="reviewList">
+            @if (Model.ShownReviews.Count == 0)
+            {
+                <div class="empty"><h3>No reviews from this group yet</h3><p>Try another traveller type.</p></div>
+            }
+            @foreach (var review in Model.ShownReviews)
+            {
+                var room = stay.Rooms.FirstOrDefault(item => item.Id == review.RoomId);
+                <article class="review">
+                    <header>
+                        <span class="avatar" aria-hidden="true">@StayText.Initials(review.Author)</span>
+                        <div><strong>@review.Author</strong><span>@review.Country · @review.Traveller</span></div>
+                        <span class="score" aria-label="Scored @StayText.Score(review.Score)">@StayText.Score(review.Score)</span>
+                    </header>
+                    <h3>@review.Title</h3>
+                    <p class="review-liked"><span class="sr-only">Liked: </span>@review.Liked</p>
+                    @if (!string.IsNullOrEmpty(review.Disliked))
+                    {
+                        <p class="review-disliked"><span class="sr-only">Disliked: </span>@review.Disliked</p>
+                    }
+                    <p class="review-meta">@(room is not null ? $"{room.Name} · " : "")@StayText.Count(review.Nights, "night", "nights") · Stayed in @StayText.MonthYear(review.Date)</p>
+                </article>
+            }
+        </div>
+        <div class="review-more" id="reviewMore">
+            @if (Model.ShownReviews.Count > 0)
+            {
+                if (left > 0)
+                {
+                    <a class="btn-outline" href="@Url.Action("Index", "Property", choice.Link(next => next.Reviews += StayChoice.ReviewPage), null, null, "reviews")">Show @StayText.Count(Math.Min(left, StayChoice.ReviewPage), "more review", "more reviews")</a>
+                }
+                else
+                {
+                    <p class="fine-print">Showing @StayText.Count(Model.FilteredReviewCount, "recent review", "recent reviews") of @stay.ReviewCount.</p>
+                }
+            }
+        </div>
+    </div>
 </section>

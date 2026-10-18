@@ -1,9 +1,31 @@
+@model PropertyPageVm
+@{
+    var photos = Model.Stay.Gallery;
+    var total = photos.Count;
+}
 <section class="wrap gallery" id="gallery" aria-label="Photos">
-    <div class="gallery-grid">
-        <span class="skel g-tile g-main"></span>
-        <span class="skel g-tile"></span>
-        <span class="skel g-tile"></span>
-        <span class="skel g-tile"></span>
-        <span class="skel g-tile"></span>
+    <div class="gallery-grid count-@Math.Min(total, 5)">
+        @for (var index = 0; index < Math.Min(total, 5); index++)
+        {
+            var photo = photos[index];
+            <button class="g-tile@(index == 0 ? " g-main" : "")" type="button" data-photo="@index" aria-label="Open photo @(index + 1) of @total: @photo.Alt">
+                @if (index == 0)
+                {
+                    <img src="@photo.Src" alt="" width="1200" height="800" fetchpriority="high">
+                }
+                else
+                {
+                    <img src="@photo.Src" alt="" width="1200" height="800" loading="lazy">
+                }
+                @if (index == 4 && total > 5)
+                {
+                    <span class="g-more">+@(total - 5) photos</span>
+                }
+            </button>
+        }
     </div>
+    @if (total > 0)
+    {
+        <button class="g-all" type="button" data-photo="0">@StayIcons.Svg("grid", 16)Show all @total photos</button>
+    }
 </section>

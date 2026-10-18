@@ -1,5 +1,13 @@
+@model PropertyPageVm
 <section class="p-section" id="rules" aria-labelledby="rulesTitle">
     <p class="kicker">Before you book</p>
     <h2 id="rulesTitle">House rules</h2>
-    <div id="rulesBody"><span class="skel skel-block"></span></div>
+    <div id="rulesBody">
+        <dl class="rules">
+            @foreach (var (term, text) in Model.Rules)
+            {
+                <div><dt>@term</dt><dd>@text</dd></div>
+            }
+        </dl>
+    </div>
 </section>

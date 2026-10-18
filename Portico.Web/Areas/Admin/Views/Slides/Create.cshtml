@@ -1,0 +1,17 @@
+@model SlideFormVm
+<section id="slideForm">
+    <header class="desk-head">
+        <div>
+            <h1>New slide</h1>
+            <p>The image path stays on the site, for example /assets/lisbon.jpg.</p>
+        </div>
+    </header>
+    <form class="editor" asp-action="Create" method="post">
+        <div asp-validation-summary="All"></div>
+        <partial name="_Fields" model="Model" />
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Create</button>
+            <a asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</section>

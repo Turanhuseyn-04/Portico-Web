@@ -1,19 +1,115 @@
+@model StayListVm
+@{
+    // After a heart is pressed, come back to the same list in the same order.
+    var returnUrl = Context.Request.Path + Context.Request.QueryString + "#list";
+}
 <section class="section" id="list" aria-labelledby="listTitle">
     <div class="wrap">
         <div class="section-head reveal">
             <div>
                 <p class="kicker">The list</p>
                 <h2 id="listTitle">Top properties to stay</h2>
-                <p class="sub" id="listMeta" aria-live="polite"></p>
+                <p class="sub" id="listMeta">@Model.Meta</p>
             </div>
-            <label class="sort">Sort
-                <select id="sort">
-                    <option value="featured">Featured</option>
-                    <option value="price">Price</option>
-                    <option value="rating">Guest rating</option>
-                </select>
-            </label>
+            <form class="sort-form" id="sortForm" method="get" asp-controller="Home" asp-action="Index" asp-fragment="list">
+                @if (Model.Property != "")
+                {
+                    <input type="hidden" name="property" value="@Model.Property">
+                }
+                <label class="sort">Sort
+                    <select id="sort" name="sort">
+                        <option value="featured" selected="@(Model.Sort == "featured")">Featured</option>
+                        <option value="price" selected="@(Model.Sort == "price")">Price</option>
+                        <option value="rating" selected="@(Model.Sort == "rating")">Guest rating</option>
+                    </select>
+                </label>
+                <noscript><button class="btn-line" type="submit">Apply</button></noscript>
+            </form>
         </div>
-        <div id="stayList"></div>
+        <div id="stayList">
+            @if (Model.LoadError is not null)
+            {
+                <div class="empty">
+                    <h3>The list did not load</h3>
+                    <p>@Model.LoadError</p>
+                    <a class="btn-ink" asp-controller="Home" asp-action="Index" asp-fragment="list">Try again</a>
+                </div>
+            }
+            else if (Model.Items.Count == 0)
+            {
+                <div class="empty">
+                    <h3>Nothing on the list</h3>
+                    <p>Portico keeps eight houses. Clear the city or the property type.</p>
+                    <a class="btn-ink" asp-controller="Home" asp-action="Index" asp-fragment="list">Clear the filter</a>
+                </div>
+            }
+            else
+            {
+                var index = 0;
+                foreach (var stay in Model.Items)
+                {
+                    var delay = Math.Min(index++, 4) * 80;
+                    <article class="stay reveal" data-stay="@stay.Id" style="--in:@(delay)ms" tabindex="0">
+                        <div class="stay-media">
+                            <img src="@stay.Image" alt="@stay.Name in @stay.City" width="800" height="600" loading="lazy">
+                            <partial name="_SaveHeart" model='new SaveHeartVm(stay.Id, stay.Name, Model.IsSaved(stay.Id), returnUrl, "heart")' />
+                        </div>
+                        <div class="stay-body">
+                            <p class="stay-type">@stay.Property · @stay.Kind · sleeps @stay.MaxGuests</p>
+                            <h3>@stay.Name</h3>
+                            <p class="where-line">@stay.Area · @stay.City, @stay.Country</p>
+                            <p class="cancel@(stay.Cancel ? "" : " is-locked")">@stay.CancelText</p>
+                            @if (stay.Scarce)
+                            {
+                                <p class="scarce">Only 1 room left at this rate</p>
+                            }
+                            <div class="pills">
+                                @foreach (var item in stay.Amenities)
+                                {
+                                    <span class="pill">@item</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="stay-side">
+                            <div class="rating">
+                                <div>
+                                    <strong>@StayText.ScoreLabel(stay.Score)</strong>
+                                    <span>@stay.Reviews reviews</span>
+                                </div>
+                                <span class="score">@stay.ScoreText</span>
+                            </div>
+                            <div class="stay-price"><span class="from">from</span><strong>@StayText.Money(stay.Price)</strong><span class="per">per night</span></div>
+                        </div>
+                        <template data-drawer>
+                            <img class="drawer-photo" src="@stay.Image" alt="@stay.Name">
+                            <div class="drawer-copy">
+                                <p class="stay-type">@stay.Property · @stay.Kind · sleeps @stay.MaxGuests</p>
+                                <h2 id="drawerTitle">@stay.Name</h2>
+                                <p class="where-line">@stay.Area · @stay.City, @stay.Country</p>
+                                <p class="blurb">@stay.Blurb</p>
+                                <div class="rating drawer-rating">
+                                    <span class="score">@stay.ScoreText</span>
+                                    <div><strong>@StayText.ScoreLabel(stay.Score)</strong><span>@stay.Reviews reviews</span></div>
+                                </div>
+                                <div class="bill"><div><span>Nightly rate</span><span>@StayText.Money(stay.Price)</span></div><p class="formula">Search with dates to multiply this into a stay total.</p></div>
+                                <p class="cancel@(stay.Cancel ? "" : " is-locked")">@stay.CancelText</p>
+                                <div class="pills">
+                                    @foreach (var item in stay.Amenities)
+                                    {
+                                        <span class="pill">@item</span>
+                                    }
+                                </div>
+                                <a class="search-btn drawer-detail" asp-controller="Property" asp-action="Index" asp-route-id="@stay.Id">
+                                    Detail
+                                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                        <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </template>
+                    </article>
+                }
+            }
+        </div>
     </div>
 </section>

@@ -1,0 +1,58 @@
+@model VideoIndexVm
+<section id="videosDesk">
+    <header class="desk-head">
+        <div>
+            <h1>Videos</h1>
+            <p>A video is a file path and a place in the sequence, for example /assets/videos/villas/14041585_1920_1080_25fps.mp4.</p>
+        </div>
+        <a class="btn-ink" asp-action="Create">Create</a>
+    </header>
+    <form class="admin-tools" method="get" asp-action="Index">
+        <input type="search" name="q" value="@Model.Query" placeholder="Video path" aria-label="Filter videos">
+        <button type="submit">Filter</button>
+        <a class="tool" asp-action="Index">Clear</a>
+    </form>
+    <partial name="_Flash" />
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No videos yet" : "Nothing matches")</h3>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one with a path such as /assets/videos/villas/14041585_1920_1080_25fps.mp4." : "Clear the filter to see every video.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>Path</th>
+                        <th>Order</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var video in Model.Items)
+                {
+                    <tr>
+                        <td><code>@video.Src</code></td>
+                        <td>@video.Order</td>
+                        <td class="row-actions">
+                            <a asp-action="Detail" asp-route-id="@video.Id">Detail</a>
+                            <a asp-action="Edit" asp-route-id="@video.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@video.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
