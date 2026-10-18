@@ -8,6 +8,7 @@ public class AccountRowVm
     public string Email { get; set; } = "";
     public string Role { get; set; } = "";
     public bool HasPassword { get; set; }
+    public bool EmailConfirmed { get; set; }
 }
 
 public class AccountIndexVm

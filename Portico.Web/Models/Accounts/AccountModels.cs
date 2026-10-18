@@ -6,6 +6,9 @@ namespace Portico.Web.Models.Accounts;
 // The account Portico.Api returns after register and sign-in, with the token to send on the guest's behalf.
 public sealed record AccountProfile(string Name, string Email, string Role, string? Token = null, DateTime? ExpiresAt = null);
 
+// What register returns: the account waits for its email to be confirmed before it can sign in.
+public sealed record Registered(string Name, string Email, bool ConfirmationRequired, bool EmailSent);
+
 public static class AccountRoles
 {
     public const string Guest = "Guest";

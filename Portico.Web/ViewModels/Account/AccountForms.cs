@@ -39,9 +39,24 @@ public class AccountPageVm
 {
     public string Mode { get; set; } = "signin";
     public bool Failed { get; set; }
+
+    // The password was right but the email is not confirmed yet.
+    public bool Unconfirmed { get; set; }
+
+    // Arrived from a confirmation link that worked.
+    public bool Confirmed { get; set; }
     public string? Error { get; set; }
     public SignInForm SignIn { get; set; } = new();
     public RegisterForm Register { get; set; } = new();
 
     public bool IsRegister => Mode == "register";
+}
+
+// The page after registering, and where a confirmation link that failed sends the guest.
+public class CheckEmailVm
+{
+    public string Email { get; set; } = "";
+    public bool EmailSent { get; set; } = true;
+    public bool Resent { get; set; }
+    public string? LinkError { get; set; }
 }

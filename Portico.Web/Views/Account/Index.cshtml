@@ -22,6 +22,18 @@
             {
                 <p class="account-error" id="accountError" role="alert">That email and password did not match. Nothing was signed in.</p>
             }
+            @if (Model.Confirmed)
+            {
+                <p class="preview-note" role="status">Your email is confirmed. Sign in with your password.</p>
+            }
+            @if (Model.Unconfirmed)
+            {
+                <p class="account-error" role="alert">Confirm your email first. Open the link we sent to @Model.SignIn.Email, or send a new one.</p>
+                <form method="post" asp-controller="Account" asp-action="ResendConfirmation">
+                    <input type="hidden" name="email" value="@Model.SignIn.Email" />
+                    <button class="account-switch text-btn" type="submit">Send a new confirmation link</button>
+                </form>
+            }
             @if (Model.Error is not null)
             {
                 <p class="account-error" role="alert">@Model.Error</p>
