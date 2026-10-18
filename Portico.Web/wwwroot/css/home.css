@@ -1279,7 +1279,7 @@ a.property-card { text-decoration: none; }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.4fr repeat(3, 1fr);
+  grid-template-columns: 1.4fr repeat(4, 1fr);
   gap: 28px;
 }
 
@@ -1315,9 +1315,9 @@ a.property-card { text-decoration: none; }
 
 .footer p { max-width: 36ch; }
 
-.footer-reach { margin-top: 14px; }
+.footer-contact { font-style: normal; }
 
-.footer-reach + .footer-reach { margin-top: 2px; }
+.footer-contact p { margin: 0 0 6px; font-size: 15px; }
 
 .legal {
   display: flex;
