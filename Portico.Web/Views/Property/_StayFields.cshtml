@@ -1,0 +1,6 @@
+@model StayPick
+@* The stay travels with each form post, so the server can load it again. *@
+@foreach (var pair in Model.Route())
+{
+    <input type="hidden" name="@pair.Key" value="@pair.Value">
+}

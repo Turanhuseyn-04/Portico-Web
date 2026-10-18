@@ -1,21 +1,49 @@
+@model TripVm
 @{
-    var reference = ViewData["Reference"] as string ?? "";
+    var trip = Model.Trip;
 }
 
-<section class="section results" id="cancel" data-asset-root="/assets/" data-reservation="@(Url.Action("Index", "Reservation") + "/")" data-cancel="@Url.Action("Index", "Reservation")" data-trips="@Url.Action("Trips", "Reservation")" data-reference="@reference">
+<section class="section results" id="cancel">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Reservation</p>
-                <h1 id="cancelTitle">Cancel this reservation</h1>
-                <p class="sub" id="cancelMeta">The stay, the deadline, and what happens to the total.</p>
+                <h1 id="cancelTitle">@(trip.Cancelled ? "Reservation cancelled" : "Cancel this reservation")</h1>
+                <p class="sub" id="cancelMeta">@trip.PropertyName</p>
             </div>
         </div>
-        <div id="cancelBody"></div>
+        <div class="account-panel">
+            <div class="reserve-stay">
+                <img src="@Model.Image" alt="">
+                <div>
+                    <p class="stay-type">@trip.Reference</p>
+                    <h2>@trip.PropertyName</h2>
+                    <p class="where-line">@Model.Where</p>
+                </div>
+            </div>
+            <dl class="trip-facts">
+                <div><dt>Room</dt><dd>@trip.RoomName</dd></div>
+                <div><dt>Check-in</dt><dd>@StayText.Long(trip.CheckIn)</dd></div>
+                <div><dt>Deadline</dt><dd class="@(trip.Refundable ? null : "is-locked")">@(trip.Refundable ? StayText.Long(Model.Deadline) : "Non-refundable")</dd></div>
+                <div><dt>Total</dt><dd>@StayText.Money(Model.DueTotal)</dd></div>
+            </dl>
+            <p>@Model.Outcome</p>
+            @if (trip.Cancelled)
+            {
+                <a class="change-search trip-open" asp-action="Index" asp-route-reference="@trip.Reference">Back to the reservation</a>
+                <a class="account-switch" asp-action="Trips">Your trips</a>
+            }
+            else
+            {
+                <form id="cancelForm" method="post" asp-action="CancelConfirmed" asp-route-reference="@trip.Reference">
+                    <button class="search-btn auth-submit" type="submit">Cancel this reservation</button>
+                </form>
+                <a class="account-switch" asp-action="Index" asp-route-reference="@trip.Reference">Keep this reservation</a>
+            }
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
-    <script src="~/js/cancel.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }

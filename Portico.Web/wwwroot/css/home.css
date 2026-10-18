@@ -2150,3 +2150,6 @@ a.btn-ink {
   justify-content: center;
   text-decoration: none;
 }
+
+/* Fields the server sent back with a problem. */
+.stack .input-validation-error { border-color: var(--warn); }

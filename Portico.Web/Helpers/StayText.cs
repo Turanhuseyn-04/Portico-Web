@@ -40,6 +40,15 @@ public static class StayText
 
     public static string MonthYear(DateOnly date) => date.ToString("MMMM yyyy", English);
 
+    public static string Long(DateOnly date) => date.ToString("d MMMM yyyy", English);
+
+    // Older records keep a bare file name; those photos live under /assets/.
+    public static string Image(string? src) =>
+        string.IsNullOrEmpty(src) ? "" :
+        src.StartsWith('/') || src.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? src :
+        src.StartsWith("assets/", StringComparison.Ordinal) ? "/" + src :
+        "/assets/" + src;
+
     public static string Key(DateOnly date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     public static DateOnly? ReadDay(string? key) =>

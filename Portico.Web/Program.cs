@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews(options =>
 // The admin controllers use the named client; the guest pages use typed clients. Both talk to the same API.
 UsePorticoApi(builder.Services.AddHttpClient("PorticoApi"));
 UsePorticoApi(builder.Services.AddHttpClient<IPropertyApi, PropertyApi>());
+UsePorticoApi(builder.Services.AddHttpClient<IReservationApi, ReservationApi>());
 
 void UsePorticoApi(IHttpClientBuilder client)
 {

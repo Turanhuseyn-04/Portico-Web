@@ -1,21 +1,43 @@
+@model TripVm
 @{
-    var reference = ViewData["Reference"] as string ?? "";
+    var trip = Model.Trip;
 }
 
-<section class="section results" id="reservation" data-asset-root="/assets/" data-property="@Url.Action("Index", "Property")" data-self="@(Url.Action("Index", "Reservation") + "/")" data-trips="@Url.Action("Trips", "Reservation")" data-cancel="@Url.Action("Index", "Reservation")" data-reference="@reference">
+<section class="section results" id="reservation">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Reservation</p>
-                <h1 id="reservationTitle">@(string.IsNullOrWhiteSpace(reference) ? "Reservation" : reference)</h1>
-                <p class="sub" id="reservationMeta">The stay a confirmation email would open.</p>
+                <h1 id="reservationTitle">@trip.Reference</h1>
+                <p class="sub" id="reservationMeta">@trip.PropertyName</p>
             </div>
         </div>
-        <div id="reservationBody"></div>
+        <div id="reservationBody">
+            <article class="trip">
+                <img src="@Model.Image" alt="@trip.PropertyName@(trip.City != "" ? $" in {trip.City}" : "")" width="800" height="600">
+                <div>
+                    <p class="stay-type">@trip.RoomName</p>
+                    <h2>@trip.PropertyName</h2>
+                    <p class="where-line">@Model.Where</p>
+                    <dl class="trip-facts">
+                        <div><dt>Room</dt><dd>@trip.RoomName</dd></div>
+                        <div><dt>Check-in</dt><dd>@StayText.Long(trip.CheckIn)</dd></div>
+                        <div><dt>Check-out</dt><dd>@StayText.Long(trip.CheckOut)</dd></div>
+                        <div><dt>Cancellation</dt><dd class="@(Model.CancellationLocked ? "is-locked" : null)">@Model.CancellationText</dd></div>
+                        <div><dt>Total</dt><dd>@StayText.Money(Model.DueTotal)</dd></div>
+                    </dl>
+                    <p class="formula">@Model.Formula</p>
+                    <div class="trip-actions">
+                        <a class="change-search" href="@Url.Action("Index", "Property", Model.PropertyRoute)">View the property</a>
+                        <a class="change-search" asp-action="Trips">Your trips</a>
+                        <a class="change-search trip-cancel" asp-action="Cancel" asp-route-reference="@trip.Reference">@(trip.Cancelled ? "Cancellation details" : "Cancel this reservation")</a>
+                    </div>
+                </div>
+            </article>
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
-    <script src="~/js/reservation.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }

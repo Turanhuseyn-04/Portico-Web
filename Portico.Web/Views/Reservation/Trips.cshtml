@@ -1,17 +1,53 @@
-<section class="section results" id="trips" data-asset-root="/assets/" data-reservation="@(Url.Action("Index", "Reservation") + "/")">
+@model List<TripVm>
+
+<section class="section results" id="trips">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Account</p>
                 <h1>Your trips</h1>
-                <p class="sub" id="tripsMeta" aria-live="polite">The stays reserved in this browser.</p>
+                <p class="sub" id="tripsMeta">@StayText.Count(Model.Count, "stay", "stays")</p>
             </div>
         </div>
-        <div id="tripList"></div>
+        <div id="tripList">
+            @if (Model.Count == 0)
+            {
+                <div class="empty">
+                    <h3>No trips yet</h3>
+                    <p>A reservation is listed here after you confirm it.</p>
+                    <a class="change-search" asp-controller="Home" asp-action="Index" asp-fragment="list">Find a stay</a>
+                </div>
+            }
+            else
+            {
+                <div class="trip-list">
+                    @foreach (var item in Model)
+                    {
+                        var trip = item.Trip;
+                        <a class="trip-row" asp-action="Index" asp-route-reference="@trip.Reference">
+                            <img src="@item.Image" alt="" width="320" height="220">
+                            <div>
+                                <p class="stay-type">@trip.Reference</p>
+                                <h2>@trip.PropertyName</h2>
+                                <p class="where-line">@StayText.Long(trip.CheckIn) – @StayText.Long(trip.CheckOut)</p>
+                                @if (trip.Cancelled)
+                                {
+                                    <p class="where-line">Cancelled</p>
+                                }
+                                @if (item.Where != "")
+                                {
+                                    <p class="where-line">@item.Where</p>
+                                }
+                            </div>
+                            <p class="trip-total">@StayText.Money(item.DueTotal)</p>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
-    <script src="~/js/trips.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }

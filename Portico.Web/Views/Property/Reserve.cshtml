@@ -1,18 +1,47 @@
-<section class="section results" id="reserve" data-asset-root="/assets/" data-payment="@Url.Action("Payment", "Property")" data-home="@Url.Action("Index", "Home")" data-property="@Url.Action("Index", "Property")">
+@model CheckoutVm
+
+<section class="section results" id="reserve">
     <div class="wrap">
         <div class="section-head">
             <div>
                 <p class="kicker">Reserve</p>
                 <h1 id="reserveTitle">Confirm your stay</h1>
-                <p class="sub" id="reserveMeta" aria-live="polite">The property, the room, and the dates this reservation is for.</p>
+                <p class="sub" id="reserveMeta">@Model.Stay.Name</p>
             </div>
         </div>
-        <div id="reserveBody"></div>
+        <div class="account-panel">
+            <partial name="_CheckoutStay" model="Model" />
+            <p class="cancel@(Model.Room.Refundable ? "" : " is-locked")">@Model.CancelText</p>
+            <a class="account-switch" href="@Url.Action("Index", "Property", Model.Pick.Route())">Change this stay</a>
+
+            <form id="reserveForm" method="post" asp-controller="Property" asp-action="Reserve">
+                <partial name="_StayFields" model="Model.Pick" />
+                <label class="stack">Full name
+                    <input asp-for="Guest.Name" type="text" required minlength="2" autocomplete="name">
+                    <span class="field-error" asp-validation-for="Guest.Name"></span>
+                </label>
+                <label class="stack">Email
+                    <input asp-for="Guest.Email" type="email" required autocomplete="email">
+                    <span class="field-error" asp-validation-for="Guest.Email"></span>
+                </label>
+                <label class="stack"><span>Phone <em class="optional">optional</em></span>
+                    <input asp-for="Guest.Phone" type="tel" autocomplete="tel">
+                </label>
+                <label class="stack"><span>Requests for the property <em class="optional">optional</em></span>
+                    <textarea asp-for="Guest.Requests" rows="3" maxlength="400"></textarea>
+                    <span class="field-error" asp-validation-for="Guest.Requests"></span>
+                </label>
+                @if (Model.Error is not null)
+                {
+                    <p class="account-error" id="reserveError" role="alert">@Model.Error</p>
+                }
+                <button class="search-btn auth-submit" id="reserveSubmit" type="submit">Continue to payment</button>
+                <p class="preview-note">Next is the card. Nothing is charged on this page.</p>
+            </form>
+        </div>
     </div>
 </section>
 
 @section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true"></script>
-    <script src="~/js/api.js" asp-append-version="true"></script>
-    <script src="~/js/reserve.js" asp-append-version="true" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 }
