@@ -32,6 +32,15 @@ public abstract class PorticoApiClient
     protected Task<ApiResult<T>> DeleteJsonAsync<T>(string url, CancellationToken cancellationToken) where T : class =>
         SendAsync<T>(() => _http.DeleteAsync(url, cancellationToken), url, cancellationToken);
 
+    // For calls made before the request knows who is signed in, such as checking a sign-in cookie.
+    protected Task<ApiResult<T>> GetJsonAsync<T>(string url, string bearer, CancellationToken cancellationToken) where T : class =>
+        SendAsync<T>(() =>
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearer);
+            return _http.SendAsync(request, cancellationToken);
+        }, url, cancellationToken);
+
     private async Task<ApiResult<T>> SendAsync<T>(Func<Task<HttpResponseMessage>> send, string url, CancellationToken cancellationToken) where T : class
     {
         try

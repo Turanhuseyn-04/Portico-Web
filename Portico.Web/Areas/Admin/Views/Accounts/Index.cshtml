@@ -1,0 +1,73 @@
+@model AccountIndexVm
+<section id="accountsDesk">
+    <header class="desk-head">
+        <div>
+            <h1>Accounts</h1>
+            <p>Admins run rooms, reservations, reviews, photos, slides, and videos. A SuperAdmin also manages accounts, roles, settings, and the audit log. Nobody can change their own role.</p>
+        </div>
+    </header>
+    <form class="admin-tools" method="get" asp-action="Index">
+        <input type="search" name="q" value="@Model.Query" placeholder="Name, email, or role" aria-label="Filter accounts">
+        <button type="submit">Filter</button>
+        <a class="tool" asp-action="Index">Clear</a>
+    </form>
+    <partial name="_Flash" />
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No accounts yet" : "Nothing matches")</h3>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Accounts appear here after someone registers." : "Clear the filter to see every account.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Password</th>
+                        <th>Change role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var account in Model.Items)
+                {
+                    var self = string.Equals(account.Email, Model.Me, StringComparison.OrdinalIgnoreCase);
+                    <tr>
+                        <td>@account.Name</td>
+                        <td>@account.Email</td>
+                        <td><span class="pill">@account.Role</span></td>
+                        <td>@(account.HasPassword ? "Set" : "Not set")</td>
+                        <td class="row-actions">
+                            @if (self)
+                            {
+                                <span>You</span>
+                            }
+                            else
+                            {
+                                <form asp-action="Role" method="post">
+                                    <input type="hidden" name="email" value="@account.Email">
+                                    <select name="role" aria-label="Role for @account.Email">
+                                        @foreach (var role in AccountRoles.All)
+                                        {
+                                            <option value="@role" selected="@(role == account.Role)">@role</option>
+                                        }
+                                    </select>
+                                    <button type="submit">Save</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

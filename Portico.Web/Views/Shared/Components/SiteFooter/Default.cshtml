@@ -1,3 +1,5 @@
+@using Portico.Web.Models.Accounts
+@model Portico.Web.Services.SiteSettings
 <footer class="footer">
     <div class="wrap footer-grid">
         <div>
@@ -9,9 +11,9 @@
         <div>
             <h2>Contact</h2>
             <address class="footer-contact">
-                <a href="tel:+994552992803">+994 55 299 28 03</a>
-                <a href="mailto:support@portico.az">support@portico.az</a>
-                <p>Baku, Azerbaijan</p>
+                <a href="@Model.PhoneHref">@Model.SupportPhone</a>
+                <a href="mailto:@Model.SupportEmail">@Model.SupportEmail</a>
+                <p>@Model.SupportLocation</p>
             </address>
         </div>
         <div>
@@ -26,7 +28,7 @@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <a asp-controller="Account" asp-action="Saved">Saved stays</a>
-                @if (User.IsInRole("Admin"))
+                @if (User.IsStaff())
                 {
                     <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
                 }

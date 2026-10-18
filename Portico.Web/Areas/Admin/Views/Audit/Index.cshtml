@@ -1,0 +1,50 @@
+@model AuditIndexVm
+<section id="auditDesk">
+    <header class="desk-head">
+        <div>
+            <h1>Audit log</h1>
+            <p>Every change staff made under the admin endpoints, newest first. A refused change is kept too, so an attempt to go past a role shows here.</p>
+        </div>
+    </header>
+    @if (!string.IsNullOrWhiteSpace(Model.LoadError))
+    {
+        <p class="editor-note is-bad">@Model.LoadError</p>
+    }
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty">
+            <h3>Nothing recorded yet</h3>
+            <p>Changes made by admins appear here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="sheet-scroll desk-table">
+            <table class="sheet">
+                <thead>
+                    <tr>
+                        <th>When (UTC)</th>
+                        <th>Who</th>
+                        <th>Role</th>
+                        <th>Request</th>
+                        <th>Result</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in Model.Items)
+                {
+                    <tr>
+                        <td>@entry.At.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@entry.ActorEmail</td>
+                        <td>@entry.ActorRole</td>
+                        <td><code>@entry.Method @entry.Path</code></td>
+                        <td><span class="pill@(entry.Refused ? " cancelled" : " upcoming")">@(entry.Refused ? $"Refused ({entry.StatusCode})" : $"Done ({entry.StatusCode})")</span></td>
+                        <td>@entry.Detail</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

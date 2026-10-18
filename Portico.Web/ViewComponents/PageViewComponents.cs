@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Portico.Web.Services;
 using Portico.Web.ViewModels.Home;
 using Portico.Web.ViewModels.Property;
 
@@ -9,9 +10,17 @@ namespace Portico.Web.ViewComponents
         public IViewComponentResult Invoke() => View();
     }
 
+    // The contact details come from the site settings a SuperAdmin can change.
     public class SiteFooterViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke() => View();
+        private readonly ISettingsApi _settings;
+
+        public SiteFooterViewComponent(ISettingsApi settings)
+        {
+            _settings = settings;
+        }
+
+        public async Task<IViewComponentResult> InvokeAsync() => View(await _settings.GetAsync(HttpContext.RequestAborted));
     }
 
     public class AuthDialogViewComponent : ViewComponent

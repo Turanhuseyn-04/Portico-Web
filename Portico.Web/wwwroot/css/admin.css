@@ -697,3 +697,10 @@
   .photo-card { grid-template-columns: 1fr; }
   .meter { grid-template-columns: 1fr; gap: 4px; }
 }
+
+/* Which role this console was opened with. */
+.console-role {
+  margin: auto 12px 8px;
+  color: rgba(239, 230, 216, 0.7);
+  font-size: 13px;
+}

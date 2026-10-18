@@ -9,15 +9,15 @@
             <dl class="trip-facts">
                 <div><dt>Name</dt><dd>@User.DisplayName()</dd></div>
                 <div><dt>Email</dt><dd>@User.Email()</dd></div>
-                @if (User.IsInRole(AccountRoles.Admin))
+                @if (User.IsStaff())
                 {
-                    <div><dt>Role</dt><dd>Admin</dd></div>
+                    <div><dt>Role</dt><dd>@User.Role()</dd></div>
                 }
             </dl>
             <div class="account-links">
                 <a class="change-search" asp-controller="Reservation" asp-action="Trips">Your trips</a>
                 <a class="change-search" asp-controller="Account" asp-action="Saved">Saved stays</a>
-                @if (User.IsInRole(AccountRoles.Admin))
+                @if (User.IsStaff())
                 {
                     <a class="change-search" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
                 }

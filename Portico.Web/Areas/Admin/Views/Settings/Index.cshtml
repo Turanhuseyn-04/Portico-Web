@@ -1,0 +1,34 @@
+@model SettingsFormVm
+<section id="settingsForm">
+    <header class="desk-head">
+        <div>
+            <h1>Settings</h1>
+            <p>The contact details in the footer of every page and on Help. A change shows within a minute.</p>
+        </div>
+    </header>
+    <partial name="_Flash" />
+    @if (ViewData["LoadError"] is string loadError)
+    {
+        <p class="editor-note is-bad">@loadError</p>
+    }
+    <form class="editor" asp-action="Index" method="post">
+        <div asp-validation-summary="All"></div>
+        <div class="editor-grid">
+            <label>Phone
+                <input asp-for="SupportPhone" placeholder="+994 55 299 28 03">
+                <span asp-validation-for="SupportPhone"></span>
+            </label>
+            <label>Email
+                <input asp-for="SupportEmail" type="email" placeholder="support@portico.az">
+                <span asp-validation-for="SupportEmail"></span>
+            </label>
+            <label class="span-2">Location
+                <input asp-for="SupportLocation" placeholder="Baku, Azerbaijan">
+                <span asp-validation-for="SupportLocation"></span>
+            </label>
+        </div>
+        <div class="editor-actions">
+            <button class="btn-ink" type="submit">Save</button>
+        </div>
+    </form>
+</section>

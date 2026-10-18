@@ -1,3 +1,4 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     var section = ViewData["Console"] as string ?? "";
     string? Current(string name) => section == name ? "page" : null;
@@ -37,7 +38,14 @@
                 <a asp-area="Admin" asp-controller="Report" asp-action="Index" aria-current="@Current("Report")">Report</a>
                 <a asp-area="Admin" asp-controller="Messages" asp-action="Index" aria-current="@Current("Messages")">Messages <span class="side-count" id="sideMessageCount"></span></a>
                 <a asp-area="Admin" asp-controller="Users" asp-action="Index" aria-current="@Current("Users")">Users <span class="side-count" id="sideUserCount"></span></a>
+                @if (User.IsSuperAdmin())
+                {
+                    <a asp-area="Admin" asp-controller="Accounts" asp-action="Index" aria-current="@Current("Accounts")">Accounts</a>
+                    <a asp-area="Admin" asp-controller="Settings" asp-action="Index" aria-current="@Current("Settings")">Settings</a>
+                    <a asp-area="Admin" asp-controller="Audit" asp-action="Index" aria-current="@Current("Audit")">Audit log</a>
+                }
             </nav>
+            <p class="console-role">Signed in as @User.Role()</p>
             <a class="console-leave" asp-area="" asp-controller="Home" asp-action="Index">Guest site</a>
         </aside>
         <div class="console-main">
@@ -73,6 +81,11 @@
     </script>
     <script src="~/js/mock-properties.js" asp-append-version="true"></script>
     <script src="~/js/api.js" asp-append-version="true"></script>
+    @* The console's scripts go through the Web, which adds the API token; a change carries the anti-forgery token. *@
+    <script>
+        PorticoApi.config.baseUrl = "@Url.Content("~/Admin/api")";
+        PorticoApi.config.headers = { "RequestVerificationToken": "@Antiforgery.GetAndStoreTokens(Context).RequestToken" };
+    </script>
     <script src="~/js/admin.js" asp-append-version="true"></script>
     <script src="~/js/admin-console.js" asp-append-version="true"></script>
     <script src="~/js/admin-content.js" asp-append-version="true"></script>
