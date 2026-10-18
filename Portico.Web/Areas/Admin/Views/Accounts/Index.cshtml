@@ -33,6 +33,7 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Password</th>
+                        <th>Email confirmed</th>
                         <th>Change role</th>
                     </tr>
                 </thead>
@@ -45,6 +46,7 @@
                         <td>@account.Email</td>
                         <td><span class="pill">@account.Role</span></td>
                         <td>@(account.HasPassword ? "Set" : "Not set")</td>
+                        <td>@(account.EmailConfirmed ? "Confirmed" : "Waiting")</td>
                         <td class="row-actions">
                             @if (self)
                             {

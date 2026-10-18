@@ -1,0 +1,53 @@
+@model Portico.Web.ViewModels.Account.CheckEmailVm
+
+<section class="section results" id="account">
+    <div class="wrap">
+        <p class="kicker">Account</p>
+        @if (Model.LinkError is not null)
+        {
+            <h1 id="accountTitle">That link did not work</h1>
+            <p class="sub">Ask for a new link and use the newest email.</p>
+        }
+        else
+        {
+            <h1 id="accountTitle">Check your inbox</h1>
+            <p class="sub">
+                @if (Model.Email != "")
+                {
+                    <text>We sent a confirmation link to <strong>@Model.Email</strong>.</text>
+                }
+                else
+                {
+                    <text>We sent you a confirmation link.</text>
+                }
+                Open it to finish creating your account, then sign in.
+            </p>
+        }
+        <div class="account-panel">
+            @if (Model.LinkError is not null)
+            {
+                <p class="account-error" role="alert">@Model.LinkError</p>
+            }
+            else if (!Model.EmailSent)
+            {
+                <p class="account-error" role="alert">The email could not be sent just now. Ask for a new link below.</p>
+            }
+            @if (Model.Resent)
+            {
+                <p class="preview-note" role="status">If that account is waiting for confirmation, a new link is on its way. Only the newest link works.</p>
+            }
+            <p>The link works once and ends after 24 hours. Nothing arrived? Check spam, or send a new link.</p>
+            <form method="post" asp-controller="Account" asp-action="ResendConfirmation">
+                <label class="stack">Email
+                    <input name="email" type="email" required autocomplete="email" value="@Model.Email" />
+                </label>
+                <button class="search-btn auth-submit" type="submit">Send a new link</button>
+            </form>
+            <a class="account-switch" asp-controller="Account" asp-action="SignIn" asp-route-email="@Model.Email">Already confirmed? Sign in</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+}

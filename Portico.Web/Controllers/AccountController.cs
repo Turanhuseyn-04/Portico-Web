@@ -24,10 +24,19 @@ namespace Portico.Web.Controllers
         }
 
         [HttpGet("/signin")]
-        public IActionResult SignIn(string? email, string? returnUrl)
+        public IActionResult SignIn(string? email, string? returnUrl, bool confirmed = false)
         {
             AccountPage("signin", false);
-            return View("Index", new AccountPageVm { Mode = "signin", SignIn = new SignInForm { Email = email ?? "", ReturnUrl = returnUrl } });
+            return View("Index", new AccountPageVm { Mode = "signin", Confirmed = confirmed, SignIn = new SignInForm { Email = email ?? "", ReturnUrl = returnUrl } });
+        }
+
+        // The password was right, but the email has not been confirmed yet.
+        [HttpGet("/signin/unconfirmed")]
+        public IActionResult SignInUnconfirmed(string? email, string? returnUrl)
+        {
+            AccountPage("signin", false);
+            ViewData["Title"] = "Confirm your email";
+            return View("Index", new AccountPageVm { Mode = "signin", Unconfirmed = true, SignIn = new SignInForm { Email = email ?? "", ReturnUrl = returnUrl } });
         }
 
         [HttpGet("/signin/failed")]
@@ -55,6 +64,9 @@ namespace Portico.Web.Controllers
             if (profile.Status == StatusCodes.Status401Unauthorized)
                 return RedirectToAction(nameof(SignInFailed), new { email = form.Email.Trim(), returnUrl = form.ReturnUrl });
 
+            if (profile.Status == StatusCodes.Status403Forbidden)
+                return RedirectToAction(nameof(SignInUnconfirmed), new { email = form.Email.Trim(), returnUrl = form.ReturnUrl });
+
             model.Error = "Sign-in is unavailable right now. Try again in a moment.";
             return View("Index", model);
         }
@@ -74,17 +86,54 @@ namespace Portico.Web.Controllers
             var model = new AccountPageVm { Mode = "register", Register = form };
             if (!ModelState.IsValid) return View("Index", model);
 
-            var profile = await _accounts.RegisterAsync(form.Name.Trim(), form.Email.Trim(), form.Password, cancellationToken);
-            if (profile.Data is null)
+            var registered = await _accounts.RegisterAsync(form.Name.Trim(), form.Email.Trim(), form.Password, cancellationToken);
+            if (registered.Data is null)
             {
-                model.Error = profile.Status is StatusCodes.Status400BadRequest or StatusCodes.Status409Conflict
-                    ? profile.FirstError ?? "That account could not be created."
+                model.Error = registered.Status is StatusCodes.Status400BadRequest or StatusCodes.Status409Conflict
+                    ? registered.FirstError ?? "That account could not be created."
                     : "Registration is unavailable right now. Try again in a moment.";
                 return View("Index", model);
             }
 
-            await SignInAsync(profile.Data);
-            return LocalRedirect(SafeReturn(form.ReturnUrl, Url.Action(nameof(Profile))!));
+            // No sign-in yet: the account waits until the link in the email is opened.
+            return RedirectToAction(nameof(CheckEmail), new { email = registered.Data.Email, sent = registered.Data.EmailSent });
+        }
+
+        [HttpGet("/register/check-email")]
+        public IActionResult CheckEmail(string? email, bool sent = true, bool resent = false)
+        {
+            ConfirmPage();
+            return View("CheckEmail", new CheckEmailVm { Email = email ?? "", EmailSent = sent, Resent = resent });
+        }
+
+        // The link in the confirmation email. A link that worked sends the guest to sign in.
+        [HttpGet("/confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string? email, string? token, CancellationToken cancellationToken)
+        {
+            ConfirmPage();
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+                return View("CheckEmail", new CheckEmailVm { Email = email ?? "", LinkError = "That confirmation link is incomplete. Ask for a new one below." });
+
+            var confirmed = await _accounts.ConfirmEmailAsync(email.Trim(), token.Trim(), cancellationToken);
+            if (confirmed.Data is not null)
+                return RedirectToAction(nameof(SignIn), new { email = confirmed.Data.Email, confirmed = true });
+
+            return View("CheckEmail", new CheckEmailVm
+            {
+                Email = email.Trim(),
+                LinkError = confirmed.Status == StatusCodes.Status400BadRequest
+                    ? confirmed.FirstError ?? "That confirmation link is not valid or has expired."
+                    : "Confirmation is unavailable right now. Open the link again in a moment."
+            });
+        }
+
+        // Always answers the same, so the form cannot tell anyone which emails are registered.
+        [HttpPost("/confirm-email/resend")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmation(string? email, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrWhiteSpace(email)) await _accounts.ResendConfirmationAsync(email.Trim(), cancellationToken);
+            return RedirectToAction(nameof(CheckEmail), new { email = email?.Trim(), resent = true });
         }
 
         [HttpPost("/signout")]
@@ -166,6 +215,18 @@ namespace Portico.Web.Controllers
         // Only addresses on this site, so a crafted link cannot send a guest elsewhere after sign-in.
         private string SafeReturn(string? returnUrl, string fallback) =>
             !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : fallback;
+
+        private void ConfirmPage()
+        {
+            ViewData["Title"] = "Confirm your email";
+            ViewData["Description"] = "Confirm the email for your Portico account.";
+            ViewData["Account"] = "register";
+            ViewData["BodyClass"] = "results-page";
+            ViewData["SolidHeader"] = true;
+            ViewData["SkipHref"] = "#account";
+            ViewData["SkipText"] = "Skip to email confirmation";
+            ViewData["FooterNote"] = "The confirmation link works once and ends after 24 hours.";
+        }
 
         private void AccountPage(string mode, bool failed)
         {
