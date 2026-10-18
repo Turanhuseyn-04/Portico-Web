@@ -1,18 +1,17 @@
-﻿@{
+﻿@model HomeVm
+@{
     ViewData["Title"] = "A shorter list of stays";
 }
 
-@await Component.InvokeAsync("HeroSearch")
-@await Component.InvokeAsync("TrendingDestinations")
+@await Component.InvokeAsync("HeroSearch", new { model = Model.Search })
+@await Component.InvokeAsync("TrendingDestinations", new { model = Model.Destinations })
 @await Component.InvokeAsync("HomePropertyTypes")
 @await Component.InvokeAsync("StayRules")
-@await Component.InvokeAsync("StayList")
+@await Component.InvokeAsync("StayList", new { model = Model.List })
 @await Component.InvokeAsync("VideoBand")
 @await Component.InvokeAsync("GuestNotes")
 @await Component.InvokeAsync("CloseBand")
 
 @section Scripts {
-    <script src="~/js/mock-properties.js" asp-append-version="true" defer></script>
-    <script src="~/js/api.js" asp-append-version="true" defer></script>
     <script src="~/js/home.js" asp-append-version="true" defer></script>
 }

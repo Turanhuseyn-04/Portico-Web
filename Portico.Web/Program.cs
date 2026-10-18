@@ -1,4 +1,5 @@
 using System.Net.Security;
+using Portico.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,24 +9,31 @@ builder.Services.AddControllersWithViews(options =>
     options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
 });
 
-builder.Services.AddHttpClient("PorticoApi", client =>
-{
-    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"];
-    if (string.IsNullOrWhiteSpace(baseUrl))
-        throw new InvalidOperationException("ApiSettings:BaseUrl is missing.");
-    client.BaseAddress = new Uri(baseUrl);
-})
-.ConfigurePrimaryHttpMessageHandler(() =>
-{
-    var handler = new HttpClientHandler();
-    if (builder.Environment.IsDevelopment())
-    {
-        handler.ServerCertificateCustomValidationCallback = (request, _, _, errors) =>
-            errors == SslPolicyErrors.None || request.RequestUri?.IsLoopback == true;
-    }
+// The admin controllers use the named client; the guest pages use typed clients. Both talk to the same API.
+UsePorticoApi(builder.Services.AddHttpClient("PorticoApi"));
+UsePorticoApi(builder.Services.AddHttpClient<IPropertyApi, PropertyApi>());
 
-    return handler;
-});
+void UsePorticoApi(IHttpClientBuilder client)
+{
+    client.ConfigureHttpClient(http =>
+    {
+        var baseUrl = builder.Configuration["ApiSettings:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(baseUrl))
+            throw new InvalidOperationException("ApiSettings:BaseUrl is missing.");
+        http.BaseAddress = new Uri(baseUrl);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        var handler = new HttpClientHandler();
+        if (builder.Environment.IsDevelopment())
+        {
+            handler.ServerCertificateCustomValidationCallback = (request, _, _, errors) =>
+                errors == SslPolicyErrors.None || request.RequestUri?.IsLoopback == true;
+        }
+
+        return handler;
+    });
+}
 
 var app = builder.Build();
 

@@ -1,5 +1,11 @@
+@model PropertyPageVm
 <section class="p-section" id="faq" aria-labelledby="faqTitle">
     <p class="kicker">Questions</p>
     <h2 id="faqTitle">Good to know</h2>
-    <div class="faq" id="faqBody"></div>
+    <div class="faq" id="faqBody">
+        @foreach (var (question, answer) in Model.Faq)
+        {
+            <details class="faq-item"><summary>@question</summary><p>@answer</p></details>
+        }
+    </div>
 </section>

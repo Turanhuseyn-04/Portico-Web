@@ -2140,3 +2140,13 @@ article.trip-row img { width: 100%; height: 180px; }
   .trip-total { padding-right: 0; }
 }
 
+
+/* The sort select sends a GET form; the form keeps the label's place in the section head. */
+.sort-form { display: flex; align-items: center; gap: 10px; }
+
+a.btn-ink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

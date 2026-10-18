@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Models;
+using Portico.Web.Services;
+using Portico.Web.ViewModels.Home;
 using System.Diagnostics;
 
 namespace Portico.Web.Controllers
@@ -7,15 +9,18 @@ namespace Portico.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IPropertyApi _properties;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IPropertyApi properties)
         {
             _logger = logger;
+            _properties = properties;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string? sort, string? property, CancellationToken cancellationToken)
         {
-            return View();
+            var result = await _properties.ListAsync(cancellationToken);
+            return View(HomeVm.Build(result.Data, sort, property));
         }
 
         public IActionResult Privacy()

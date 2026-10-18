@@ -1,7 +1,14 @@
-<div class="mobile-bar" id="mobileBar" hidden>
+@model PropertyPageVm
+@{
+    var room = Model.Selected?.Room;
+    var total = Model.ReadyTotal;
+    var price = total > 0 ? StayText.Money(total) : room is not null ? StayText.Money(room.Price) : $"from {StayText.Money(Model.MinPrice)}";
+    var meta = total > 0 ? $"{StayText.Count(Model.Choice.Nights, "night", "nights")} · {room!.Name}" : room is not null ? $"per night · {room.Name}" : "per night";
+}
+<div class="mobile-bar" id="mobileBar">
     <div class="mobile-bar-price">
-        <strong id="mobileTotal"></strong>
-        <span id="mobileMeta"></span>
+        <strong id="mobileTotal">@price</strong>
+        <span id="mobileMeta">@meta</span>
     </div>
     <button class="search-btn" id="mobileReserve" type="button">Reserve</button>
 </div>

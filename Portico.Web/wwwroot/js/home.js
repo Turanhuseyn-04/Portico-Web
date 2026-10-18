@@ -1,13 +1,11 @@
 "use strict";
 
-let stays = [];
+// The server renders the stays, the trending cards, and the city list. This script only runs the controls on top of them.
 
 const DOW = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-const heartSvg = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-const moneyFmt = new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const LIMITS = { adults: [1, 8], children: [0, 6], rooms: [1, 4] };
 
 const state = {
-  destination: "",
   checkIn: null,
   checkOut: null,
   hover: null,
@@ -16,9 +14,7 @@ const state = {
   rooms: 1,
   viewMonth: startOfMonth(new Date()),
   active: null,
-  saved: new Set(),
-  query: null,
-  property: ""
+  saved: new Set()
 };
 
 const $ = (id) => document.getElementById(id);
@@ -36,36 +32,11 @@ const guestField = $("guestField");
 const guestBtn = $("guestBtn");
 const guestPopover = $("guestPopover");
 const formError = $("formError");
-const listMeta = $("listMeta");
 const stayList = $("stayList");
 const trendTrack = $("trendTrack");
 const drawer = $("drawer");
-const authModal = $("authModal");
-const authForm = $("authForm");
-const authTitle = $("authTitle");
-const authLede = $("authLede");
-const authNameWrap = $("authNameWrap");
-const authName = $("authName");
-const authSwitch = $("authSwitch");
-const authSubmit = $("authSubmit");
-const authDone = $("authDone");
 
 let lastFocus = null;
-let authMode = "signin";
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
-}
-
-function money(amount) {
-  return moneyFmt.format(amount);
-}
 
 function startOfMonth(date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -73,10 +44,6 @@ function startOfMonth(date) {
 
 function addMonths(date, count) {
   return new Date(date.getFullYear(), date.getMonth() + count, 1);
-}
-
-function addDays(date, count) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + count);
 }
 
 function dayTime(date) {
@@ -107,12 +74,6 @@ function formatPretty(date) {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function scoreLabel(score) {
-  if (score >= 9) return "Wonderful";
-  if (score >= 8) return "Excellent";
-  return "Good";
-}
-
 function guestLabel() {
   const parts = [`${state.adults} adult${state.adults === 1 ? "" : "s"}`];
   if (state.children) parts.push(`${state.children} child${state.children === 1 ? "" : "ren"}`);
@@ -120,160 +81,8 @@ function guestLabel() {
   return parts.join(" · ");
 }
 
-function fits(stay) {
-  if (!state.query) return true;
-  const people = state.query.adults + state.query.children;
-  return people <= stay.maxGuests * state.query.rooms;
-}
-
-function matchesDest(stay, destination) {
-  const query = destination.toLowerCase();
-  return [stay.city, stay.country, stay.name, stay.area].some((value) => value.toLowerCase().includes(query));
-}
-
-function cancelCopy(stay) {
-  if (!stay.cancel) return { text: "Non-refundable once booked.", locked: true };
-  if (!state.query) return { text: "Free cancellation until 3 days before check-in.", locked: false };
-  const until = addDays(state.query.checkIn, -3);
-  if (isPast(until)) return { text: "Free cancellation has closed for these dates.", locked: true };
-  return { text: `Free cancellation until ${formatPretty(until)}.`, locked: false };
-}
-
-function heartMarkup(stay) {
-  const saved = state.saved.has(stay.id);
-  const verb = saved ? "Remove" : "Save";
-  return `<button class="heart" type="button" data-stay="${stay.id}" data-name="${escapeHtml(stay.name)}" aria-pressed="${saved}" aria-label="${verb} ${escapeHtml(stay.name)}">${heartSvg}</button>`;
-}
-
-function priceMarkup(stay) {
-  if (!state.query) {
-    return `<span class="from">from</span><strong>${money(stay.price)}</strong><span class="per">per night</span>`;
-  }
-  const nights = nightCount(state.query.checkIn, state.query.checkOut);
-  const total = stay.price * nights * state.query.rooms;
-  const guests = `${state.query.adults} adult${state.query.adults === 1 ? "" : "s"}`;
-  const children = state.query.children ? `, ${state.query.children} child${state.query.children === 1 ? "" : "ren"}` : "";
-  const rooms = `${state.query.rooms} room${state.query.rooms === 1 ? "" : "s"}`;
-  return `<span class="from">${nights} night${nights === 1 ? "" : "s"}, ${guests}${children}</span><strong>${money(total)}</strong><span class="per">${money(stay.price)} × ${nights} × ${rooms}</span>`;
-}
-
-function stayCard(stay, index) {
-  const ok = fits(stay);
-  const policy = cancelCopy(stay);
-  const delay = Math.min(index, 4) * 80;
-  return `<article class="stay reveal${ok ? "" : " is-unfit"}" data-stay="${stay.id}" style="--in:${delay}ms" tabindex="0">
-    <div class="stay-media">
-      <img src="${stay.image}" alt="${escapeHtml(stay.name)} in ${escapeHtml(stay.city)}" width="800" height="600" loading="lazy">
-      ${heartMarkup(stay)}
-    </div>
-    <div class="stay-body">
-      <p class="stay-type">${escapeHtml(stay.property)} · ${escapeHtml(stay.type)} · sleeps ${stay.maxGuests}</p>
-      <h3>${escapeHtml(stay.name)}</h3>
-      <p class="where-line">${escapeHtml(stay.area)} · ${escapeHtml(stay.city)}, ${escapeHtml(stay.country)}</p>
-      <p class="cancel${policy.locked ? " is-locked" : ""}">${escapeHtml(policy.text)}</p>
-      ${stay.scarce ? '<p class="scarce">Only 1 room left at this rate</p>' : ""}
-      <div class="pills">${stay.amenities.map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join("")}</div>
-      ${ok ? "" : `<p class="unfit">Sleeps ${stay.maxGuests} per room — too few for this search.</p>`}
-    </div>
-    <div class="stay-side">
-      <div class="rating">
-        <div>
-          <strong>${scoreLabel(stay.score)}</strong>
-          <span>${stay.reviews} reviews</span>
-        </div>
-        <span class="score">${stay.score.toFixed(1)}</span>
-      </div>
-      <div class="stay-price">${priceMarkup(stay)}</div>
-    </div>
-  </article>`;
-}
-
-const destinations = [
-  { city: "Rome", image: "/assets/rome.jpg" },
-  { city: "Athens", image: "/assets/athens.jpg" },
-  { city: "Paris", image: "/assets/paris.jpg" },
-  { city: "Istanbul", image: "/assets/istanbul.jpg" },
-  { city: "Venice", image: "/assets/venice.jpg" },
-  { city: "Lisbon", image: "/assets/lisbon-city.jpg" },
-  { city: "Kyoto", image: "/assets/kyoto-city.jpg" },
-  { city: "Marrakech", image: "/assets/marrakech-city.jpg" }
-];
-
-function destinationCard(place) {
-  return `<article class="trend-card" data-city="${escapeHtml(place.city)}" tabindex="0" role="button" aria-label="Search stays in ${escapeHtml(place.city)}">
-    <img src="${place.image}" alt="" width="800" height="1000">
-    <div class="shade"></div>
-    <div class="trend-meta">
-      <h3>${escapeHtml(place.city)}</h3>
-    </div>
-  </article>`;
-}
-
-function filteredStays() {
-  const destination = state.query ? state.query.destination : "";
-  const list = stays.filter((stay) => {
-    if (state.property && stay.property !== state.property) return false;
-    if (destination && !matchesDest(stay, destination)) return false;
-    return true;
-  });
-  const sort = $("sort").value;
-  if (sort === "price") list.sort((a, b) => a.price - b.price);
-  else if (sort === "rating") list.sort((a, b) => b.score - a.score);
-  else list.sort((a, b) => a.order - b.order);
-  return list;
-}
-
-function renderList() {
-  const list = filteredStays();
-  const unfit = state.query ? list.filter((stay) => !fits(stay)).length : 0;
-  let text = `${list.length} of ${stays.length} houses`;
-  if (state.property) text += ` · ${propertyLabel(state.property)}`;
-  if (state.query && state.query.destination) text += ` · ${state.query.destination}`;
-  if (state.query) {
-    const nights = nightCount(state.query.checkIn, state.query.checkOut);
-    text += ` · ${formatPretty(state.query.checkIn)} – ${formatPretty(state.query.checkOut)} · ${nights} night${nights === 1 ? "" : "s"}`;
-    text += ` · ${guestLabelFrom(state.query)}`;
-  } else if (!state.property) {
-    text = `${stays.length} houses. Add dates to turn the nightly rate into a stay total.`;
-  } else {
-    text += ". Add dates to price the stay.";
-  }
-  if (unfit) text += ` ${unfit} ${unfit === 1 ? "house sleeps" : "houses sleep"} fewer guests than this search.`;
-  listMeta.textContent = text;
-
-  if (!list.length) {
-    const place = state.query && state.query.destination ? ` in ${escapeHtml(state.query.destination)}` : "";
-    stayList.innerHTML = `<div class="empty">
-      <h3>Nothing on the list${place}</h3>
-      <p>Portico keeps eight houses. Clear the city or the property type.</p>
-      <button class="btn-ink" type="button" data-reset>Clear the filter</button>
-    </div>`;
-    return;
-  }
-  stayList.innerHTML = list.map(stayCard).join("");
-  watchReveals(stayList);
-}
-
-function propertyLabel(property) {
-  return { Hotel: "Hotels", Apartment: "Apartments", Resort: "Resorts", Villa: "Villas" }[property] || property;
-}
-
-function guestLabelFrom(query) {
-  const parts = [`${query.adults} adult${query.adults === 1 ? "" : "s"}`];
-  if (query.children) parts.push(`${query.children} child${query.children === 1 ? "" : "ren"}`);
-  parts.push(`${query.rooms} room${query.rooms === 1 ? "" : "s"}`);
-  return parts.join(" · ");
-}
-
-function renderTrend() {
-  trendTrack.innerHTML = destinations.map(destinationCard).join("");
-  prepareTrendLoop();
-  watchReveals(document);
-}
-
 function chooseCity(city) {
   whereInput.value = city;
-  state.destination = city;
   formError.textContent = "";
   $("hero").scrollIntoView({ behavior: "smooth", block: "start" });
   window.setTimeout(() => openPopover("cal"), 480);
@@ -291,9 +100,8 @@ function renderGuests() {
   $("childrenCount").textContent = String(state.children);
   $("roomsCount").textContent = String(state.rooms);
   guestBtn.textContent = guestLabel();
-  const limits = { adults: [1, 8], children: [0, 6], rooms: [1, 4] };
   guestPopover.querySelectorAll("[data-step]").forEach((button) => {
-    const [min, max] = limits[button.dataset.step];
+    const [min, max] = LIMITS[button.dataset.step];
     const value = state[button.dataset.step];
     const dir = Number(button.dataset.dir);
     button.disabled = dir < 0 ? value <= min : value >= max;
@@ -305,8 +113,7 @@ function monthIndex(date) {
 }
 
 function canShift(dir) {
-  const now = new Date();
-  const min = monthIndex(startOfMonth(now));
+  const min = monthIndex(startOfMonth(new Date()));
   const next = monthIndex(state.viewMonth) + dir;
   return next >= min && next <= min + 18;
 }
@@ -377,10 +184,7 @@ function paintRange() {
 function selectDay(date) {
   if (isPast(date)) return;
   const time = dayTime(date);
-  if (!state.checkIn || state.checkOut) {
-    state.checkIn = date;
-    state.checkOut = null;
-  } else if (time <= dayTime(state.checkIn)) {
+  if (!state.checkIn || state.checkOut || time <= dayTime(state.checkIn)) {
     state.checkIn = date;
     state.checkOut = null;
   } else {
@@ -393,20 +197,18 @@ function selectDay(date) {
   else renderCalendar();
 }
 
-function renderWhere() {
+// The city list is rendered by the server. Typing only hides the cities that do not match.
+function filterWhere() {
   const query = whereInput.value.trim().toLowerCase();
-  const cities = new Map();
-  stays.forEach((stay) => {
-    if (!cities.has(stay.city)) cities.set(stay.city, { city: stay.city, country: stay.country, count: 0 });
-    cities.get(stay.city).count += 1;
+  let shown = 0;
+  wherePopover.querySelectorAll(".where-item").forEach((item) => {
+    const match = !query
+      || item.dataset.city.toLowerCase().includes(query)
+      || item.dataset.country.toLowerCase().includes(query);
+    item.hidden = !match;
+    if (match) shown += 1;
   });
-  const options = [{ city: "Anywhere", country: "The full short list", count: stays.length }, ...cities.values()]
-    .filter((item) => !query || item.city.toLowerCase().includes(query) || item.country.toLowerCase().includes(query));
-  const items = options.map((item) => `<button class="where-item" type="button" data-city="${escapeHtml(item.city)}" role="option">
-      <span class="pin" aria-hidden="true"></span>
-      <span><strong>${escapeHtml(item.city)}</strong><em>${escapeHtml(item.country)} · ${item.count} house${item.count === 1 ? "" : "s"}</em></span>
-    </button>`).join("");
-  wherePopover.innerHTML = `<div class="where-box" role="listbox">${items || '<p class="where-empty">No city on the list matches that.</p>'}</div>`;
+  wherePopover.querySelector(".where-empty").hidden = shown > 0;
 }
 
 function placePopover(popover, anchor) {
@@ -451,7 +253,7 @@ function openPopover(name) {
   state.active = name;
   const popover = name === "where" ? wherePopover : name === "cal" ? calPopover : guestPopover;
   const anchor = name === "where" ? whereField : name === "cal" ? datesField : guestField;
-  if (name === "where") renderWhere();
+  if (name === "where") filterWhere();
   if (name === "cal") renderCalendar();
   if (name === "guests") renderGuests();
   popover.hidden = false;
@@ -464,7 +266,8 @@ function togglePopover(name) {
   else openPopover(name);
 }
 
-function runSearch() {
+// The form posts to Home/Search as a normal GET. Empty fields are left out of the address.
+function submitSearch() {
   formError.textContent = "";
   if (!state.checkIn || !state.checkOut) {
     formError.textContent = "Add a check-in and a check-out. The total needs both dates.";
@@ -473,41 +276,17 @@ function runSearch() {
     openPopover("cal");
     return;
   }
-  const typed = whereInput.value.trim();
-  state.destination = typed.toLowerCase() === "anywhere" ? "" : typed;
-  state.query = {
-    destination: state.destination,
-    checkIn: state.checkIn,
-    checkOut: state.checkOut,
-    adults: state.adults,
-    children: state.children,
-    rooms: state.rooms
-  };
-  closePopovers();
-  renderList();
-  $("list").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function goToResults() {
-  formError.textContent = "";
-  if (!state.checkIn || !state.checkOut) {
-    formError.textContent = "Add a check-in and a check-out. The total needs both dates.";
-    datesField.classList.remove("is-shake");
-    window.requestAnimationFrame(() => datesField.classList.add("is-shake"));
-    openPopover("cal");
-    return;
-  }
-  const typed = whereInput.value.trim();
-  const destination = typed.toLowerCase() === "anywhere" ? "" : typed;
-  const params = new URLSearchParams();
-  if (destination) params.set("destination", destination);
-  params.set("checkIn", toKey(state.checkIn));
-  params.set("checkOut", toKey(state.checkOut));
-  params.set("adults", String(state.adults));
-  if (state.children) params.set("children", String(state.children));
-  params.set("rooms", String(state.rooms));
-  if (state.property) params.set("property", state.property);
-  window.location.href = `${searchForm.dataset.results}?${params}`;
+  if (whereInput.value.trim().toLowerCase() === "anywhere") whereInput.value = "";
+  $("checkInValue").value = toKey(state.checkIn);
+  $("checkOutValue").value = toKey(state.checkOut);
+  $("adultsValue").value = String(state.adults);
+  $("childrenValue").value = String(state.children);
+  $("roomsValue").value = String(state.rooms);
+  searchForm.querySelectorAll("input[name]").forEach((input) => {
+    input.disabled = !input.value.trim() || (input.name === "children" && input.value === "0");
+  });
+  searchForm.submit();
+  searchForm.querySelectorAll("input[name]").forEach((input) => { input.disabled = false; });
 }
 
 function validDay(key) {
@@ -522,15 +301,11 @@ function clampInt(value, min, max, fallback) {
   return Math.min(max, Math.max(min, n));
 }
 
+// A link back from the results page carries the last search. Put it back in the form.
 function applyIncomingSearch() {
   const params = new URLSearchParams(window.location.search);
-  const known = ["destination", "checkIn", "checkOut", "adults", "children", "rooms", "property"];
-  if (![...params.keys()].some((key) => known.includes(key))) return;
   const destination = (params.get("destination") || "").trim();
-  if (destination && destination.toLowerCase() !== "anywhere") {
-    whereInput.value = destination;
-    state.destination = destination;
-  }
+  if (destination && destination.toLowerCase() !== "anywhere") whereInput.value = destination;
   const checkIn = validDay(params.get("checkIn"));
   const checkOut = validDay(params.get("checkOut"));
   if (checkIn && checkOut && dayTime(checkOut) > dayTime(checkIn)) {
@@ -541,32 +316,14 @@ function applyIncomingSearch() {
   if (params.has("adults")) state.adults = clampInt(params.get("adults"), 1, 8, state.adults);
   if (params.has("children")) state.children = clampInt(params.get("children"), 0, 6, state.children);
   if (params.has("rooms")) state.rooms = clampInt(params.get("rooms"), 1, 4, state.rooms);
-  const property = params.get("property") || "";
-  if (["Hotel", "Apartment", "Resort", "Villa"].includes(property)) {
-    state.property = property;
-    document.querySelectorAll(".property-card").forEach((item) => {
-      const on = item.dataset.property === property;
-      item.classList.toggle("is-on", on);
-      item.setAttribute("aria-pressed", String(on));
-    });
-  }
+  const property = $("propertyValue").value;
+  document.querySelectorAll(".property-card").forEach((item) => {
+    const on = item.dataset.property === property;
+    item.classList.toggle("is-on", on);
+    item.setAttribute("aria-pressed", String(on));
+  });
   updateDateLabels();
   renderGuests();
-}
-
-function resetFilters() {
-  state.destination = "";
-  state.property = "";
-  whereInput.value = "";
-  document.querySelectorAll(".property-card").forEach((card) => {
-    card.classList.remove("is-on");
-    card.setAttribute("aria-pressed", "false");
-  });
-  if (state.checkIn && state.checkOut) runSearch();
-  else {
-    state.query = null;
-    renderList();
-  }
 }
 
 function toggleSave(id) {
@@ -583,117 +340,43 @@ function toggleSave(id) {
 }
 
 function onCatalogClick(event) {
-  const reset = event.target.closest("[data-reset]");
-  if (reset) {
-    resetFilters();
-    return;
-  }
   const heart = event.target.closest(".heart");
   if (heart) {
     toggleSave(heart.dataset.stay);
     return;
   }
-  const card = event.target.closest("[data-stay]");
+  const card = event.target.closest("article[data-stay]");
   if (!card || event.target.closest("button, a, select")) return;
-  openDrawer(card.dataset.stay);
+  openDrawer(card);
 }
 
 function onCatalogKey(event) {
   if (event.key !== "Enter" && event.key !== " ") return;
   if (event.target.closest("button, a, input, select")) return;
-  const card = event.target.closest("[data-stay]");
+  const card = event.target.closest("article[data-stay]");
   if (!card) return;
   event.preventDefault();
-  openDrawer(card.dataset.stay);
+  openDrawer(card);
 }
 
-function openDrawer(id) {
-  const stay = stays.find((item) => item.id === id);
-  if (!stay) return;
+// Each card carries its drawer as a server-rendered template.
+function openDrawer(card) {
+  const template = card.querySelector("template[data-drawer]");
+  if (!template) return;
   lastFocus = document.activeElement;
-  drawer.dataset.stay = id;
+  drawer.dataset.stay = card.dataset.stay;
   closePopovers();
-  const policy = cancelCopy(stay);
-  let bill;
-  if (!state.query) {
-    bill = `<div class="bill"><div><span>Nightly rate</span><span>${money(stay.price)}</span></div><p class="formula">Search with dates to multiply this into a stay total.</p></div>`;
-  } else {
-    const nights = nightCount(state.query.checkIn, state.query.checkOut);
-    const total = stay.price * nights * state.query.rooms;
-    bill = `<div class="bill">
-      <div><span>Nightly rate</span><span>${money(stay.price)}</span></div>
-      <div><span>Nights</span><span>${nights}</span></div>
-      <div><span>Rooms</span><span>${state.query.rooms}</span></div>
-      <div class="total"><span>Stay total</span><span>${money(total)}</span></div>
-      <p class="formula">${money(stay.price)} × ${nights} × ${state.query.rooms}</p>
-    </div>`;
-  }
-  $("drawerBody").innerHTML = `
-    <img class="drawer-photo" src="${stay.image}" alt="${escapeHtml(stay.name)}">
-    <div class="drawer-copy">
-      <p class="stay-type">${escapeHtml(stay.property)} · ${escapeHtml(stay.type)} · sleeps ${stay.maxGuests}</p>
-      <h2 id="drawerTitle">${escapeHtml(stay.name)}</h2>
-      <p class="where-line">${escapeHtml(stay.area)} · ${escapeHtml(stay.city)}, ${escapeHtml(stay.country)}</p>
-      <p class="blurb">${escapeHtml(stay.blurb)}</p>
-      <div class="rating drawer-rating">
-        <span class="score">${stay.score.toFixed(1)}</span>
-        <div><strong>${scoreLabel(stay.score)}</strong><span>${stay.reviews} reviews</span></div>
-      </div>
-      ${bill}
-      <p class="cancel${policy.locked ? " is-locked" : ""}">${escapeHtml(policy.text)}</p>
-      <div class="pills">${stay.amenities.map((item) => `<span class="pill">${escapeHtml(item)}</span>`).join("")}</div>
-      <a class="search-btn drawer-detail" href="${propertyLink(stay)}">
-        Detail
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-          <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>`;
+  $("drawerBody").replaceChildren(template.content.cloneNode(true));
   drawer.hidden = false;
   document.body.classList.add("no-scroll");
   drawer.querySelector(".icon-x").focus();
 }
 
-function propertyLink(stay) {
-  const query = new URLSearchParams({ id: stay.id });
-  if (state.query) {
-    query.set("checkIn", toKey(state.query.checkIn));
-    query.set("checkOut", toKey(state.query.checkOut));
-    query.set("adults", String(state.query.adults));
-    if (state.query.children) query.set("children", String(state.query.children));
-    query.set("rooms", String(state.query.rooms));
-  }
-  return `${searchForm.dataset.property}?${query}`;
-}
-
 function closeDrawer() {
   drawer.hidden = true;
   drawer.dataset.stay = "";
-  if (authModal.hidden) document.body.classList.remove("no-scroll");
+  document.body.classList.remove("no-scroll");
   if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
-}
-
-function openAuth(mode) {
-  authMode = mode;
-  authDone.hidden = true;
-  authForm.hidden = false;
-  const register = mode === "register";
-  authTitle.textContent = register ? "Create an account" : "Sign in";
-  authLede.textContent = register
-    ? "Guests book stays. Admins run the houses. This preview stores nothing."
-    : "Use the same door you will use when the API is connected.";
-  authNameWrap.hidden = !register;
-  authSwitch.textContent = register ? "Already on the list? Sign in" : "New here? Create an account";
-  authSubmit.textContent = register ? "Create account" : "Sign in";
-  authForm.reset();
-  authModal.hidden = false;
-  document.body.classList.add("no-scroll");
-  (register ? authName : authForm.elements.email).focus();
-}
-
-function closeModal() {
-  authModal.hidden = true;
-  if (drawer.hidden) document.body.classList.remove("no-scroll");
 }
 
 function closeMenu() {
@@ -704,12 +387,12 @@ function closeMenu() {
 
 searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  goToResults();
+  submitSearch();
 });
 
 whereInput.addEventListener("focus", () => openPopover("where"));
 whereInput.addEventListener("input", () => {
-  renderWhere();
+  filterWhere();
   if (state.active !== "where") openPopover("where");
   else placePopover(wherePopover, whereField);
 });
@@ -722,9 +405,7 @@ wherePopover.addEventListener("click", (event) => {
   event.stopPropagation();
   const button = event.target.closest("[data-city]");
   if (!button) return;
-  const city = button.dataset.city;
-  whereInput.value = city;
-  state.destination = city === "Anywhere" ? "" : city;
+  whereInput.value = button.dataset.city;
   closePopovers();
   openPopover("cal");
 });
@@ -760,9 +441,8 @@ guestPopover.addEventListener("click", (event) => {
   event.stopPropagation();
   const step = event.target.closest("[data-step]");
   if (step && !step.disabled) {
-    const limits = { adults: [1, 8], children: [0, 6], rooms: [1, 4] };
     const key = step.dataset.step;
-    const [min, max] = limits[key];
+    const [min, max] = LIMITS[key];
     state[key] = Math.min(max, Math.max(min, state[key] + Number(step.dataset.dir)));
     renderGuests();
     return;
@@ -775,7 +455,6 @@ $("chips").addEventListener("click", (event) => {
   if (!chip) return;
   event.stopPropagation();
   whereInput.value = chip.dataset.city;
-  state.destination = chip.dataset.city;
   openPopover("cal");
 });
 
@@ -796,10 +475,10 @@ trendTrack.addEventListener("keydown", (event) => {
   chooseCity(card.dataset.city);
 });
 
-$("sort").addEventListener("change", renderList);
+// Sorting is done by the server. Changing the select sends the form.
+$("sort").addEventListener("change", () => $("sortForm").submit());
 
 const trending = $("trending");
-let trendTimer = 0;
 let trendPaused = false;
 let trendInView = false;
 let trendIndex = 0;
@@ -893,7 +572,7 @@ new IntersectionObserver((entries) => {
   trendInView = entries.some((entry) => entry.isIntersecting);
 }, { threshold: 0.35 }).observe(trending);
 
-trendTimer = window.setInterval(tickTrend, 3600);
+window.setInterval(tickTrend, 3600);
 
 $("propertiesGrid").addEventListener("click", (event) => {
   const card = event.target.closest(".property-card");
@@ -906,8 +585,6 @@ drawer.addEventListener("click", (event) => {
 });
 
 header.addEventListener("click", (event) => {
-  const auth = event.target.closest("[data-auth]");
-  if (auth) openAuth(auth.dataset.auth);
   if (event.target.closest("a")) closeMenu();
 });
 
@@ -963,11 +640,6 @@ document.addEventListener("click", (event) => {
   window.addEventListener(type, () => cancelAnimationFrame(glideFrame), { passive: true });
 });
 
-document.querySelector(".footer").addEventListener("click", (event) => {
-  const auth = event.target.closest("[data-auth]");
-  if (auth) openAuth(auth.dataset.auth);
-});
-
 $("navToggle").addEventListener("click", () => {
   const open = nav.classList.toggle("is-open");
   header.classList.toggle("menu-open", open);
@@ -975,23 +647,7 @@ $("navToggle").addEventListener("click", () => {
   $("navToggle").setAttribute("aria-label", open ? "Close menu" : "Open menu");
 });
 
-authSwitch.addEventListener("click", () => openAuth(authMode === "register" ? "signin" : "register"));
-
-authForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const email = authForm.elements.email.value.trim();
-  authForm.hidden = true;
-  authDone.hidden = false;
-  authDone.textContent = authMode === "register"
-    ? `Account preview for ${email}. Nothing was saved — registration arrives with the API.`
-    : `Signed-in preview for ${email}. Nothing was saved — sign-in arrives with the API.`;
-});
-
 document.addEventListener("click", (event) => {
-  if (event.target.closest("[data-close='modal']")) {
-    closeModal();
-    return;
-  }
   if (event.target.closest("#searchForm")) return;
   closePopovers();
 });
@@ -999,7 +655,6 @@ document.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     if (!drawer.hidden) closeDrawer();
-    else if (!authModal.hidden) closeModal();
     else if (nav.classList.contains("is-open")) closeMenu();
     else closePopovers();
     return;
@@ -1013,20 +668,13 @@ document.addEventListener("keydown", (event) => {
 const hero = $("hero");
 const heroSlides = [...document.querySelectorAll("#heroSlides .hero-slide")];
 let heroIndex = 0;
-let heroTimer = 0;
 
 function showHero(index) {
   heroIndex = (index + heroSlides.length) % heroSlides.length;
   heroSlides.forEach((slide, i) => slide.classList.toggle("is-on", i === heroIndex));
 }
 
-function startHero() {
-  window.clearInterval(heroTimer);
-  if (heroSlides.length < 2) return;
-  heroTimer = window.setInterval(() => showHero(heroIndex + 1), 5000);
-}
-
-startHero();
+if (heroSlides.length > 1) window.setInterval(() => showHero(heroIndex + 1), 5000);
 
 const driftTargets = () => document.querySelectorAll(".trend-card img, .stay-media img, .video-band video, .property-card img");
 
@@ -1060,6 +708,7 @@ new IntersectionObserver((entries) => {
   bandVisible = entries.some((entry) => entry.isIntersecting);
   syncBandVideo();
 }, { threshold: 0.1 }).observe(videoTrack.parentElement);
+
 let motionFrame = 0;
 
 function markVisible() {
@@ -1111,20 +760,12 @@ document.addEventListener("error", (event) => {
   if (event.target && event.target.tagName === "IMG") event.target.classList.add("is-broken");
 }, true);
 
-function watchReveals() {
-  requestAnimationFrame(() => {
-    markVisible();
-    paintDrift();
-  });
-}
-
-watchReveals();
+requestAnimationFrame(() => {
+  markVisible();
+  paintDrift();
+});
 onScroll();
 renderGuests();
 updateDateLabels();
 applyIncomingSearch();
-renderTrend();
-PorticoApi.listProperties().then((properties) => {
-  stays = properties.map((property) => property.card);
-  renderList();
-});
+prepareTrendLoop();
