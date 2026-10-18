@@ -155,6 +155,9 @@ public class PropertyPageVm
     public List<StayReview> ShownReviews { get; set; } = new();
     public int FilteredReviewCount { get; set; }
 
+    // Whether the signed-in guest saved this stay; null when nobody is signed in.
+    public bool? Saved { get; set; }
+
     public decimal MinPrice => Stay.Rooms.Count == 0 ? 0 : Stay.Rooms.Min(room => room.Price);
     public RoomRowVm? Selected => Rooms.FirstOrDefault(row => row.Selected);
     public string GuestLabel

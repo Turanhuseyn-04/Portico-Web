@@ -82,6 +82,11 @@ public class StayListVm
     public string Property { get; set; } = "";
     public string Meta { get; set; } = "";
     public string? LoadError { get; set; }
+
+    // The signed-in guest's saved stays; null when nobody is signed in.
+    public HashSet<string>? Saved { get; set; }
+
+    public bool? IsSaved(string id) => Saved?.Contains(id);
 }
 
 public class HomeVm

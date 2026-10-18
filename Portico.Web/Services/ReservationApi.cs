@@ -4,7 +4,7 @@ namespace Portico.Web.Services;
 
 public interface IReservationApi
 {
-    Task<ApiResult<List<TripDto>>> ListAsync(CancellationToken cancellationToken);
+    Task<ApiResult<List<TripDto>>> ListAsync(string email, CancellationToken cancellationToken);
     Task<ApiResult<TripDto>> GetAsync(string reference, CancellationToken cancellationToken);
     Task<ApiResult<ReservationCreated>> CreateAsync(StayRequest request, CancellationToken cancellationToken);
     Task<ApiResult<TripDto>> CancelAsync(string reference, CancellationToken cancellationToken);
@@ -16,8 +16,8 @@ public class ReservationApi : PorticoApiClient, IReservationApi
     {
     }
 
-    public Task<ApiResult<List<TripDto>>> ListAsync(CancellationToken cancellationToken) =>
-        GetJsonAsync<List<TripDto>>("/reservations", cancellationToken);
+    public Task<ApiResult<List<TripDto>>> ListAsync(string email, CancellationToken cancellationToken) =>
+        GetJsonAsync<List<TripDto>>($"/reservations?email={Uri.EscapeDataString(email)}", cancellationToken);
 
     public Task<ApiResult<TripDto>> GetAsync(string reference, CancellationToken cancellationToken) =>
         GetJsonAsync<TripDto>($"/reservations/{Uri.EscapeDataString(reference)}", cancellationToken);

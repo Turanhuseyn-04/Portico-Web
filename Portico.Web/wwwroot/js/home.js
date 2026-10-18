@@ -13,8 +13,7 @@ const state = {
   children: 0,
   rooms: 1,
   viewMonth: startOfMonth(new Date()),
-  active: null,
-  saved: new Set()
+  active: null
 };
 
 const $ = (id) => document.getElementById(id);
@@ -326,25 +325,8 @@ function applyIncomingSearch() {
   renderGuests();
 }
 
-function toggleSave(id) {
-  if (state.saved.has(id)) state.saved.delete(id);
-  else state.saved.add(id);
-  const saved = state.saved.has(id);
-  document.querySelectorAll(".heart").forEach((button) => {
-    if (button.dataset.stay !== id) return;
-    button.setAttribute("aria-pressed", String(saved));
-    button.setAttribute("aria-label", `${saved ? "Remove" : "Save"} ${button.dataset.name}`);
-    button.classList.remove("is-pop");
-    window.requestAnimationFrame(() => button.classList.add("is-pop"));
-  });
-}
-
+// Hearts are server forms or sign-in links, so a click on one is left to the browser.
 function onCatalogClick(event) {
-  const heart = event.target.closest(".heart");
-  if (heart) {
-    toggleSave(heart.dataset.stay);
-    return;
-  }
   const card = event.target.closest("article[data-stay]");
   if (!card || event.target.closest("button, a, select")) return;
   openDrawer(card);

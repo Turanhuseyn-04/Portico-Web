@@ -22,7 +22,7 @@ const mobileBar = $("mobileBar");
 const lightbox = $("lightbox");
 
 const card = bookCard.dataset;
-const stayId = propertyEl.dataset.stay;
+
 const stayName = propertyEl.dataset.name;
 const minNights = Number(card.minNights) || 1;
 const maxNights = Number(card.maxNights) || 30;
@@ -42,7 +42,6 @@ const state = {
   photoIndex: 0
 };
 
-let savedIds = new Set();
 let lastFocus = null;
 let toastTimer = 0;
 let cardInView = true;
@@ -356,24 +355,6 @@ function paintMobileBar() {
   mobileBar.classList.toggle("is-on", !cardInView);
 }
 
-/* ---------- Saved stays ---------- */
-
-function paintSaved() {
-  const saved = savedIds.has(stayId);
-  const button = $("saveBtn");
-  button.setAttribute("aria-pressed", String(saved));
-  button.setAttribute("aria-label", saved ? "Remove from saved stays" : "Save this stay");
-}
-
-async function loadSaved() {
-  try {
-    savedIds = new Set(await PorticoApi.listSaved());
-  } catch {
-    savedIds = new Set();
-  }
-  paintSaved();
-}
-
 /* ---------- Lightbox ---------- */
 
 function galleryPhotos() {
@@ -564,20 +545,6 @@ $("mobileReserve").addEventListener("click", () => {
   else explainReserve(reserve);
 });
 
-$("saveBtn").addEventListener("click", async () => {
-  try {
-    savedIds = new Set(savedIds.has(stayId) ? await PorticoApi.unsaveStay(stayId) : await PorticoApi.saveStay(stayId));
-  } catch {
-    toast("Sign in to save stays.");
-    return;
-  }
-  paintSaved();
-  const button = $("saveBtn");
-  button.classList.remove("is-pop");
-  window.requestAnimationFrame(() => button.classList.add("is-pop"));
-  toast(savedIds.has(stayId) ? `${stayName} saved.` : `${stayName} removed from saved stays.`);
-});
-
 $("shareBtn").addEventListener("click", async () => {
   const url = window.location.href;
   if (navigator.share) {
@@ -692,4 +659,3 @@ updateDateLabels();
 revealSections();
 paintSubnav();
 paintMobileBar();
-loadSaved();

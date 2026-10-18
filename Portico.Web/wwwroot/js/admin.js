@@ -336,8 +336,10 @@ function renderStay() {
 async function startAdmin() {
   porticoAdmin.trips = await PorticoApi.listReservations();
   porticoAdmin.properties = await PorticoApi.listProperties();
-  porticoAdmin.account = await PorticoApi.currentAccount();
-  porticoAdmin.saved = new Set(await PorticoApi.listSaved());
+  // The signed-in admin comes from the page; the server put it there from the sign-in cookie.
+  const { accountName, accountEmail } = document.body.dataset;
+  porticoAdmin.account = accountEmail ? { name: accountName || "", email: accountEmail } : null;
+  porticoAdmin.saved = new Set(accountEmail ? await PorticoApi.listSavedFor(accountEmail) : []);
   porticoAdmin.messages = await PorticoApi.listMessages();
   bindMenu();
   if (document.getElementById("admin")) renderPanel();

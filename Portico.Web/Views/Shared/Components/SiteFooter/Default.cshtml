@@ -23,9 +23,20 @@
         <div>
             <h2>Account</h2>
             <a asp-controller="Reservation" asp-action="Trips">Your trips</a>
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
-            <a asp-controller="Account" asp-action="SignIn">Sign in</a>
-            <a asp-controller="Account" asp-action="Register">Register</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Account" asp-action="Saved">Saved stays</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
+                }
+                <a asp-controller="Account" asp-action="Profile">Your account</a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="SignIn">Sign in</a>
+                <a asp-controller="Account" asp-action="Register">Register</a>
+            }
         </div>
         <div>
             <h2>This page</h2>

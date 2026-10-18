@@ -303,8 +303,8 @@ function renderUsers() {
   const savedIds = readSavedStays();
   const saved = properties().filter((property) => savedIds.has(property.id));
   document.getElementById("adminAccountCard").innerHTML = account && account.email
-    ? `<h2>Account in this browser</h2><dl class="trip-facts"><div><dt>Name</dt><dd>${escapeHtml(account.name || "—")}</dd></div><div><dt>Email</dt><dd>${escapeHtml(account.email)}</dd></div><div><dt>Saved stays</dt><dd>${saved.length}</dd></div></dl><p><a class="change-search" href="${escapeHtml(root.dataset.account || "/account")}">Open the account page</a></p>`
-    : `<h2>Account in this browser</h2><div class="empty"><h3>No account yet</h3><p>Create one on the register page. The password is not kept.</p><a class="change-search" href="${escapeHtml(root.dataset.register || "/register")}">Register</a></div>`;
+    ? `<h2>Signed in as</h2><dl class="trip-facts"><div><dt>Name</dt><dd>${escapeHtml(account.name || "—")}</dd></div><div><dt>Email</dt><dd>${escapeHtml(account.email)}</dd></div><div><dt>Saved stays</dt><dd>${saved.length}</dd></div></dl><p><a class="change-search" href="${escapeHtml(root.dataset.account || "/account")}">Open the account page</a></p>`
+    : `<h2>Signed in as</h2><div class="empty"><h3>No account yet</h3><p>Create one on the register page. The password is not kept.</p><a class="change-search" href="${escapeHtml(root.dataset.register || "/register")}">Register</a></div>`;
   document.getElementById("adminSavedStays").innerHTML = saved.length
     ? `<ul class="admin-saved">${saved.map((property) => `<li><a href="${escapeHtml(withPath(root.dataset.stay, property.id))}">${escapeHtml(property.name)}</a></li>`).join("")}</ul>`
     : `<div class="empty"><h3>No saved stays</h3><p>Hearts on a property page are kept in this browser.</p></div>`;

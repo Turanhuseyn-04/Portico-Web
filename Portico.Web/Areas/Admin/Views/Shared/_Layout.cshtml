@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
-<body class="@ViewData["BodyClass"]">
+@using Portico.Web.Models.Accounts
+<body class="@ViewData["BodyClass"]" data-account-name="@User.DisplayName()" data-account-email="@User.Email()">
     <a class="skip" href="@(ViewData["SkipHref"] ?? "#adminDesk")">@(ViewData["SkipText"] ?? "Skip to the dashboard")</a>
     <div class="console">
         <aside class="console-side" id="consoleSide">

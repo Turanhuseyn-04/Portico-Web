@@ -38,7 +38,5 @@
 @await Component.InvokeAsync("PropertyLightbox", new { model = Model })
 
 @section Scripts {
-    @* api.js stays only for the save button, which needs the guest's API session until sign-in moves to the server. *@
-    <script src="~/js/api.js" asp-append-version="true"></script>
     <script src="~/js/property.js" asp-append-version="true"></script>
 }

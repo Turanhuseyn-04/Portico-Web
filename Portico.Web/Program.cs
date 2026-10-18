@@ -1,4 +1,5 @@
 using System.Net.Security;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Portico.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,22 @@ builder.Services.AddControllersWithViews(options =>
 UsePorticoApi(builder.Services.AddHttpClient("PorticoApi"));
 UsePorticoApi(builder.Services.AddHttpClient<IPropertyApi, PropertyApi>());
 UsePorticoApi(builder.Services.AddHttpClient<IReservationApi, ReservationApi>());
+UsePorticoApi(builder.Services.AddHttpClient<IAccountApi, AccountApi>());
+
+// Portico.Api checks the password; the Web keeps who signed in in its own cookie.
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/signin";
+        options.LogoutPath = "/signout";
+        options.AccessDeniedPath = "/denied";
+        options.Cookie.Name = "portico-session";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
+        options.SlidingExpiration = true;
+    });
 
 void UsePorticoApi(IHttpClientBuilder client)
 {
@@ -51,6 +68,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -8,8 +8,15 @@
             <a asp-controller="Home" asp-action="Types">Properties</a>
             <a asp-controller="Home" asp-action="Destinations">Destinations</a>
             <a asp-controller="Reservation" asp-action="Trips" aria-current="@(ViewData["TripsNav"] as bool? == true ? "page" : null)">Your trips</a>
-            <a class="btn-line" asp-controller="Account" asp-action="Register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
-            <a class="btn-line btn-fill" asp-controller="Account" asp-action="SignIn" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn-line btn-fill" asp-controller="Account" asp-action="Profile" aria-current="@(ViewData["Account"] as string == "profile" ? "page" : null)">Your account</a>
+            }
+            else
+            {
+                <a class="btn-line" asp-controller="Account" asp-action="Register" aria-current="@(ViewData["Account"] as string == "register" ? "page" : null)">Register</a>
+                <a class="btn-line btn-fill" asp-controller="Account" asp-action="SignIn" aria-current="@(ViewData["Account"] as string == "signin" ? "page" : null)">Sign in</a>
+            }
         </nav>
         <button class="nav-toggle" id="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav">
             <span></span><span></span><span></span>

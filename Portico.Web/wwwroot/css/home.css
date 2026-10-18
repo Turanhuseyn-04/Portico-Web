@@ -2153,3 +2153,8 @@ a.btn-ink {
 
 /* Fields the server sent back with a problem. */
 .stack .input-validation-error { border-color: var(--warn); }
+
+/* The save heart is a form; it should not add a box around the button. */
+.save-form { display: contents; }
+
+.saved-row form { margin-top: -4px; }

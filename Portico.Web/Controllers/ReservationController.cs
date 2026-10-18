@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Models;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Services;
 using Portico.Web.ViewModels.Trips;
 
@@ -16,6 +18,7 @@ namespace Portico.Web.Controllers
 
         private static DateOnly Today => DateOnly.FromDateTime(DateTime.Today);
 
+        [Authorize]
         [HttpGet("/trips")]
         public async Task<IActionResult> Trips(CancellationToken cancellationToken)
         {
@@ -28,7 +31,8 @@ namespace Portico.Web.Controllers
             ViewData["TripsNav"] = true;
             ViewData["FooterNote"] = "Each stay keeps its reference, dates, property, and total.";
 
-            var trips = await _reservations.ListAsync(cancellationToken);
+            // The stays booked with the signed-in guest's email.
+            var trips = await _reservations.ListAsync(User.Email()!, cancellationToken);
             if (trips.Data is null)
                 return Missing("trips", "Account", "Your trips did not load", "Portico.Api did not answer. Try again in a moment.", Request.Path, "Try again");
 

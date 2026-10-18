@@ -29,6 +29,9 @@ public abstract class PorticoApiClient
     protected Task<ApiResult<T>> PostJsonAsync<T>(string url, object? body, CancellationToken cancellationToken) where T : class =>
         SendAsync<T>(() => _http.PostAsJsonAsync(url, body, cancellationToken), url, cancellationToken);
 
+    protected Task<ApiResult<T>> DeleteJsonAsync<T>(string url, CancellationToken cancellationToken) where T : class =>
+        SendAsync<T>(() => _http.DeleteAsync(url, cancellationToken), url, cancellationToken);
+
     private async Task<ApiResult<T>> SendAsync<T>(Func<Task<HttpResponseMessage>> send, string url, CancellationToken cancellationToken) where T : class
     {
         try

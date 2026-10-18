@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Models;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Services;
 using Portico.Web.ViewModels.Checkout;
 using Portico.Web.ViewModels.Property;
@@ -11,11 +12,13 @@ namespace Portico.Web.Controllers
     {
         private readonly IPropertyApi _properties;
         private readonly IReservationApi _reservations;
+        private readonly IAccountApi _accounts;
 
-        public PropertyController(IPropertyApi properties, IReservationApi reservations)
+        public PropertyController(IPropertyApi properties, IReservationApi reservations, IAccountApi accounts)
         {
             _properties = properties;
             _reservations = reservations;
+            _accounts = accounts;
         }
 
         [HttpGet("/property")]
@@ -51,6 +54,11 @@ namespace Portico.Web.Controllers
             }
 
             var model = PropertyPageVm.Build(stay.Data, choice, offers, offersFailed);
+            if (User.Email() is { } email)
+            {
+                var saved = await _accounts.SavedAsync(email, cancellationToken);
+                model.Saved = saved.Data?.Contains(stay.Data.Id) ?? false;
+            }
             ViewData["Title"] = $"{stay.Data.Name}, {stay.Data.Address.City}";
             ViewData["Description"] = model.Description;
             return View(model);
@@ -64,6 +72,7 @@ namespace Portico.Web.Controllers
             if (model is null) return stop!;
 
             if (ReadCheckout(model.Pick) is { } saved) model.Guest = saved;
+            else if (User.Email() is { } email) model.Guest = new GuestForm { Name = User.DisplayName(), Email = email };
             return View(model);
         }
 

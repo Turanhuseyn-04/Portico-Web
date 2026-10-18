@@ -1,6 +1,7 @@
 @model StayListVm
 @{
-    var heart = "<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\"><path d=\"M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/></svg>";
+    // After a heart is pressed, come back to the same list in the same order.
+    var returnUrl = Context.Request.Path + Context.Request.QueryString + "#list";
 }
 <section class="section" id="list" aria-labelledby="listTitle">
     <div class="wrap">
@@ -51,7 +52,7 @@
                     <article class="stay reveal" data-stay="@stay.Id" style="--in:@(delay)ms" tabindex="0">
                         <div class="stay-media">
                             <img src="@stay.Image" alt="@stay.Name in @stay.City" width="800" height="600" loading="lazy">
-                            <button class="heart" type="button" data-stay="@stay.Id" data-name="@stay.Name" aria-pressed="false" aria-label="Save @stay.Name">@Html.Raw(heart)</button>
+                            <partial name="_SaveHeart" model='new SaveHeartVm(stay.Id, stay.Name, Model.IsSaved(stay.Id), returnUrl, "heart")' />
                         </div>
                         <div class="stay-body">
                             <p class="stay-type">@stay.Property · @stay.Kind · sleeps @stay.MaxGuests</p>

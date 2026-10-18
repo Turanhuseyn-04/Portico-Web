@@ -1,0 +1,17 @@
+@model SaveHeartVm
+@{
+    var heart = "<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" aria-hidden=\"true\"><path d=\"M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"/></svg>";
+}
+@* Signed in, the heart is a form that saves or removes the stay. Signed out, it opens sign-in and comes back. *@
+@if (Model.Saved is bool saved)
+{
+    <form class="save-form" method="post" asp-controller="Account" asp-action="ToggleSaved" asp-route-id="@Model.Id">
+        <input type="hidden" name="saved" value="@(saved ? "true" : "false")">
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl">
+        <button class="@Model.CssClass" type="submit" aria-pressed="@(saved ? "true" : "false")" aria-label="@(saved ? "Remove" : "Save") @Model.Name">@Html.Raw(heart)</button>
+    </form>
+}
+else
+{
+    <a class="@Model.CssClass" asp-controller="Account" asp-action="SignIn" asp-route-returnUrl="@Model.ReturnUrl" aria-label="Sign in to save @Model.Name">@Html.Raw(heart)</a>
+}

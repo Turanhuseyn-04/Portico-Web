@@ -6,8 +6,6 @@ const PorticoApi = (() => {
     const config = { baseUrl: "https://localhost:7190", latency: 450 };
   const mockMode = new URLSearchParams(window.location.search).get("mock") || "";
   const RESERVATIONS = "portico-reservations";
-  const ACCOUNT = "portico-account";
-  const SAVED = "portico:saved";
   const MESSAGES = "portico-messages";
 
   // The sample confirmation. A saved record with the same reference replaces it.
@@ -258,17 +256,6 @@ const PorticoApi = (() => {
     return today() <= limit ? Number(trip.total) || 0 : 0;
   }
 
-  function readAccount() {
-    const account = readJson(localStorage, ACCOUNT, null);
-    if (!account || !account.email) return null;
-    return { name: account.name || "", email: account.email };
-  }
-
-  function readSavedIds() {
-    const ids = readJson(localStorage, SAVED, []);
-    return Array.isArray(ids) ? ids : [];
-  }
-
   function readMessages() {
     const list = readJson(localStorage, MESSAGES, []);
     return Array.isArray(list) ? list : [];
@@ -386,61 +373,14 @@ const PorticoApi = (() => {
     return next;
   }
 
-  // POST /account/register
-  async function register(payload) {
-    const account = { name: String((payload && payload.name) || "").trim(), email: String((payload && payload.email) || "").trim() };
-    if (config.baseUrl) return request("/account/register", { method: "POST", body: JSON.stringify(account) });
-    await wait(config.latency * 0.5);
-    writeJson(localStorage, ACCOUNT, account);
-    return account;
-  }
-
-  // POST /account/signin
-  async function signIn(payload) {
-    const email = String((payload && payload.email) || "").trim();
-    if (config.baseUrl) return request("/account/signin", { method: "POST", body: JSON.stringify({ email }) });
-    await wait(config.latency * 0.5);
-    const account = readAccount();
-    if (account && account.email.toLowerCase() === email.toLowerCase()) return account;
-    throw new ApiError("unauthorized", "That email did not match an account in this browser.");
-  }
-
-  // GET /account
-  async function currentAccount() {
-    if (config.baseUrl) {
-      try {
-        return await request("/account");
-      } catch (error) {
-        if (error && error.code === "not-found") return null;
-        throw error;
-      }
+  // GET /account/{email}/saved. Sign-in and saving happen on the server; the admin console only reads the list.
+  async function listSavedFor(email) {
+    if (!config.baseUrl || !email) return [];
+    try {
+      return await request(`/account/${encodeURIComponent(email)}/saved`);
+    } catch {
+      return [];
     }
-    await wait(config.latency * 0.2);
-    return readAccount();
-  }
-
-  // GET /account/saved
-  async function listSaved() {
-    if (config.baseUrl) return request("/account/saved");
-    await wait(config.latency * 0.2);
-    return readSavedIds();
-  }
-
-  // POST /account/saved/{id}
-  async function saveStay(id) {
-    if (config.baseUrl) return request(`/account/saved/${encodeURIComponent(id)}`, { method: "POST" });
-    const ids = readSavedIds().filter((item) => item !== id);
-    ids.push(id);
-    writeJson(localStorage, SAVED, ids);
-    return ids;
-  }
-
-  // DELETE /account/saved/{id}
-  async function unsaveStay(id) {
-    if (config.baseUrl) return request(`/account/saved/${encodeURIComponent(id)}`, { method: "DELETE" });
-    const ids = readSavedIds().filter((item) => item !== id);
-    writeJson(localStorage, SAVED, ids);
-    return ids;
   }
 
   // GET /messages
@@ -494,12 +434,7 @@ const PorticoApi = (() => {
     getReservation,
     listReservations,
     cancelReservation,
-    register,
-    signIn,
-    currentAccount,
-    listSaved,
-    saveStay,
-    unsaveStay,
+    listSavedFor,
     listMessages,
     createMessage
   };
