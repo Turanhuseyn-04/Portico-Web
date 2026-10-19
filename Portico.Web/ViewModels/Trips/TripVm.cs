@@ -31,6 +31,9 @@ public class TripVm
     public string CancellationText => Trip.Cancelled ? "Cancelled" : Trip.Refundable ? StayText.Long(Deadline) : "Non-refundable";
     public bool CancellationLocked => Trip.Cancelled || !Trip.Refundable;
 
+    // From the check-in day on, a stay can no longer be cancelled.
+    public bool Started => !Trip.Cancelled && Trip.CheckIn <= Today;
+
     public string Outcome
     {
         get
@@ -38,6 +41,8 @@ public class TripVm
             var total = StayText.Money(Trip.Total);
             if (Trip.Cancelled)
                 return Released ? $"Cancelled. {total} is released, so the total is now €0." : $"Cancelled. {total} stays due.";
+            if (Started)
+                return $"This stay has started, so it can no longer be cancelled. {total} stays due.";
             if (!Trip.Refundable)
                 return $"This stay is non-refundable. Cancelling keeps {total} due.";
             return Today <= Deadline

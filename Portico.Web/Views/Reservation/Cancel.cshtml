@@ -28,7 +28,7 @@
                 <div><dt>Total</dt><dd>@StayText.Money(Model.DueTotal)</dd></div>
             </dl>
             <p>@Model.Outcome</p>
-            @if (trip.Cancelled)
+            @if (trip.Cancelled || Model.Started)
             {
                 <a class="change-search trip-open" asp-action="Index" asp-route-reference="@trip.Reference">Back to the reservation</a>
                 <a class="account-switch" asp-action="Trips">Your trips</a>
