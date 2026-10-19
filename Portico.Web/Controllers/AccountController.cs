@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Portico.Web.Models;
 using Portico.Web.Models.Accounts;
 using Portico.Web.Services;
@@ -47,6 +48,7 @@ namespace Portico.Web.Controllers
         }
 
         [HttpPost("/signin")]
+        [EnableRateLimiting(AccountRateLimits.Policy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignIn([Bind(Prefix = "SignIn")] SignInForm form, CancellationToken cancellationToken)
         {
@@ -67,7 +69,9 @@ namespace Portico.Web.Controllers
             if (profile.Status == StatusCodes.Status403Forbidden)
                 return RedirectToAction(nameof(SignInUnconfirmed), new { email = form.Email.Trim(), returnUrl = form.ReturnUrl });
 
-            model.Error = "Sign-in is unavailable right now. Try again in a moment.";
+            model.Error = profile.Status == StatusCodes.Status429TooManyRequests
+                ? profile.FirstError ?? "Too many wrong passwords. Try again later."
+                : "Sign-in is unavailable right now. Try again in a moment.";
             return View("Index", model);
         }
 
@@ -79,6 +83,7 @@ namespace Portico.Web.Controllers
         }
 
         [HttpPost("/register")]
+        [EnableRateLimiting(AccountRateLimits.Policy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register([Bind(Prefix = "Register")] RegisterForm form, CancellationToken cancellationToken)
         {
@@ -89,7 +94,7 @@ namespace Portico.Web.Controllers
             var registered = await _accounts.RegisterAsync(form.Name.Trim(), form.Email.Trim(), form.Password, cancellationToken);
             if (registered.Data is null)
             {
-                model.Error = registered.Status is StatusCodes.Status400BadRequest or StatusCodes.Status409Conflict
+                model.Error = registered.Status == StatusCodes.Status400BadRequest
                     ? registered.FirstError ?? "That account could not be created."
                     : "Registration is unavailable right now. Try again in a moment.";
                 return View("Index", model);
@@ -129,6 +134,7 @@ namespace Portico.Web.Controllers
 
         // Always answers the same, so the form cannot tell anyone which emails are registered.
         [HttpPost("/confirm-email/resend")]
+        [EnableRateLimiting(AccountRateLimits.Policy)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResendConfirmation(string? email, CancellationToken cancellationToken)
         {

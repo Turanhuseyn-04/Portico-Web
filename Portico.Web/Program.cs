@@ -46,6 +46,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(AccountPolicies.SuperAdmin, policy => policy.RequireRole(AccountRoles.SuperAdmin));
 });
 
+builder.Services.AddRateLimiter(AccountRateLimits.Add);
+
 void UsePorticoApi(IHttpClientBuilder client)
 {
     client.AddHttpMessageHandler<ApiTokenHandler>();
@@ -86,6 +88,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllerRoute(
     name: "areas",

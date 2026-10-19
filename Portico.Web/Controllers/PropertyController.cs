@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Models;
 using Portico.Web.Models.Accounts;
@@ -64,6 +65,8 @@ namespace Portico.Web.Controllers
             return View(model);
         }
 
+        // Booking needs an account: the reservation is kept under its email, and only that account can open or cancel it.
+        [Authorize]
         [HttpGet("/reserve")]
         public async Task<IActionResult> Reserve([FromQuery] StayPickQuery query, CancellationToken cancellationToken)
         {
@@ -71,11 +74,12 @@ namespace Portico.Web.Controllers
             var (model, stop) = await LoadCheckoutAsync(query, "reserve", "Reserve", cancellationToken);
             if (model is null) return stop!;
 
-            if (ReadCheckout(model.Pick) is { } saved) model.Guest = saved;
-            else if (User.Email() is { } email) model.Guest = new GuestForm { Name = User.DisplayName(), Email = email };
+            model.Guest = ReadCheckout(model.Pick) ?? new GuestForm { Name = User.DisplayName() };
+            model.Guest.Email = User.Email()!;
             return View(model);
         }
 
+        [Authorize]
         [HttpPost("/reserve")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reserve([FromForm] StayPickQuery query, GuestForm guest, CancellationToken cancellationToken)
@@ -84,6 +88,8 @@ namespace Portico.Web.Controllers
             var (model, stop) = await LoadCheckoutAsync(query, "reserve", "Reserve", cancellationToken);
             if (model is null) return stop!;
 
+            ModelState.Remove($"{nameof(CheckoutVm.Guest)}.{nameof(GuestForm.Email)}");
+            guest.Email = User.Email()!;
             model.Guest = guest;
             if (!ModelState.IsValid) return View(model);
 
@@ -105,6 +111,7 @@ namespace Portico.Web.Controllers
             return RedirectToAction(nameof(Payment), model.Pick.Route());
         }
 
+        [Authorize]
         [HttpGet("/payment")]
         public async Task<IActionResult> Payment([FromQuery] StayPickQuery query, CancellationToken cancellationToken)
         {
@@ -119,6 +126,7 @@ namespace Portico.Web.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpPost("/payment")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Payment([FromForm] StayPickQuery query, CardForm card, CancellationToken cancellationToken)

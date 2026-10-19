@@ -39,6 +39,7 @@ namespace Portico.Web.Controllers
             return View(trips.Data.OrderBy(trip => trip.CheckIn).Select(trip => new TripVm(trip, Today)).ToList());
         }
 
+        [Authorize]
         [HttpGet("/reservation/{reference}/cancel")]
         public async Task<IActionResult> Cancel(string reference, CancellationToken cancellationToken)
         {
@@ -47,6 +48,7 @@ namespace Portico.Web.Controllers
             return trip is null ? stop! : View(trip);
         }
 
+        [Authorize]
         [HttpPost("/reservation/{reference}/cancel")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelConfirmed(string reference, CancellationToken cancellationToken)
@@ -55,14 +57,17 @@ namespace Portico.Web.Controllers
             var cancelled = await _reservations.CancelAsync(reference, cancellationToken);
             if (cancelled.Data is null)
             {
-                return cancelled.IsNotFound
-                    ? NotFoundMessage(reference, "cancel")
-                    : Missing("cancel", "Reservation", "The cancellation did not go through", "Portico.Api did not answer. The reservation is unchanged. Try again.", Url.Action(nameof(Cancel), new { reference })!, "Back to the cancellation");
+                if (cancelled.IsNotFound) return NotFoundMessage(reference, "cancel");
+                if (cancelled.IsConflict)
+                    return Missing("cancel", "Reservation", "This reservation cannot be cancelled", cancelled.FirstError ?? "This reservation can no longer be cancelled.", Url.Action(nameof(Index), new { reference })!, "Back to the reservation");
+                return Missing("cancel", "Reservation", "The cancellation did not go through", "Portico.Api did not answer. The reservation is unchanged. Try again.", Url.Action(nameof(Cancel), new { reference })!, "Back to the cancellation");
             }
 
             return RedirectToAction(nameof(Cancel), new { reference });
         }
 
+        // A reservation opens only for the account that booked it, or for staff. Anyone else sees it as missing.
+        [Authorize]
         [HttpGet("/reservation/{reference?}")]
         public async Task<IActionResult> Index(string? reference, CancellationToken cancellationToken)
         {

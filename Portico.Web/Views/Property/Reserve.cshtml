@@ -20,8 +20,8 @@
                     <input asp-for="Guest.Name" type="text" required minlength="2" autocomplete="name">
                     <span class="field-error" asp-validation-for="Guest.Name"></span>
                 </label>
-                <label class="stack">Email
-                    <input asp-for="Guest.Email" type="email" required autocomplete="email">
+                <label class="stack"><span>Email <em class="optional">from your account</em></span>
+                    <input asp-for="Guest.Email" type="email" readonly autocomplete="email">
                     <span class="field-error" asp-validation-for="Guest.Email"></span>
                 </label>
                 <label class="stack"><span>Phone <em class="optional">optional</em></span>
