@@ -7,18 +7,18 @@ const searchPage = root.dataset.search || "search.html";
 // Stand-in catalog. Portico.Api will return this list and apply the filter.
 const places = [
   { city: "Lisbon", country: "Portugal", image: "lisbon-city.jpg", stays: 1 },
-  { city: "Amalfi", country: "Italy", image: "amalfi.jpg", stays: 1 },
-  { city: "Marrakech", country: "Morocco", image: "marrakech-city.jpg", stays: 1 },
-  { city: "Kyoto", country: "Japan", image: "kyoto-city.jpg", stays: 1 },
+  { city: "Amalfi", country: "Italy", image: "amalfi.jpg", stays: 2 },
+  { city: "Marrakech", country: "Morocco", image: "marrakech-city.jpg", stays: 2 },
+  { city: "Kyoto", country: "Japan", image: "kyoto-city.jpg", stays: 2 },
   { city: "Copenhagen", country: "Denmark", image: "copenhagen.jpg", stays: 1 },
-  { city: "Oaxaca", country: "Mexico", image: "oaxaca.jpg", stays: 1 },
-  { city: "Porto", country: "Portugal", image: "porto.jpg", stays: 1 },
-  { city: "Edinburgh", country: "Scotland", image: "edinburgh.jpg", stays: 1 },
-  { city: "Rome", country: "Italy", image: "rome.jpg", stays: 0 },
-  { city: "Athens", country: "Greece", image: "athens.jpg", stays: 0 },
-  { city: "Paris", country: "France", image: "paris.jpg", stays: 0 },
-  { city: "Istanbul", country: "Turkey", image: "istanbul.jpg", stays: 0 },
-  { city: "Venice", country: "Italy", image: "venice.jpg", stays: 0 }
+  { city: "Oaxaca", country: "Mexico", image: "oaxaca.jpg", stays: 2 },
+  { city: "Porto", country: "Portugal", image: "porto.jpg", stays: 2 },
+  { city: "Edinburgh", country: "Scotland", image: "edinburgh.jpg", stays: 2 },
+  { city: "Rome", country: "Italy", image: "rome.jpg", stays: 2 },
+  { city: "Athens", country: "Greece", image: "athens.jpg", stays: 2 },
+  { city: "Paris", country: "France", image: "paris.jpg", stays: 2 },
+  { city: "Istanbul", country: "Turkey", image: "istanbul.jpg", stays: 2 },
+  { city: "Venice", country: "Italy", image: "venice.jpg", stays: 2 }
 ];
 
 function escapeHtml(value) {
