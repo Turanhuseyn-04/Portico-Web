@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Portico.Web.Logging;
 using Portico.Web.Models.Stays;
 
 namespace Portico.Web.Services;
@@ -47,14 +48,27 @@ public abstract class PorticoApiClient
         {
             using var response = await send();
             if (!response.IsSuccessStatusCode)
-                return new ApiResult<T>(null, (int)response.StatusCode, await ReadErrorsAsync(response, cancellationToken));
+            {
+                // A refusal such as 404 or 409 is an answer the page shows; a 5xx means the API itself failed.
+                var status = (int)response.StatusCode;
+                if (status >= StatusCodes.Status500InternalServerError)
+                    _logger.LogError("Portico.Api answered {StatusCode} to {ApiUrl}.", status, LogSafe.Url(url));
+                else
+                    _logger.LogDebug("Portico.Api answered {StatusCode} to {ApiUrl}.", status, LogSafe.Url(url));
+                return new ApiResult<T>(null, status, await ReadErrorsAsync(response, cancellationToken));
+            }
 
             var data = await response.Content.ReadFromJsonAsync<T>(cancellationToken);
             return new ApiResult<T>(data, (int)response.StatusCode, Array.Empty<string>());
         }
-        catch (Exception ex) when (ex is HttpRequestException or JsonException || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested))
+        catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Portico.Api call to {Url} failed.", url);
+            _logger.LogError(ex, "Portico.Api sent an answer to {ApiUrl} that could not be read.", LogSafe.Url(url));
+            return new ApiResult<T>(null, null, Array.Empty<string>());
+        }
+        catch (Exception ex) when (ex is HttpRequestException || (ex is TaskCanceledException && !cancellationToken.IsCancellationRequested))
+        {
+            _logger.LogError(ex, "Portico.Api could not be reached for {ApiUrl}.", LogSafe.Url(url));
             return new ApiResult<T>(null, null, Array.Empty<string>());
         }
     }

@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Logging;
 
 namespace Portico.Web.Areas.Admin.Controllers;
 
@@ -34,6 +35,8 @@ public class ApiProxyController : ApiControllerBase
         try
         {
             using var response = await Api.SendAsync(new HttpRequestMessage(method, target), cancellationToken);
+            if ((int)response.StatusCode >= StatusCodes.Status500InternalServerError)
+                Logger.LogError("Portico.Api answered {StatusCode} to the admin console's {Method} {ApiUrl}.", (int)response.StatusCode, method.Method, LogSafe.Url(target));
             return new ContentResult
             {
                 StatusCode = (int)response.StatusCode,
@@ -41,8 +44,9 @@ public class ApiProxyController : ApiControllerBase
                 ContentType = response.Content.Headers.ContentType?.ToString() ?? "application/json"
             };
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            Logger.LogError(ex, "Portico.Api could not be reached for the admin console's {Method} {ApiUrl}.", method.Method, LogSafe.Url(target));
             return StatusCode(StatusCodes.Status502BadGateway);
         }
     }

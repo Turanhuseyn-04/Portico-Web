@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Portico.Web.Areas.Admin.Controllers;
+using Portico.Web.Logging;
 
 namespace Portico.Web.Controllers;
 
@@ -17,11 +18,26 @@ public abstract class ApiControllerBase : AdminControllerBase
 
     protected HttpClient Api => _httpClientFactory.CreateClient("PorticoApi");
 
+    // Resolved per request, so the admin controllers keep their constructors. The category is the controller's own name.
+    protected ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
+    private ILogger? _logger;
+
+    // A refusal such as 404 or 409 is an answer the page shows; a 5xx means the API itself failed.
+    private void Answered(string url, HttpResponseMessage response)
+    {
+        var status = (int)response.StatusCode;
+        if (status >= StatusCodes.Status500InternalServerError)
+            Logger.LogError("Portico.Api answered {StatusCode} to {ApiUrl}.", status, LogSafe.Url(url));
+        else if (!response.IsSuccessStatusCode)
+            Logger.LogDebug("Portico.Api answered {StatusCode} to {ApiUrl}.", status, LogSafe.Url(url));
+    }
+
     protected async Task<(T? Data, string[] Errors, int? Status)> GetAsync<T>(string url) where T : class
     {
         try
         {
             var response = await Api.GetAsync(url);
+            Answered(url, response);
             if (!response.IsSuccessStatusCode)
                 return (null, await ReadErrorsAsync(response), (int)response.StatusCode);
 
@@ -33,10 +49,12 @@ public abstract class ApiControllerBase : AdminControllerBase
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Logger.LogError(ex, "Portico.Api could not be reached for {ApiUrl}.", LogSafe.Url(url));
             return (null, new[] { UnavailableMessage }, null);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            Logger.LogError(ex, "Portico.Api sent an answer to {ApiUrl} that could not be read.", LogSafe.Url(url));
             return (null, new[] { "Something went wrong. Please try again." }, null);
         }
     }
@@ -46,6 +64,7 @@ public abstract class ApiControllerBase : AdminControllerBase
         try
         {
             var response = await Api.PostAsJsonAsync(url, body);
+            Answered(url, response);
             if (!response.IsSuccessStatusCode)
                 return (null, await ReadErrorsAsync(response), (int)response.StatusCode);
 
@@ -57,10 +76,12 @@ public abstract class ApiControllerBase : AdminControllerBase
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Logger.LogError(ex, "Portico.Api could not be reached for {ApiUrl}.", LogSafe.Url(url));
             return (null, new[] { UnavailableMessage }, null);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            Logger.LogError(ex, "Portico.Api sent an answer to {ApiUrl} that could not be read.", LogSafe.Url(url));
             return (null, new[] { "Something went wrong. Please try again." }, null);
         }
     }
@@ -70,12 +91,14 @@ public abstract class ApiControllerBase : AdminControllerBase
         try
         {
             var response = await Api.PutAsJsonAsync(url, body);
+            Answered(url, response);
             if (response.IsSuccessStatusCode)
                 return (true, Array.Empty<string>(), (int)response.StatusCode);
             return (false, await ReadErrorsAsync(response), (int)response.StatusCode);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Logger.LogError(ex, "Portico.Api could not be reached for {ApiUrl}.", LogSafe.Url(url));
             return (false, new[] { UnavailableMessage }, null);
         }
     }
@@ -85,12 +108,14 @@ public abstract class ApiControllerBase : AdminControllerBase
         try
         {
             var response = await Api.DeleteAsync(url);
+            Answered(url, response);
             if (response.IsSuccessStatusCode)
                 return (true, Array.Empty<string>(), (int)response.StatusCode);
             return (false, await ReadErrorsAsync(response), (int)response.StatusCode);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Logger.LogError(ex, "Portico.Api could not be reached for {ApiUrl}.", LogSafe.Url(url));
             return (false, new[] { UnavailableMessage }, null);
         }
     }

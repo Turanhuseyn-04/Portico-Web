@@ -23,6 +23,10 @@ public static class AccountRateLimits
             }));
         options.OnRejected = async (context, cancellationToken) =>
         {
+            context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(AccountRateLimits).FullName!)
+                .LogWarning("Rate limit hit on {Method} {Path} from {ClientIp}: more than {PermitsPerMinute} tries a minute.",
+                    context.HttpContext.Request.Method, context.HttpContext.Request.Path,
+                    context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown", PermitsPerMinute);
             context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
             await context.HttpContext.Response.WriteAsync("Too many attempts from this address. Wait a minute, then go back and try again.", cancellationToken);
         };

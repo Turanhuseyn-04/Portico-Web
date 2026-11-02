@@ -2,3 +2,6 @@ bin/
 obj/
 .vs/
 *.user
+
+# Serilog files (see LogFiles:Directory)
+**/logs/
