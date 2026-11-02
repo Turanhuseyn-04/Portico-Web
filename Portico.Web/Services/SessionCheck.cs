@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Portico.Web.Logging;
 using Portico.Web.Models.Accounts;
 
 namespace Portico.Web.Services;
@@ -27,6 +28,9 @@ public static class SessionCheck
         var profile = await accounts.ProfileAsync(email, token, context.HttpContext.RequestAborted);
         if (profile.Status is StatusCodes.Status401Unauthorized or StatusCodes.Status403Forbidden or StatusCodes.Status404NotFound)
         {
+            context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(SessionCheck).FullName!)
+                .LogInformation("Signed out {Email}: Portico.Api answered {StatusCode} for the account, so it was removed or its token revoked.",
+                    LogSafe.Email(email), profile.Status);
             await Reject(context);
             return;
         }

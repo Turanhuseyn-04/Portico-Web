@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Portico.Web.Logging;
 using Portico.Web.Models;
 using Portico.Web.Models.Accounts;
 using Portico.Web.Services;
@@ -17,11 +18,14 @@ namespace Portico.Web.Controllers
 
         private readonly IAccountApi _accounts;
         private readonly IPropertyApi _properties;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(IAccountApi accounts, IPropertyApi properties)
+        // Sign-in and register are logged by Portico.Api, which decides them. Signing out happens only here.
+        public AccountController(IAccountApi accounts, IPropertyApi properties, ILogger<AccountController> logger)
         {
             _accounts = accounts;
             _properties = properties;
+            _logger = logger;
         }
 
         [HttpGet("/signin")]
@@ -147,6 +151,7 @@ namespace Portico.Web.Controllers
         public async Task<IActionResult> SignOutNow()
         {
             await HttpContext.SignOutAsync(Scheme);
+            _logger.LogInformation("Signed out {Email}.", LogSafe.Email(User.Email()));
             return RedirectToAction("Index", "Home");
         }
 

@@ -36,7 +36,23 @@ public class StayCardVm
         ["orchard"] = ("Suite", true, new[] { "Sea view", "Breakfast", "Terrace" }, "A lemon-scented suite on the cliff path, with the port below."),
         ["patio"] = ("Room", false, new[] { "Patio", "Fan", "Walk to market" }, "A tiled room on a patio that stays cool after lunch."),
         ["greenhouse"] = ("Studio", false, new[] { "Kitchenette", "Courtyard", "Work desk" }, "A glass-roofed studio two blocks from the bakery you will use."),
-        ["gallery"] = ("House", false, new[] { "Whole house", "Fireplace", "Old Town" }, "A long stone gallery of a house, with a fire and a steep stair.")
+        ["gallery"] = ("House", false, new[] { "Whole house", "Fireplace", "Old Town" }, "A long stone gallery of a house, with a fire and a steep stair."),
+        ["lantern"] = ("Room", false, new[] { "Roof terrace", "Breakfast", "Tower view" }, "A tall townhouse below the Galata Tower, with a roof over the Golden Horn."),
+        ["tilleuls"] = ("Room", true, new[] { "Courtyard", "Honesty bar", "Left Bank" }, "A Left Bank hotel around a courtyard of lime trees, three streets from the Seine."),
+        ["rio"] = ("Room", false, new[] { "Canal view", "Garden", "Breakfast" }, "A family-run canal house in Cannaregio, with a fig tree in the garden."),
+        ["cloister"] = ("Room", false, new[] { "Cloister", "Breakfast", "Trastevere" }, "Twelve rooms in a former convent, around a cloister with a well."),
+        ["terraces"] = ("Suite", true, new[] { "Infinity pool", "Spa", "Sea view" }, "Suites among olive trees, stepping down to a private cove on the Athens Riviera."),
+        ["palmeraie"] = ("Suite", false, new[] { "Three pools", "Hammam", "Shuttle" }, "Earth pavilions in a palm grove, with the Atlas on the horizon."),
+        ["arashiyama"] = ("Room", true, new[] { "Hot springs", "Kaiseki dinner", "River view" }, "A riverside ryokan with hot-spring baths and dinner in your room."),
+        ["lido"] = ("Room", false, new[] { "Private beach", "Pool", "Boat to San Marco" }, "A Belle Époque beach resort, fifteen minutes by boat from St Mark's."),
+        ["plaka"] = ("Flat", true, new[] { "Acropolis view", "Roof terrace", "Kitchen" }, "A top-floor flat with a roof terrace facing the Acropolis."),
+        ["marais"] = ("Flat", false, new[] { "Work desk", "Kitchen", "Washer" }, "A beamed flat in the Marais, with a desk by the window."),
+        ["monti"] = ("Loft", false, new[] { "Sleeps six", "Two bathrooms", "Kitchen" }, "A two-bedroom loft in Monti, ten minutes' walk from the Colosseum."),
+        ["leith"] = ("Flat", false, new[] { "Water view", "Parking", "Kitchen" }, "A harbour-front flat above the seafood restaurants of Leith."),
+        ["yali"] = ("House", true, new[] { "Whole house", "Private jetty", "Breakfast" }, "A wooden mansion on the Bosphorus, with its own jetty."),
+        ["agave"] = ("House", false, new[] { "Whole house", "Pool", "Cook on request" }, "An adobe house in the hills, with a pool in a garden of agave."),
+        ["pergola"] = ("House", true, new[] { "Whole house", "Infinity pool", "Sea view" }, "A clifftop villa under a vine pergola, with a pool over the coast."),
+        ["foz"] = ("House", false, new[] { "Whole house", "Garden", "Fireplace" }, "A tiled family house where the Douro meets the Atlantic.")
     };
 
     public static StayCardVm From(StayListItem stay, int order)

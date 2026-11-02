@@ -14,12 +14,14 @@ namespace Portico.Web.Controllers
         private readonly IPropertyApi _properties;
         private readonly IReservationApi _reservations;
         private readonly IAccountApi _accounts;
+        private readonly ILogger<PropertyController> _logger;
 
-        public PropertyController(IPropertyApi properties, IReservationApi reservations, IAccountApi accounts)
+        public PropertyController(IPropertyApi properties, IReservationApi reservations, IAccountApi accounts, ILogger<PropertyController> logger)
         {
             _properties = properties;
             _reservations = reservations;
             _accounts = accounts;
+            _logger = logger;
         }
 
         [HttpGet("/property")]
@@ -140,19 +142,29 @@ namespace Portico.Web.Controllers
 
             model.Guest = guest;
             model.Card = card;
-            foreach (var (field, problem) in card.Problems(DateOnly.FromDateTime(DateTime.Today)))
+            // Only the names of the fields that failed are logged, never what was typed into them.
+            var problems = card.Problems(DateOnly.FromDateTime(DateTime.Today));
+            foreach (var (field, problem) in problems)
                 ModelState.AddModelError($"{nameof(CheckoutVm.Card)}.{field}", problem);
+            if (problems.Count > 0)
+                _logger.LogInformation("Payment form for {PropertyId}/{RoomId} sent back: {CardFields} did not pass the check.",
+                    model.Pick.Id, model.Pick.RoomId, problems.Keys.ToArray());
             if (!ModelState.IsValid) return View(model);
 
             var created = await _reservations.CreateAsync(model.Pick.ToRequest(guest), cancellationToken);
             if (created.Data is null)
             {
+                _logger.LogWarning("Payment for {PropertyId}/{RoomId} {CheckIn}–{CheckOut} did not complete: Portico.Api answered {StatusCode}.",
+                    model.Pick.Id, model.Pick.RoomId, model.Pick.CheckIn, model.Pick.CheckOut, created.Status?.ToString() ?? "nothing");
                 model.Error = created.IsConflict || created.IsNotFound
                     ? created.FirstError ?? "That room was just taken for these dates."
                     : "The payment did not go through. Nothing was charged.";
                 return View(model);
             }
 
+            // No payment provider is connected yet, so the card is checked but nothing is charged.
+            _logger.LogInformation("Payment step completed for reservation {Reference}: {Total} {Currency}, no charge made (no payment provider).",
+                created.Data.Reference, created.Data.Total, created.Data.Currency);
             TempData.Remove(CheckoutKey);
             return RedirectToAction("Index", "Reservation", new { reference = created.Data.Reference });
         }

@@ -40,7 +40,23 @@ const PorticoApi = (() => {
     orchard: { type: "Suite", scarce: true, amenities: ["Sea view", "Breakfast", "Terrace"], blurb: "A lemon-scented suite on the cliff path, with the port below." },
     patio: { type: "Room", scarce: false, amenities: ["Patio", "Fan", "Walk to market"], blurb: "A tiled room on a patio that stays cool after lunch." },
     greenhouse: { type: "Studio", scarce: false, amenities: ["Kitchenette", "Courtyard", "Work desk"], blurb: "A glass-roofed studio two blocks from the bakery you will use." },
-    gallery: { type: "House", scarce: false, amenities: ["Whole house", "Fireplace", "Old Town"], blurb: "A long stone gallery of a house, with a fire and a steep stair." }
+    gallery: { type: "House", scarce: false, amenities: ["Whole house", "Fireplace", "Old Town"], blurb: "A long stone gallery of a house, with a fire and a steep stair." },
+    lantern: { type: "Room", scarce: false, amenities: ["Roof terrace", "Breakfast", "Tower view"], blurb: "A tall townhouse below the Galata Tower, with a roof over the Golden Horn." },
+    tilleuls: { type: "Room", scarce: true, amenities: ["Courtyard", "Honesty bar", "Left Bank"], blurb: "A Left Bank hotel around a courtyard of lime trees, three streets from the Seine." },
+    rio: { type: "Room", scarce: false, amenities: ["Canal view", "Garden", "Breakfast"], blurb: "A family-run canal house in Cannaregio, with a fig tree in the garden." },
+    cloister: { type: "Room", scarce: false, amenities: ["Cloister", "Breakfast", "Trastevere"], blurb: "Twelve rooms in a former convent, around a cloister with a well." },
+    terraces: { type: "Suite", scarce: true, amenities: ["Infinity pool", "Spa", "Sea view"], blurb: "Suites among olive trees, stepping down to a private cove on the Athens Riviera." },
+    palmeraie: { type: "Suite", scarce: false, amenities: ["Three pools", "Hammam", "Shuttle"], blurb: "Earth pavilions in a palm grove, with the Atlas on the horizon." },
+    arashiyama: { type: "Room", scarce: true, amenities: ["Hot springs", "Kaiseki dinner", "River view"], blurb: "A riverside ryokan with hot-spring baths and dinner in your room." },
+    lido: { type: "Room", scarce: false, amenities: ["Private beach", "Pool", "Boat to San Marco"], blurb: "A Belle Époque beach resort, fifteen minutes by boat from St Mark's." },
+    plaka: { type: "Flat", scarce: true, amenities: ["Acropolis view", "Roof terrace", "Kitchen"], blurb: "A top-floor flat with a roof terrace facing the Acropolis." },
+    marais: { type: "Flat", scarce: false, amenities: ["Work desk", "Kitchen", "Washer"], blurb: "A beamed flat in the Marais, with a desk by the window." },
+    monti: { type: "Loft", scarce: false, amenities: ["Sleeps six", "Two bathrooms", "Kitchen"], blurb: "A two-bedroom loft in Monti, ten minutes' walk from the Colosseum." },
+    leith: { type: "Flat", scarce: false, amenities: ["Water view", "Parking", "Kitchen"], blurb: "A harbour-front flat above the seafood restaurants of Leith." },
+    yali: { type: "House", scarce: true, amenities: ["Whole house", "Private jetty", "Breakfast"], blurb: "A wooden mansion on the Bosphorus, with its own jetty." },
+    agave: { type: "House", scarce: false, amenities: ["Whole house", "Pool", "Cook on request"], blurb: "An adobe house in the hills, with a pool in a garden of agave." },
+    pergola: { type: "House", scarce: true, amenities: ["Whole house", "Infinity pool", "Sea view"], blurb: "A clifftop villa under a vine pergola, with a pool over the coast." },
+    foz: { type: "House", scarce: false, amenities: ["Whole house", "Garden", "Fireplace"], blurb: "A tiled family house where the Douro meets the Atlantic." }
   };
 
   class ApiError extends Error {
