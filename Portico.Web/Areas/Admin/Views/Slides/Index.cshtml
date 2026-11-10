@@ -3,7 +3,7 @@
     <header class="desk-head">
         <div>
             <h1>Slides</h1>
-            <p>Each slide is a city, a country, an image path, and a count of stays. The path stays on the site, for example /assets/lisbon.jpg.</p>
+            <p>The trending destinations on the home page: a city, a country, a photo, and a count of stays, shown in this order.</p>
         </div>
         @if (User.IsSuperAdmin())
         {
@@ -24,7 +24,7 @@
     {
         <div class="empty">
             <h3>@(string.IsNullOrWhiteSpace(Model.Query) ? "No slides yet" : "Nothing matches")</h3>
-            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one with a city, a country, and an image path." : "Clear the filter to see every slide.")</p>
+            <p>@(string.IsNullOrWhiteSpace(Model.Query) ? "Create one by choosing a city and uploading its photo." : "Clear the filter to see every slide.")</p>
         </div>
     }
     else

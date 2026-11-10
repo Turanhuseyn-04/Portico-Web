@@ -1,9 +1,29 @@
+@using Portico.Web.Services
 @model VideoFormVm
+@{
+    var editing = !string.IsNullOrEmpty(Model.Src);
+}
 <div class="editor-grid">
-    <label class="span-2">Path
-        <input asp-for="Src" placeholder="/assets/videos/villas/14041585_1920_1080_25fps.mp4">
-        <span asp-validation-for="Src"></span>
-    </label>
+    <div class="span-2 upload-field">
+        <span class="upload-label">Video</span>
+        <div class="upload-preview" id="videoPreview">
+            @if (editing)
+            {
+                <video src="@Model.Src" controls muted preload="metadata"></video>
+            }
+            else
+            {
+                <p>No video chosen yet.</p>
+            }
+        </div>
+        <label class="upload-pick">
+            <span>@(editing ? "Replace video…" : "Choose video…")</span>
+            <input asp-for="VideoFile" type="file" accept="@MediaStore.VideoAccept" required="@(!editing)"
+                   data-preview="videoPreview" data-kind="video" data-max-bytes="@MediaStore.MaxVideoBytes">
+        </label>
+        <p class="upload-hint">MP4 or WebM, up to @(MediaStore.MaxVideoBytes / (1024 * 1024)) MB. It plays muted and on a loop.@(editing ? " Leave it to keep the current video." : "")</p>
+        <span asp-validation-for="VideoFile"></span>
+    </div>
     <label>Order
         <input asp-for="Order" type="number">
     </label>

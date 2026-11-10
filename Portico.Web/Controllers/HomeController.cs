@@ -12,18 +12,22 @@ namespace Portico.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IPropertyApi _properties;
         private readonly IAccountApi _accounts;
+        private readonly IContentApi _content;
 
-        public HomeController(ILogger<HomeController> logger, IPropertyApi properties, IAccountApi accounts)
+        public HomeController(ILogger<HomeController> logger, IPropertyApi properties, IAccountApi accounts, IContentApi content)
         {
             _logger = logger;
             _properties = properties;
             _accounts = accounts;
+            _content = content;
         }
 
         public async Task<IActionResult> Index(string? sort, string? property, CancellationToken cancellationToken)
         {
             var result = await _properties.ListAsync(cancellationToken);
             var model = HomeVm.Build(result.Data, sort, property);
+            var slides = await _content.SlidesAsync(cancellationToken);
+            if (slides is not null) model.Destinations = slides.Select(slide => new DestinationVm(slide.City, slide.Image)).ToList();
             if (User.Email() is { } email)
             {
                 var saved = await _accounts.SavedAsync(email, cancellationToken);

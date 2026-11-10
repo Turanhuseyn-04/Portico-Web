@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Portico.Web.ViewModels.Videos;
 
@@ -13,8 +14,12 @@ public class VideoFormVm
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "A video path is required.")]
+    // The video file played now. Set by the controller from Portico.Api, never taken from the form.
+    [BindNever]
     public string Src { get; set; } = "";
+
+    // The video chosen in the file picker: required for a new video, optional when editing (the current one stays).
+    public IFormFile? VideoFile { get; set; }
 
     public int Order { get; set; }
 

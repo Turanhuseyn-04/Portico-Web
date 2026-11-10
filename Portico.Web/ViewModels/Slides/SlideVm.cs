@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Portico.Web.ViewModels.Slides;
 
@@ -22,8 +23,12 @@ public class SlideFormVm
     [Required(ErrorMessage = "A country is required.")]
     public string Country { get; set; } = "";
 
-    [Required(ErrorMessage = "An image path is required.")]
+    // The image the slide shows now. Set by the controller from Portico.Api, never taken from the form.
+    [BindNever]
     public string Image { get; set; } = "";
+
+    // The image chosen in the file picker: required for a new slide, optional when editing (the current one stays).
+    public IFormFile? ImageFile { get; set; }
 
     public int Stays { get; set; }
     public int Order { get; set; }

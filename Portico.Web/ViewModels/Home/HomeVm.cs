@@ -112,6 +112,8 @@ public class HomeVm
     public HeroSearchVm Search { get; set; } = new();
     public StayListVm List { get; set; } = new();
 
+    // The trending destinations come from the slides an admin manages; this list is only shown when Portico.Api
+    // cannot be reached.
     public List<DestinationVm> Destinations { get; set; } = new()
     {
         new("Rome", "/assets/rome.jpg"),

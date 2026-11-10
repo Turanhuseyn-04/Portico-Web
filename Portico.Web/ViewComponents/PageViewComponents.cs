@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Services;
 using Portico.Web.ViewModels.Home;
 using Portico.Web.ViewModels.Property;
+using Portico.Web.ViewModels.Videos;
 
 namespace Portico.Web.ViewComponents
 {
@@ -58,9 +59,24 @@ namespace Portico.Web.ViewComponents
         public IViewComponentResult Invoke(StayListVm model) => View(model);
     }
 
+    // The videos an admin manages. The two the site shipped with stand in when Portico.Api cannot be reached.
     public class VideoBandViewComponent : ViewComponent
     {
-        public IViewComponentResult Invoke() => View();
+        private static readonly IReadOnlyList<VideoVm> Fallback = new[]
+        {
+            new VideoVm { Id = 1, Src = "/assets/videos/villas/14041585_1920_1080_25fps.mp4", Order = 0 },
+            new VideoVm { Id = 2, Src = "/assets/videos/resorts/3576398-uhd_3840_2160_25fps.mp4", Order = 1 }
+        };
+
+        private readonly IContentApi _content;
+
+        public VideoBandViewComponent(IContentApi content)
+        {
+            _content = content;
+        }
+
+        public async Task<IViewComponentResult> InvokeAsync() =>
+            View(await _content.VideosAsync(HttpContext.RequestAborted) ?? Fallback);
     }
 
     public class GuestNotesViewComponent : ViewComponent
