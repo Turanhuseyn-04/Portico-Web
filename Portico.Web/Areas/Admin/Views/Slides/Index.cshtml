@@ -5,7 +5,10 @@
             <h1>Slides</h1>
             <p>Each slide is a city, a country, an image path, and a count of stays. The path stays on the site, for example /assets/lisbon.jpg.</p>
         </div>
-        <a class="btn-ink" asp-action="Create">Create</a>
+        @if (User.IsSuperAdmin())
+        {
+            <a class="btn-ink" asp-action="Create">Create</a>
+        }
     </header>
     <form class="admin-tools" method="get" asp-action="Index">
         <input type="search" name="q" value="@Model.Query" placeholder="City, country, or image" aria-label="Filter slides">
@@ -55,10 +58,13 @@
                         <td class="row-actions">
                             <a asp-action="Detail" asp-route-id="@slide.Id">Detail</a>
                             <a asp-action="Edit" asp-route-id="@slide.Id">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@slide.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit">Delete</button>
-                            </form>
+                            @if (User.IsSuperAdmin())
+                            {
+                                <form data-confirm-title="Delete this slide?" data-confirm-text="The slide for @slide.City, @slide.Country will be removed from the home page for good." asp-action="Delete" asp-route-id="@slide.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit">Delete</button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

@@ -21,10 +21,10 @@ public static class AccountRoles
 // Policy names used with [Authorize(Policy = ...)].
 public static class AccountPolicies
 {
-    // Admin or SuperAdmin: rooms, reservations, reviews, photos, slides, videos.
+    // Admin or SuperAdmin: read and edit rooms, reservations, reviews, photos, slides, videos.
     public const string Staff = "Staff";
 
-    // SuperAdmin only: accounts, roles, settings, audit log.
+    // SuperAdmin only: creating and deleting stays, rooms, reviews, photos, slides, and videos; accounts, roles, settings, audit log.
     public const string SuperAdmin = "SuperAdmin";
 }
 

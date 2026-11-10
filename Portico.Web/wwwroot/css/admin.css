@@ -707,3 +707,90 @@
   color: rgba(239, 230, 216, 0.7);
   font-size: 13px;
 }
+
+/* The panel that asks before a Delete is sent (admin-confirm.js). */
+.confirm-panel {
+  width: min(440px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.confirm-panel::backdrop {
+  background: rgba(20, 32, 51, 0.45);
+}
+
+.confirm-panel[open] {
+  animation: confirm-in 0.16s ease-out;
+}
+
+@keyframes confirm-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-panel[open] { animation: none; }
+}
+
+.confirm-panel form {
+  margin: 0;
+  padding: 24px;
+}
+
+.confirm-panel h2 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.confirm-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.confirm-actions button {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirm-actions .confirm-danger {
+  border-color: #b42318;
+  background: #b42318;
+  color: #fff;
+}
+
+.confirm-actions .confirm-danger:hover {
+  border-color: #8e1c14;
+  background: #8e1c14;
+}
+
+.confirm-actions button:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .confirm-actions { flex-direction: column-reverse; }
+  .confirm-actions button { width: 100%; }
+}

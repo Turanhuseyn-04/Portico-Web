@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Helpers;
 using Portico.Web.ViewModels.Photos;
 using Portico.Web.ViewModels.Stays;
@@ -51,6 +53,7 @@ public class StayController : ApiControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public IActionResult Create()
     {
         Page("New stay", "Add a stay. The id is a short slug, such as marble.", "#stayForm", "Skip to the form", "Stays");
@@ -59,6 +62,7 @@ public class StayController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(StayFormVm model)
     {
         Page("New stay", "Add a stay. The id is a short slug, such as marble.", "#stayForm", "Skip to the form", "Stays");
@@ -120,6 +124,7 @@ public class StayController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Delete(string id)
     {
         var (success, errors, status) = await DeleteAsync(PropertyUrl(id));

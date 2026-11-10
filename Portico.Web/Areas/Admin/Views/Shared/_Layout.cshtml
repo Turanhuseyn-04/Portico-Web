@@ -63,6 +63,17 @@
             </div>
         </div>
     </div>
+    @* Asked before any form with data-confirm-title is sent, such as a Delete. Filled in by admin-confirm.js. *@
+    <dialog class="confirm-panel" id="confirmPanel" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+        <form method="dialog">
+            <h2 id="confirmTitle">Delete this?</h2>
+            <p id="confirmText"></p>
+            <div class="confirm-actions">
+                <button type="submit" value="cancel" autofocus>Cancel</button>
+                <button type="submit" value="confirm" class="confirm-danger" id="confirmGo">Delete</button>
+            </div>
+        </form>
+    </dialog>
     <script>
         document.documentElement.classList.add("js");
         (function () {
@@ -86,6 +97,7 @@
         PorticoApi.config.baseUrl = "@Url.Content("~/Admin/api")";
         PorticoApi.config.headers = { "RequestVerificationToken": "@Antiforgery.GetAndStoreTokens(Context).RequestToken" };
     </script>
+    <script src="~/js/admin-confirm.js" asp-append-version="true"></script>
     <script src="~/js/admin.js" asp-append-version="true"></script>
     <script src="~/js/admin-console.js" asp-append-version="true"></script>
     <script src="~/js/admin-content.js" asp-append-version="true"></script>
