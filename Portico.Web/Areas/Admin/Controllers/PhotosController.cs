@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Models.Accounts;
 using Portico.Web.ViewModels.Photos;
 using Portico.Web.ViewModels.Stays;
 
@@ -12,6 +14,7 @@ public class PhotosController : ApiControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(string propertyId)
     {
         Page("New photo", "Add a photograph to this stay.", "#photoForm", "Skip to the form", "Stays");
@@ -21,6 +24,7 @@ public class PhotosController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(string propertyId, PhotoFormVm model)
     {
         Page("New photo", "Add a photograph to this stay.", "#photoForm", "Skip to the form", "Stays");
@@ -79,6 +83,7 @@ public class PhotosController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Delete(string propertyId, int id)
     {
         var (success, errors, status) = await DeleteAsync($"{CollectionUrl(propertyId)}/{id}");

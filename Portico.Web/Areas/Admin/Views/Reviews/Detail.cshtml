@@ -22,10 +22,13 @@
         </dl>
         <div class="editor-actions">
             <a asp-action="Index">Back</a>
-            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit">Delete</button>
-            </form>
+            @if (User.IsSuperAdmin())
+            {
+                <form data-confirm-title="Delete this review?" data-confirm-text="The review by @Model.Author for @Model.PropertyId will be removed for good." asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">Delete</button>
+                </form>
+            }
         </div>
     </div>
 </section>

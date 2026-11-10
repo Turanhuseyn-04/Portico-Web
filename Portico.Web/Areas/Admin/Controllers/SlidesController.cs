@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Helpers;
 using Portico.Web.ViewModels.Slides;
 
@@ -42,6 +44,7 @@ public class SlidesController : ApiControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public IActionResult Create()
     {
         Page("New slide", "Add a destination slide.", "#slideForm", "Skip to the form", "Slides");
@@ -50,6 +53,7 @@ public class SlidesController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(SlideFormVm model)
     {
         Page("New slide", "Add a destination slide.", "#slideForm", "Skip to the form", "Slides");
@@ -103,6 +107,7 @@ public class SlidesController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Delete(int id)
     {
         var (success, errors, status) = await DeleteAsync($"/admin/slides/{id}");

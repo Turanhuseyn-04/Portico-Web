@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Helpers;
 using Portico.Web.ViewModels.Reviews;
 
@@ -42,6 +44,7 @@ public class ReviewsController : ApiControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public IActionResult Create()
     {
         Page("New review", "Add a review to a stay.", "#reviewForm", "Skip to the form", "Reviews");
@@ -50,6 +53,7 @@ public class ReviewsController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(ReviewFormVm model)
     {
         Page("New review", "Add a review to a stay.", "#reviewForm", "Skip to the form", "Reviews");
@@ -105,6 +109,7 @@ public class ReviewsController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Delete(int id)
     {
         var (success, errors, status) = await DeleteAsync($"/admin/reviews/{id}");

@@ -5,7 +5,10 @@
             <h1>Reviews</h1>
             <p>Add, edit, or remove a written review. The public stay page shows the same words.</p>
         </div>
-        <a class="btn-ink" asp-action="Create">Create</a>
+        @if (User.IsSuperAdmin())
+        {
+            <a class="btn-ink" asp-action="Create">Create</a>
+        }
     </header>
     <form class="admin-tools" method="get" asp-action="Index">
         <input type="search" name="q" value="@Model.Query" placeholder="Author, title, or stay id" aria-label="Filter reviews">
@@ -50,10 +53,13 @@
                         <td class="row-actions">
                             <a asp-action="Detail" asp-route-id="@review.Id">Detail</a>
                             <a asp-action="Edit" asp-route-id="@review.Id">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@review.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit">Delete</button>
-                            </form>
+                            @if (User.IsSuperAdmin())
+                            {
+                                <form data-confirm-title="Delete this review?" data-confirm-text="The review by @review.Author for @review.PropertyId will be removed for good." asp-action="Delete" asp-route-id="@review.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit">Delete</button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

@@ -5,7 +5,10 @@
             <h1>Videos</h1>
             <p>A video is a file path and a place in the sequence, for example /assets/videos/villas/14041585_1920_1080_25fps.mp4.</p>
         </div>
-        <a class="btn-ink" asp-action="Create">Create</a>
+        @if (User.IsSuperAdmin())
+        {
+            <a class="btn-ink" asp-action="Create">Create</a>
+        }
     </header>
     <form class="admin-tools" method="get" asp-action="Index">
         <input type="search" name="q" value="@Model.Query" placeholder="Video path" aria-label="Filter videos">
@@ -44,10 +47,13 @@
                         <td class="row-actions">
                             <a asp-action="Detail" asp-route-id="@video.Id">Detail</a>
                             <a asp-action="Edit" asp-route-id="@video.Id">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@video.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit">Delete</button>
-                            </form>
+                            @if (User.IsSuperAdmin())
+                            {
+                                <form data-confirm-title="Delete this video?" data-confirm-text="@video.Src will no longer play on the home page. The file itself stays on the site." asp-action="Delete" asp-route-id="@video.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit">Delete</button>
+                                </form>
+                            }
                         </td>
                     </tr>
                 }

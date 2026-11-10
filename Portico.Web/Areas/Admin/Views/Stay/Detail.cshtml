@@ -61,10 +61,13 @@
         }
         <div class="editor-actions">
             <a asp-action="Index">Back</a>
-            <form asp-action="Delete" asp-route-id="@stay.Id" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit">Delete</button>
-            </form>
+            @if (User.IsSuperAdmin())
+            {
+                <form data-confirm-title="Delete this stay?" data-confirm-text="@stay.Name, its rooms, and its photos will be removed for good. A stay with a reservation cannot be deleted." asp-action="Delete" asp-route-id="@stay.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">Delete</button>
+                </form>
+            }
         </div>
     </div>
 
@@ -74,7 +77,10 @@
                 <h2>Photographs</h2>
                 <p>Paths stay on the site, for example /assets/lisbon.jpg.</p>
             </div>
-            <a class="btn-ink" asp-area="Admin" asp-controller="Photos" asp-action="Create" asp-route-propertyId="@stay.Id">Create</a>
+            @if (User.IsSuperAdmin())
+            {
+                <a class="btn-ink" asp-area="Admin" asp-controller="Photos" asp-action="Create" asp-route-propertyId="@stay.Id">Create</a>
+            }
         </header>
         @if (Model.Photos.Count == 0)
         {
@@ -96,10 +102,13 @@
                         <code>@photo.Src</code>
                         <div class="row-actions">
                             <a asp-area="Admin" asp-controller="Photos" asp-action="Edit" asp-route-propertyId="@stay.Id" asp-route-id="@photo.Id">Edit</a>
-                            <form asp-area="Admin" asp-controller="Photos" asp-action="Delete" asp-route-propertyId="@stay.Id" asp-route-id="@photo.Id" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit">Delete</button>
-                            </form>
+                            @if (User.IsSuperAdmin())
+                            {
+                                <form data-confirm-title="Delete this photograph?" data-confirm-text="The photograph @photo.Src will be removed from @stay.Name for good." asp-area="Admin" asp-controller="Photos" asp-action="Delete" asp-route-propertyId="@stay.Id" asp-route-id="@photo.Id" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit">Delete</button>
+                                </form>
+                            }
                         </div>
                     </div>
                 </article>

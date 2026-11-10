@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portico.Web.Controllers;
+using Portico.Web.Models.Accounts;
 using Portico.Web.Helpers;
 using Portico.Web.ViewModels.Videos;
 
@@ -39,6 +41,7 @@ public class VideosController : ApiControllerBase
     }
 
     [HttpGet]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public IActionResult Create()
     {
         Page("New video", "Add a video path.", "#videoForm", "Skip to the form", "Videos");
@@ -47,6 +50,7 @@ public class VideosController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Create(VideoFormVm model)
     {
         Page("New video", "Add a video path.", "#videoForm", "Skip to the form", "Videos");
@@ -100,6 +104,7 @@ public class VideosController : ApiControllerBase
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Policy = AccountPolicies.SuperAdmin)]
     public async Task<IActionResult> Delete(int id)
     {
         var (success, errors, status) = await DeleteAsync($"/admin/videos/{id}");
