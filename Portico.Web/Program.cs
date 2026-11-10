@@ -29,6 +29,8 @@ try
     UsePorticoApi(builder.Services.AddHttpClient<IReservationApi, ReservationApi>());
     UsePorticoApi(builder.Services.AddHttpClient<IAccountApi, AccountApi>());
     UsePorticoApi(builder.Services.AddHttpClient<ISettingsApi, SettingsApi>());
+    UsePorticoApi(builder.Services.AddHttpClient<IContentApi, ContentApi>());
+    builder.Services.AddSingleton<IMediaStore, MediaStore>();
 
     // Portico.Api checks the password and issues a token; the Web keeps the guest and that token in its own cookie.
     // The cookie lasts as long as the token, and SessionCheck signs out early when the role changes or the account is gone.

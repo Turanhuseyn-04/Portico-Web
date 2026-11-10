@@ -1,5 +1,6 @@
 @model List<DestinationVm>
-<section class="section" id="trending" aria-labelledby="trendTitle">
+@* Hidden, not left out, when an admin has removed every slide: home.js expects the section to be there. *@
+<section class="section" id="trending" aria-labelledby="trendTitle" hidden="@(Model.Count == 0)">
     <div class="wrap">
         <div class="section-head reveal">
             <div>

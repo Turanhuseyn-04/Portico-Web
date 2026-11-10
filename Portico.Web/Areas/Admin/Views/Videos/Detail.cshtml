@@ -18,7 +18,7 @@
             <a asp-action="Index">Back</a>
             @if (User.IsSuperAdmin())
             {
-                <form data-confirm-title="Delete this video?" data-confirm-text="@Model.Src will no longer play on the home page. The file itself stays on the site." asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                <form data-confirm-title="Delete this video?" data-confirm-text="@Model.Src will no longer play on the home page, and an uploaded file is removed." asp-action="Delete" asp-route-id="@Model.Id" method="post">
                     @Html.AntiForgeryToken()
                     <button type="submit">Delete</button>
                 </form>

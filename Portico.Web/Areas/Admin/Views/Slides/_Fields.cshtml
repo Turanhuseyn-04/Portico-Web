@@ -1,4 +1,8 @@
+@using Portico.Web.Services
 @model SlideFormVm
+@{
+    var editing = !string.IsNullOrEmpty(Model.Image);
+}
 <div class="editor-grid">
     <label>City
         <input asp-for="City">
@@ -8,10 +12,26 @@
         <input asp-for="Country">
         <span asp-validation-for="Country"></span>
     </label>
-    <label class="span-2">Image path
-        <input asp-for="Image" placeholder="/assets/lisbon.jpg">
-        <span asp-validation-for="Image"></span>
-    </label>
+    <div class="span-2 upload-field">
+        <span class="upload-label">Image</span>
+        <div class="upload-preview" id="slidePreview">
+            @if (editing)
+            {
+                <img src="@Model.Image" alt="The slide's current image">
+            }
+            else
+            {
+                <p>No image chosen yet.</p>
+            }
+        </div>
+        <label class="upload-pick">
+            <span>@(editing ? "Replace image…" : "Choose image…")</span>
+            <input asp-for="ImageFile" type="file" accept="@MediaStore.ImageAccept" required="@(!editing)"
+                   data-preview="slidePreview" data-kind="image" data-max-bytes="@MediaStore.MaxImageBytes">
+        </label>
+        <p class="upload-hint">JPEG, PNG, or WebP, up to @(MediaStore.MaxImageBytes / (1024 * 1024)) MB. A wide photo works best.@(editing ? " Leave it to keep the current image." : "")</p>
+        <span asp-validation-for="ImageFile"></span>
+    </div>
     <label>Stays
         <input asp-for="Stays" type="number" min="0">
     </label>

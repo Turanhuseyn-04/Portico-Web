@@ -1,4 +1,6 @@
-<section class="video-slider" id="videoSlider" aria-labelledby="videoTitle">
+@model IReadOnlyList<Portico.Web.ViewModels.Videos.VideoVm>
+@* The videos an admin manages, in their order. Hidden, not left out, when there are none: home.js expects the section. *@
+<section class="video-slider" id="videoSlider" aria-labelledby="videoTitle" hidden="@(Model.Count == 0)">
     <div class="wrap">
         <div class="section-head reveal">
             <h2 id="videoTitle">Some places stay with you</h2>
@@ -6,12 +8,16 @@
     </div>
     <div class="video-band">
         <div class="video-track" id="videoTrack">
-            <div class="video-slide"><video src="/assets/videos/villas/14041585_1920_1080_25fps.mp4" muted loop playsinline preload="metadata" disablepictureinpicture aria-hidden="true"></video></div>
-            <div class="video-slide"><video src="/assets/videos/resorts/3576398-uhd_3840_2160_25fps.mp4" muted loop playsinline preload="metadata" disablepictureinpicture aria-hidden="true"></video></div>
+            @foreach (var video in Model)
+            {
+                <div class="video-slide"><video src="@video.Src" muted loop playsinline preload="metadata" disablepictureinpicture aria-hidden="true"></video></div>
+            }
         </div>
     </div>
-    <div class="video-dots" id="videoDots">
-        <button type="button" class="is-on" aria-label="Video 1" aria-current="true"></button>
-        <button type="button" aria-label="Video 2"></button>
+    <div class="video-dots" id="videoDots" hidden="@(Model.Count < 2)">
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            <button type="button" class="@(i == 0 ? "is-on" : null)" aria-label="Video @(i + 1)" aria-current="@(i == 0 ? "true" : null)"></button>
+        }
     </div>
 </section>

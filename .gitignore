@@ -5,3 +5,6 @@ obj/
 
 # Serilog files (see LogFiles:Directory)
 **/logs/
+
+# Slide images and videos uploaded in the admin (see MediaStore)
+**/wwwroot/uploads/

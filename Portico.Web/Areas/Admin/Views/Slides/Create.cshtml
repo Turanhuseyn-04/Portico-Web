@@ -3,10 +3,10 @@
     <header class="desk-head">
         <div>
             <h1>New slide</h1>
-            <p>The image path stays on the site, for example /assets/lisbon.jpg.</p>
+            <p>A trending destination on the home page. Choose its photo from your computer.</p>
         </div>
     </header>
-    <form class="editor" asp-action="Create" method="post">
+    <form class="editor" asp-action="Create" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="All"></div>
         <partial name="_Fields" model="Model" />
         <div class="editor-actions">
